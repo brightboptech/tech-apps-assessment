@@ -2569,11 +2569,160 @@ function TIAGrowthReport({ profile, onBack }) {
   );
 }
 
+function ResetPasswordScreen({ onDone }) {
+  const [newPassword, setNewPassword]         = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading]                 = useState(false);
+  const [error, setError]                     = useState('');
+  const [success, setSuccess]                 = useState(false);
+
+  const handleReset = async () => {
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    if (updateError) {
+      setError(updateError.message);
+      setLoading(false);
+    } else {
+      setSuccess(true);
+    }
+  };
+
+  const cardStyle = {
+    background: 'white', borderRadius: '16px', padding: '40px 36px',
+    maxWidth: '460px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.28)',
+  };
+
+  const wrapStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(160deg, #2D3D4A 0%, #3D6B8A 50%, #5B8DB8 100%)',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center', padding: '24px',
+  };
+
+  if (success) {
+    return (
+      <div style={wrapStyle}>
+        <div style={{ ...cardStyle, textAlign: 'center' }}>
+          <div style={{
+            width: '64px', height: '64px', borderRadius: '50%', background: '#EAF6F4',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px',
+          }}>
+            <CheckCircle size={32} color="#2E7F84" strokeWidth={2} />
+          </div>
+          <h1 style={{ color: '#1E3A4A', margin: '0 0 12px', fontSize: '22px', fontWeight: 800 }}>
+            Password Updated
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '15px', lineHeight: 1.6, margin: '0 0 28px' }}>
+            Your password has been reset successfully. You can now sign in with your new password.
+          </p>
+          <button
+            onClick={onDone}
+            style={{
+              width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700,
+              border: 'none', borderRadius: '8px', backgroundColor: '#5B8DB8',
+              color: 'white', cursor: 'pointer',
+            }}
+          >
+            Go to Teacher Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const ready = newPassword.length > 0 && confirmPassword.length > 0 && !loading;
+
+  return (
+    <div style={wrapStyle}>
+      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ fontSize: '42px', fontWeight: 800, letterSpacing: '-1.5px', color: 'white', lineHeight: 1, marginBottom: '10px' }}>
+          TechGrowth<span style={{ color: '#7BC4A0' }}> Check</span>
+        </div>
+      </div>
+      <div style={cardStyle}>
+        <h1 style={{ color: '#2D3D4A', margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>Reset Password</h1>
+        <p style={{ color: '#64748b', margin: '0 0 28px', fontSize: '14px' }}>Enter your new password below.</p>
+
+        <label style={labelStyle}>New Password</label>
+        <input
+          type="password"
+          placeholder="At least 6 characters"
+          value={newPassword}
+          onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
+          disabled={loading}
+          style={inputStyle}
+        />
+
+        <label style={labelStyle}>Confirm New Password</label>
+        <input
+          type="password"
+          placeholder="Repeat new password"
+          value={confirmPassword}
+          onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+          onKeyDown={(e) => e.key === 'Enter' && ready && handleReset()}
+          disabled={loading}
+          style={{ ...inputStyle, marginBottom: '10px' }}
+        />
+
+        {error && (
+          <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '12px' }}>{error}</p>
+        )}
+
+        <button
+          onClick={handleReset}
+          disabled={!ready}
+          style={{
+            width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700,
+            border: 'none', borderRadius: '8px',
+            backgroundColor: ready ? '#5B8DB8' : '#e2e8f0',
+            color: ready ? 'white' : '#94a3b8',
+            cursor: ready ? 'pointer' : 'not-allowed',
+            transition: 'background-color 0.15s',
+          }}
+        >
+          {loading ? 'Saving…' : 'Set New Password'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail]               = useState('');
+  const [forgotLoading, setForgotLoading]           = useState(false);
+  const [forgotSent, setForgotSent]                 = useState(false);
+  const [forgotError, setForgotError]               = useState('');
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail.trim()) { setForgotError('Please enter your email address.'); return; }
+    setForgotLoading(true);
+    setForgotError('');
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+      redirectTo: 'https://tech-apps-assessment-1y13.vercel.app',
+    });
+    if (resetError) {
+      setForgotError(resetError.message);
+      setForgotLoading(false);
+    } else {
+      setForgotSent(true);
+      setForgotLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     setLoading(true);
@@ -2656,6 +2805,58 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
         >
           {loading ? 'Signing in…' : 'Sign In'}
         </button>
+
+        <button
+          onClick={() => { setShowForgotPassword(true); setForgotSent(false); setForgotError(''); setForgotEmail(''); }}
+          style={{
+            background: 'none', border: 'none', padding: '0', marginBottom: '16px',
+            color: '#5B8DB8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline',
+            display: 'block', width: '100%', textAlign: 'center',
+          }}
+        >
+          Forgot Password?
+        </button>
+
+        {showForgotPassword && (
+          <div style={{
+            borderTop: '1px solid #e2e8f0', paddingTop: '20px', marginBottom: '16px',
+          }}>
+            {forgotSent ? (
+              <p style={{ color: '#2E7F84', fontSize: '14px', textAlign: 'center', margin: 0 }}>
+                ✓ Check your email for a password reset link.
+              </p>
+            ) : (
+              <>
+                <label style={labelStyle}>Your Email Address</label>
+                <input
+                  type="email"
+                  placeholder="teacher@district.edu"
+                  value={forgotEmail}
+                  onChange={(e) => { setForgotEmail(e.target.value); setForgotError(''); }}
+                  onKeyDown={(e) => e.key === 'Enter' && !forgotLoading && handleForgotPassword()}
+                  disabled={forgotLoading}
+                  style={{ ...inputStyle, marginBottom: '10px' }}
+                />
+                {forgotError && (
+                  <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '10px' }}>{forgotError}</p>
+                )}
+                <button
+                  onClick={handleForgotPassword}
+                  disabled={forgotLoading}
+                  style={{
+                    width: '100%', padding: '11px', fontSize: '14px', fontWeight: 600,
+                    border: 'none', borderRadius: '8px',
+                    backgroundColor: forgotLoading ? '#e2e8f0' : '#2E7F84',
+                    color: forgotLoading ? '#94a3b8' : 'white',
+                    cursor: forgotLoading ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {forgotLoading ? 'Sending…' : 'Send Reset Email'}
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         <button
           onClick={onBack}
@@ -3085,6 +3286,12 @@ function App() {
     console.log('[ENV] REACT_APP_ELEVENLABS_VOICE_ID =', process.env.REACT_APP_ELEVENLABS_VOICE_ID);
   }, []);
 
+  // ── Password reset detection ─────────────────────────────────────────────
+  const [showPasswordReset, setShowPasswordReset] = useState(() => {
+    const hash = window.location.hash;
+    return hash.includes('type=recovery');
+  });
+
   // ── Teacher auth state ───────────────────────────────────────────────────
   const [showTeacherLogin, setShowTeacherLogin] = useState(false);
   const [teacherProfile, setTeacherProfile] = useState(null);
@@ -3107,6 +3314,10 @@ function App() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setShowPasswordReset(true);
+        return;
+      }
       if (session?.user) {
         loadTeacherProfile(session.user.id, event === 'SIGNED_IN');
       } else {
@@ -3487,6 +3698,18 @@ function App() {
           <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px' }}>Loading…</div>
         </header>
       </div>
+    );
+  }
+
+  if (showPasswordReset) {
+    return (
+      <ResetPasswordScreen
+        onDone={() => {
+          setShowPasswordReset(false);
+          window.location.hash = '';
+          setShowTeacherLogin(true);
+        }}
+      />
     );
   }
 
