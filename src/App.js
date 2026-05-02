@@ -164,15 +164,43 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
   const [passes, setPasses] = useState([]);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('pre');
+  const [existingClasses, setExistingClasses] = useState([]);
   const canvasRefs = useRef({});
 
   const appUrl = window.location.origin + window.location.pathname;
   const count = parseInt(studentCount, 10) || 0;
   const price = Math.max(parseFloat(pricePerStudent) || 2, 2);
   const totalCost = (price * count).toFixed(2);
+
+  const existingClass = existingClasses.find(c => c.class_name === className.trim());
+  const isAddMode = Boolean(existingClass);
+  const startingStudentNumber = existingClass ? existingClass.maxStudentNumber + 1 : 1;
+
   const canProceed =
     className.trim().length > 0 && grade !== '' &&
     count >= 1 && count <= 200 && !generating;
+
+  const loadExistingClasses = async () => {
+    const { data } = await supabase
+      .from('tokens')
+      .select('class_name, grade_level, student_number')
+      .eq('teacher_id', profile.id)
+      .eq('test_type', 'pre');
+    if (!data) return;
+    const map = {};
+    data.forEach(({ class_name, grade_level, student_number }) => {
+      if (!map[class_name]) map[class_name] = { class_name, grade_level, maxStudentNumber: 0 };
+      if (student_number > map[class_name].maxStudentNumber) map[class_name].maxStudentNumber = student_number;
+    });
+    setExistingClasses(Object.values(map));
+  };
+
+  useEffect(() => { loadExistingClasses(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const matchedClassName = existingClass?.class_name ?? null;
+  useEffect(() => {
+    if (existingClass) setGrade(String(existingClass.grade_level));
+  }, [matchedClassName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!paymentSessionId) return;
@@ -199,18 +227,20 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
       }
 
       const n = parseInt(order.studentCount, 10);
+      const startAt = parseInt(order.startingStudentNumber, 10) || 1;
       const rows = [];
       const passData = [];
-      for (let i = 1; i <= n; i++) {
+      for (let i = 0; i < n; i++) {
+        const studentNum = startAt + i;
         const pre  = makeToken();
         const post = makeToken();
         rows.push(
           { token: pre,  grade_level: Number(order.grade), test_type: 'pre',
-            teacher_id: profile.id, class_name: order.className, student_number: i },
+            teacher_id: profile.id, class_name: order.className, student_number: studentNum },
           { token: post, grade_level: Number(order.grade), test_type: 'post',
-            teacher_id: profile.id, class_name: order.className, student_number: i },
+            teacher_id: profile.id, class_name: order.className, student_number: studentNum },
         );
-        passData.push({ studentNum: i, pre, post });
+        passData.push({ studentNum, pre, post });
       }
 
       const { error: insertError } = await supabase.from('tokens').insert(rows);
@@ -250,6 +280,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
       grade,
       studentCount: String(count),
       pricePerStudent: String(price),
+      startingStudentNumber: String(startingStudentNumber),
     }));
     try {
       const res = await fetch('/api/create-checkout-session', {
@@ -294,6 +325,13 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
   const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, '', getQrURLs()));
   const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, grade));
 
+  const handleAddMore = () => {
+    setPasses([]);
+    setStudentCount('');
+    setError('');
+    loadExistingClasses();
+  };
+
   const fieldStyle = {
     width: '100%', padding: '10px 12px', fontSize: '15px',
     border: '1.5px solid #ddd', borderRadius: '6px',
@@ -323,6 +361,26 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
         background: 'white', borderRadius: '10px', padding: '28px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '28px',
       }}>
+
+        {/* Add-mode banner */}
+        {isAddMode && (
+          <div style={{
+            background: '#D4EEE3', border: '1px solid #3D7A5E', borderRadius: '8px',
+            padding: '11px 16px', marginBottom: '20px',
+            fontSize: '13px', color: '#2A5C44',
+            display: 'flex', gap: '8px', alignItems: 'center',
+          }}>
+            <CheckCircle size={15} color="#3D7A5E" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <span>
+              <strong>Adding to existing class:</strong> {existingClass.class_name} · Grade {existingClass.grade_level} · {existingClass.maxStudentNumber} student{existingClass.maxStudentNumber !== 1 ? 's' : ''} already generated · New passes start at Student {startingStudentNumber}
+            </span>
+          </div>
+        )}
+
+        <datalist id="class-name-suggestions">
+          {existingClasses.map(c => <option key={c.class_name} value={c.class_name} />)}
+        </datalist>
+
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
@@ -334,32 +392,38 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
             </label>
             <input
               type="text"
+              list="class-name-suggestions"
               placeholder="e.g. Period 3"
               value={className}
               onChange={e => setClassName(e.target.value)}
               style={fieldStyle}
             />
+            {existingClasses.length > 0 && !isAddMode && (
+              <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#888' }}>Type an existing class name to add students</p>
+            )}
           </div>
 
           <div>
             <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>
               Grade Level
             </label>
-            <select
-              value={grade}
-              onChange={e => setGrade(e.target.value)}
-              style={fieldStyle}
-            >
-              <option value="">Select grade…</option>
-              {PASS_GRADES.map(g => (
-                <option key={g.value} value={g.value}>{g.label}</option>
-              ))}
-            </select>
+            {isAddMode ? (
+              <div style={{ ...fieldStyle, background: '#F4F7FA', color: '#555', display: 'flex', alignItems: 'center' }}>
+                Grade {existingClass.grade_level}
+              </div>
+            ) : (
+              <select value={grade} onChange={e => setGrade(e.target.value)} style={fieldStyle}>
+                <option value="">Select grade…</option>
+                {PASS_GRADES.map(g => (
+                  <option key={g.value} value={g.value}>{g.label}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div>
             <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>
-              Number of Students
+              {isAddMode ? 'Additional Students' : 'Number of Students'}
             </label>
             <input
               type="number"
@@ -440,7 +504,8 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
             <div>
               <h3 style={{ margin: '0 0 4px', color: '#3D6B8A' }}>{className} — Grade {grade}</h3>
               <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>
-                {passes.length} students &nbsp;·&nbsp; {passes.length * 2} passes ({passes.length} pre-test + {passes.length} post-test)
+                {passes.length} student{passes.length !== 1 ? 's' : ''} &nbsp;·&nbsp; {passes.length * 2} passes ({passes.length} pre-test + {passes.length} post-test)
+                {passes[0]?.studentNum > 1 && <span> &nbsp;·&nbsp; Students {passes[0].studentNum}–{passes[passes.length - 1].studentNum}</span>}
               </p>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -517,6 +582,20 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
               <QRCodeCanvas key={`c-pre-${pre}`}  ref={el => { if (el) canvasRefs.current[pre]  = el; }} value={`${appUrl}?token=${pre}`}  size={80} />,
               <QRCodeCanvas key={`c-post-${post}`} ref={el => { if (el) canvasRefs.current[post] = el; }} value={`${appUrl}?token=${post}`} size={80} />,
             ])}
+          </div>
+
+          {/* Add more students */}
+          <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #f0f0f0' }}>
+            <button
+              onClick={handleAddMore}
+              style={{
+                padding: '10px 24px', fontSize: '14px', fontWeight: 600,
+                border: '1.5px solid #5B8DB8', borderRadius: '6px',
+                backgroundColor: 'white', color: '#5B8DB8', cursor: 'pointer',
+              }}
+            >
+              + Add More Students to {className}
+            </button>
           </div>
         </div>
       )}
