@@ -1806,11 +1806,20 @@ function Dashboard({ profile, onLogout }) {
       {tourOpen && (
         <div
           onClick={() => setTourOpen(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)' }}
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: '14px', width: '100%', maxWidth: '680px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}
+            style={{
+              position: 'fixed',
+              top: '50%', left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'calc(100% - 40px)', maxWidth: '680px',
+              maxHeight: '90vh', overflowY: 'auto',
+              background: 'white', borderRadius: '14px',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
+              zIndex: 1001,
+            }}
           >
             {/* Modal header */}
             <div style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
