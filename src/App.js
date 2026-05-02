@@ -294,6 +294,11 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
           teacherId: profile.id,
         }),
       });
+      if (!res.ok) {
+        let msg = `Server error (${res.status})`;
+        try { const d = await res.json(); msg = d.error || msg; } catch { /* non-JSON body */ }
+        throw new Error(msg);
+      }
       const { url, error: apiError } = await res.json();
       if (apiError) throw new Error(apiError);
       window.location.href = url;
