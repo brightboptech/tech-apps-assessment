@@ -2713,7 +2713,7 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
     setForgotLoading(true);
     setForgotError('');
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
-      redirectTo: 'https://tech-apps-assessment-1y13.vercel.app',
+      redirectTo: 'https://tech-apps-assessment-zeta.vercel.app',
     });
     if (resetError) {
       setForgotError(resetError.message);
