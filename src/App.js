@@ -1802,40 +1802,35 @@ function Dashboard({ profile, onLogout }) {
         </div>
       )}
 
-      {/* Tour modal */}
+      {/* Tour panel */}
       {tourOpen && (
-        <div
-          onClick={() => setTourOpen(false)}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 1000,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '20px',
-          }}
-        >
+        <>
+          {/* Backdrop */}
           <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              width: '100%', maxWidth: '680px',
-              maxHeight: '85vh', overflowY: 'auto',
-              background: 'white', borderRadius: '14px',
-              boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
-              margin: 'auto',
-            }}
-          >
-            {/* Sticky header with close button */}
+            onClick={() => setTourOpen(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.4)' }}
+          />
+          {/* Slide-in panel */}
+          <div style={{
+            position: 'fixed', top: 0, right: 0, bottom: 0,
+            width: '100%', maxWidth: '520px',
+            zIndex: 1001,
+            display: 'flex', flexDirection: 'column',
+            background: 'white',
+            boxShadow: '-8px 0 40px rgba(0,0,0,0.2)',
+          }}>
+            {/* Header — always visible */}
             <div style={{
-              position: 'sticky', top: 0, zIndex: 1,
+              flexShrink: 0,
               background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)',
-              borderRadius: '14px 14px 0 0',
-              padding: '20px 28px',
+              padding: '20px 24px',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Sparkles size={18} color='white' strokeWidth={2} />
                 <div>
                   <div style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>Getting Started with TechGrowth Check</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.72)', marginTop: '2px' }}>Here's how to run your first TIA-ready assessment in three steps.</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.72)', marginTop: '2px' }}>Your first TIA-ready assessment in 3 steps.</div>
                 </div>
               </div>
               <button
@@ -1844,34 +1839,36 @@ function Dashboard({ profile, onLogout }) {
               >✕ Close</button>
             </div>
 
-            {/* Steps */}
-            {steps.map((step, i) => (
-              <div
-                key={step.num}
-                style={{
-                  display: 'flex', gap: '20px', padding: '24px 28px',
-                  borderBottom: i < steps.length - 1 ? '1px solid #f0f0f0' : 'none',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: step.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 800, color: step.color }}>
-                    {step.num}
+            {/* Scrollable steps */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {steps.map((step, i) => (
+                <div
+                  key={step.num}
+                  style={{
+                    display: 'flex', gap: '20px', padding: '24px',
+                    borderBottom: i < steps.length - 1 ? '1px solid #f0f0f0' : 'none',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: step.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 800, color: step.color }}>
+                      {step.num}
+                    </div>
+                    <step.Icon size={20} color={step.color} strokeWidth={1.75} />
                   </div>
-                  <step.Icon size={20} color={step.color} strokeWidth={1.75} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>{step.title}</div>
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#64748b', lineHeight: 1.6 }}>{step.body}</p>
+                    <button
+                      onClick={() => { setTourOpen(false); step.onClick(); }}
+                      style={{ background: 'none', border: 'none', padding: 0, fontSize: '13px', fontWeight: 700, color: step.color, cursor: 'pointer' }}
+                    >Go to {step.title} →</button>
+                  </div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>{step.title}</div>
-                  <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#64748b', lineHeight: 1.6 }}>{step.body}</p>
-                  <button
-                    onClick={() => { setTourOpen(false); step.onClick(); }}
-                    style={{ background: 'none', border: 'none', padding: 0, fontSize: '13px', fontWeight: 700, color: step.color, cursor: 'pointer' }}
-                  >Go to {step.title} →</button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('overview')} paymentSessionId={paymentSessionId} />}
