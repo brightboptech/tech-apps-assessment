@@ -155,10 +155,11 @@ function buildMasterSheetHTML(passes, className, grade) {
 </body></html>`;
 }
 
-function GeneratePasses({ profile, onBack }) {
+function GeneratePasses({ profile, onBack, paymentSessionId }) {
   const [className, setClassName] = useState('');
   const [grade, setGrade] = useState('');
   const [studentCount, setStudentCount] = useState('');
+  const [pricePerStudent, setPricePerStudent] = useState('2.00');
   const [generating, setGenerating] = useState(false);
   const [passes, setPasses] = useState([]);
   const [error, setError] = useState('');
@@ -167,36 +168,109 @@ function GeneratePasses({ profile, onBack }) {
 
   const appUrl = window.location.origin + window.location.pathname;
   const count = parseInt(studentCount, 10) || 0;
-  const canGenerate =
+  const price = Math.max(parseFloat(pricePerStudent) || 2, 2);
+  const totalCost = (price * count).toFixed(2);
+  const canProceed =
     className.trim().length > 0 && grade !== '' &&
     count >= 1 && count <= 200 && !generating;
 
-  const handleGenerate = async () => {
+  useEffect(() => {
+    if (!paymentSessionId) return;
+    const stored = localStorage.getItem('pendingPassOrder');
+    if (!stored) return;
+    const order = JSON.parse(stored);
+    setClassName(order.className);
+    setGrade(order.grade);
+    setStudentCount(order.studentCount);
+    setPricePerStudent(order.pricePerStudent);
+    verifyAndGenerate(paymentSessionId, order);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const verifyAndGenerate = async (sessionId, order) => {
     setGenerating(true);
     setError('');
-    setPasses([]);
+    try {
+      const res = await fetch(`/api/verify-checkout-session?session_id=${sessionId}`);
+      const data = await res.json();
+      if (!res.ok || !data.paid) {
+        setError('Payment verification failed. Please try again or contact support.');
+        setGenerating(false);
+        return;
+      }
 
-    const rows = [];
-    const passData = [];
-    for (let i = 1; i <= count; i++) {
-      const pre  = makeToken();
-      const post = makeToken();
-      rows.push(
-        { token: pre,  grade_level: Number(grade), test_type: 'pre',
-          teacher_id: profile.id, class_name: className.trim(), student_number: i },
-        { token: post, grade_level: Number(grade), test_type: 'post',
-          teacher_id: profile.id, class_name: className.trim(), student_number: i },
-      );
-      passData.push({ studentNum: i, pre, post });
-    }
+      const n = parseInt(order.studentCount, 10);
+      const rows = [];
+      const passData = [];
+      for (let i = 1; i <= n; i++) {
+        const pre  = makeToken();
+        const post = makeToken();
+        rows.push(
+          { token: pre,  grade_level: Number(order.grade), test_type: 'pre',
+            teacher_id: profile.id, class_name: order.className, student_number: i },
+          { token: post, grade_level: Number(order.grade), test_type: 'post',
+            teacher_id: profile.id, class_name: order.className, student_number: i },
+        );
+        passData.push({ studentNum: i, pre, post });
+      }
 
-    const { error: insertError } = await supabase.from('tokens').insert(rows);
-    if (insertError) {
-      setError('Could not save passes: ' + insertError.message);
-    } else {
+      const { error: insertError } = await supabase.from('tokens').insert(rows);
+      if (insertError) {
+        setError('Could not save passes: ' + insertError.message);
+        setGenerating(false);
+        return;
+      }
+
+      await supabase.from('payments').insert([{
+        teacher_id: profile.id,
+        stripe_session_id: sessionId,
+        amount_paid: data.amountTotal,
+        num_students: n,
+        class_name: order.className,
+        grade_level: Number(order.grade),
+      }]);
+
+      localStorage.removeItem('pendingPassOrder');
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete('payment');
+      cleanUrl.searchParams.delete('session_id');
+      window.history.replaceState({}, '', cleanUrl.toString());
+
       setPasses(passData);
+    } catch (err) {
+      setError('Something went wrong: ' + err.message);
     }
     setGenerating(false);
+  };
+
+  const handleProceedToPayment = async () => {
+    setGenerating(true);
+    setError('');
+    localStorage.setItem('pendingPassOrder', JSON.stringify({
+      className: className.trim(),
+      grade,
+      studentCount: String(count),
+      pricePerStudent: String(price),
+    }));
+    try {
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          numStudents: count,
+          pricePerStudent: price,
+          className: className.trim(),
+          gradeLevel: grade,
+          teacherId: profile.id,
+        }),
+      });
+      const { url, error: apiError } = await res.json();
+      if (apiError) throw new Error(apiError);
+      window.location.href = url;
+    } catch (err) {
+      setError('Could not start checkout: ' + err.message);
+      localStorage.removeItem('pendingPassOrder');
+      setGenerating(false);
+    }
   };
 
   const printDoc = (html) => {
@@ -297,19 +371,48 @@ function GeneratePasses({ profile, onBack }) {
               style={fieldStyle}
             />
           </div>
+
+          <div>
+            <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>
+              Price per Student
+            </label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#555', fontSize: '15px', pointerEvents: 'none' }}>$</span>
+              <input
+                type="number"
+                min="2"
+                step="0.50"
+                value={pricePerStudent}
+                onChange={e => setPricePerStudent(e.target.value)}
+                onBlur={() => setPricePerStudent(price.toFixed(2))}
+                style={{ ...fieldStyle, paddingLeft: '24px' }}
+              />
+            </div>
+            <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#888' }}>Minimum $2.00 per student</p>
+          </div>
         </div>
 
+        {count > 0 && (
+          <div style={{
+            background: '#F0F7FF', border: '1px solid #C5D9EC', borderRadius: '8px',
+            padding: '12px 16px', marginBottom: '20px',
+            fontSize: '15px', color: '#3D6B8A', fontWeight: 600,
+          }}>
+            {count} student{count !== 1 ? 's' : ''} × ${price.toFixed(2)} = <strong>${totalCost}</strong>
+          </div>
+        )}
+
         <button
-          onClick={handleGenerate}
-          disabled={!canGenerate}
+          onClick={handleProceedToPayment}
+          disabled={!canProceed}
           style={{
             padding: '12px 32px', fontSize: '15px', fontWeight: 'bold',
             border: 'none', borderRadius: '6px',
-            backgroundColor: canGenerate ? '#5B8DB8' : '#ccc',
-            color: 'white', cursor: canGenerate ? 'pointer' : 'not-allowed',
+            backgroundColor: canProceed ? '#5B8DB8' : '#ccc',
+            color: 'white', cursor: canProceed ? 'pointer' : 'not-allowed',
           }}
         >
-          {generating ? 'Generating…' : 'Generate Passes'}
+          {generating ? 'Processing…' : 'Proceed to Payment →'}
         </button>
 
         {error && (
@@ -1499,9 +1602,26 @@ function ResultsDashboard({ profile, onBack }) {
 }
 
 function Dashboard({ profile, onLogout }) {
-  const [section, setSection] = useState('overview');
+  const [section, setSection] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('payment') === 'success' ? 'generate-passes' : 'overview';
+  });
+  const [paymentSessionId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('payment') === 'success' ? params.get('session_id') : null;
+  });
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'cancelled') {
+      localStorage.removeItem('pendingPassOrder');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('payment');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
 
   const firstName = (profile.full_name || 'Teacher').split(' ')[0];
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
@@ -1698,7 +1818,7 @@ function Dashboard({ profile, onLogout }) {
         </div>
       )}
 
-      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('overview')} />}
+      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('overview')} paymentSessionId={paymentSessionId} />}
       {section === 'create-assessment' && <CreateAssessment  profile={profile} onBack={() => setSection('overview')} />}
       {section === 'results'           && <ResultsDashboard  profile={profile} onBack={() => setSection('overview')} />}
       {section === 'schedule'          && <ScheduleManager   profile={profile} onBack={() => setSection('overview')} />}
