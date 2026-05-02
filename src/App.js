@@ -398,9 +398,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
               onChange={e => setClassName(e.target.value)}
               style={fieldStyle}
             />
-            {existingClasses.length > 0 && !isAddMode && (
-              <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#888' }}>Type an existing class name to add students</p>
-            )}
+            <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#888' }}>Select an existing class from the dropdown to add more students, or type a new class name to create one.</p>
           </div>
 
           <div>
@@ -1257,58 +1255,20 @@ function CreateAssessment({ profile, onBack }) {
                             {std.label}
                           </div>
 
-                          {std.questions.map((q, qi) => (
-                            <div key={q.id} style={{
-                              background: 'white', borderRadius: '8px',
-                              padding: '16px 20px', marginBottom: '8px',
-                              boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-                            }}>
-                              <div style={{ fontSize: '13px', color: '#888', marginBottom: '6px', fontWeight: 600 }}>
-                                Q{qi + 1}
-                                <span style={{ fontFamily: 'monospace', fontWeight: 400, marginLeft: '8px', color: '#bbb', fontSize: '11px' }}>{q.id}</span>
-                              </div>
-                              <p style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#3D4B5C', lineHeight: 1.5 }}>
-                                {q.text}
-                              </p>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                {q.options.map(opt => {
-                                  const isCorrect = opt.letter === q.correctAnswer;
-                                  return (
-                                    <div
-                                      key={opt.letter}
-                                      style={{
-                                        display: 'flex', alignItems: 'flex-start', gap: '10px',
-                                        padding: '8px 12px', borderRadius: '6px',
-                                        background: isCorrect ? '#D4EEE3' : '#F9FAFB',
-                                        border: isCorrect ? '1.5px solid #7BC4A0' : '1.5px solid #eee',
-                                      }}
-                                    >
-                                      <span style={{
-                                        fontWeight: 800, fontSize: '13px', flexShrink: 0,
-                                        color: isCorrect ? '#3D7A5E' : '#999',
-                                        width: '18px',
-                                      }}>
-                                        {opt.letter}
-                                      </span>
-                                      <span style={{
-                                        fontSize: '13px', lineHeight: 1.4,
-                                        color: isCorrect ? '#2A5A43' : '#555',
-                                        fontWeight: isCorrect ? 600 : 400,
-                                      }}>
-                                        {opt.text}
-                                      </span>
-                                      {isCorrect && (
-                                        <span style={{
-                                          marginLeft: 'auto', flexShrink: 0,
-                                          fontSize: '11px', fontWeight: 700, color: '#3D7A5E',
-                                        }}>✓ Correct</span>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ))}
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                            {std.questions.map((q, qi) => (
+                              <span key={q.id} style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                                background: 'white', border: '1px solid #E2E8F0',
+                                borderRadius: '4px', padding: '4px 10px',
+                                fontSize: '11px', color: '#64748b',
+                              }}>
+                                <span style={{ fontWeight: 600, color: '#94a3b8' }}>Q{qi + 1}</span>
+                                <span style={{ fontFamily: 'monospace', color: '#94a3b8' }}>·</span>
+                                <span style={{ fontFamily: 'monospace' }}>{q.id}</span>
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1715,8 +1675,8 @@ function Dashboard({ profile, onLogout }) {
     },
     {
       num: 2, Icon: KeyRound,
-      title: 'Generate Student Passes',
-      desc: 'Create printable passes and QR codes to hand out to your students.',
+      title: 'Create Classes & Generate Student Passes',
+      desc: 'Purchase student passes, generate QR codes, and manage your classes.',
       body: 'Generate one pre-test pass and one post-test pass per student. Print them as a sheet or display QR codes — students can begin by scanning or typing their 8-character code.',
       onClick: () => setSection('generate-passes'), color: '#3D7A5E', bg: '#D4EEE3',
     },
