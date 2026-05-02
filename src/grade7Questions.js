@@ -215,7 +215,7 @@ export const grade7Questions = [
     options: [
       { letter: 'A', text: 'A script that automatically sorts a text file at midnight' },
       { letter: 'B', text: 'An interactive website or mobile app where users click buttons, fill forms, and navigate menus' },
-      { letter: 'C', text: 'A program that prints \"Hello\" five times and exits' },
+      { letter: 'C', text: 'A program that prints "Hello" five times and exits' },
       { letter: 'D', text: 'A calculation that runs once with no user input' }
     ],
     correctAnswer: 'B',
@@ -635,7 +635,7 @@ export const grade7Questions = [
   },
   {
     id: 'TA-7-DC-005',
-    text: "COPPA (Children\'s Online Privacy Protection Act) requires websites to:",
+    text: "COPPA (Children's Online Privacy Protection Act) requires websites to:",
     options: [
       { letter: 'A', text: 'Allow children under 13 to use any website freely' },
       { letter: 'B', text: 'Collect detailed data on all children for safety tracking' },
@@ -799,10 +799,10 @@ export const grade7Questions = [
   },
   {
     id: 'TA-7-DC-018',
-    text: "A student interviews a local engineer for a research project and wants to include the engineer\'s quote. How should this source be cited?",
+    text: "A student interviews a local engineer for a research project and wants to include the engineer's quote. How should this source be cited?",
     options: [
       { letter: 'A', text: 'Personal interviews do not need to be cited' },
-      { letter: 'B', text: 'Include the interviewee\'s full name, title/affiliation, the phrase \"personal interview,\" and the date of the interview in the citation' },
+      { letter: 'B', text: "Include the interviewee's full name, title/affiliation, the phrase \"personal interview,\" and the date of the interview in the citation" },
       { letter: 'C', text: 'Only cite published sources; interviews are not valid' },
       { letter: 'D', text: 'Use the engineer\'s company website as the citation instead' }
     ],
@@ -933,8 +933,8 @@ export const grade7Questions = [
     options: [
       { letter: 'A', text: '=AVERAGE(score >= 70)' },
       { letter: 'B', text: '=PASS(A1, 70)' },
-      { letter: 'C', text: '=SUM(A1, \"Pass\", \"Fail\")' },
-      { letter: 'D', text: '=IF(A1>=70, \"Pass\", \"Fail\")' }
+      { letter: 'C', text: '=SUM(A1, "Pass", "Fail")' },
+      { letter: 'D', text: '=IF(A1>=70, "Pass", "Fail")' }
     ],
     correctAnswer: 'D',
     strand: 'Practical Technology'

@@ -14,17 +14,6 @@ import {
   BarChart2, Printer, Clock, Lock, CheckCircle,
 } from 'lucide-react';
 
-const GRADES = [
-  { label: 'Kindergarten', value: 0 },
-  { label: 'Grade 1', value: 1 },
-  { label: 'Grade 2', value: 2 },
-  { label: 'Grade 3', value: 3 },
-  { label: 'Grade 4', value: 4 },
-  { label: 'Grade 5', value: 5 },
-  { label: 'Grade 6', value: 6 },
-  { label: 'Grade 7', value: 7 },
-  { label: 'Grade 8', value: 8 },
-];
 
 function getQuestionsForGrade(grade) {
   if (grade === 3) return grade3Questions;
@@ -1262,6 +1251,7 @@ function ResultsDashboard({ profile, onBack }) {
       }
     })();
     return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fmt        = v => v != null ? `${v}%` : '—';
@@ -1277,7 +1267,7 @@ function ResultsDashboard({ profile, onBack }) {
   );
   const TD = ({ right, center, mono, style: sx, children }) => (
     <td style={{
-      padding: '13px 16px', fontSize: '14px', borderBottom: '1px solid #f0f0f0',
+      padding: '13px 16px', borderBottom: '1px solid #f0f0f0',
       color: '#3D4B5C', textAlign: right ? 'right' : center ? 'center' : 'left',
       fontFamily: mono ? "'Courier New', monospace" : undefined,
       fontSize: mono ? '13px' : '14px',
@@ -1744,8 +1734,9 @@ function ScheduleManager({ profile, onBack }) {
   );
   const [showTzPicker, setShowTzPicker] = useState(false);
 
-  useEffect(() => { // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
     Promise.all([loadAssessments(), loadWindows()]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadAssessments = async () => {
@@ -3185,7 +3176,6 @@ function App() {
   const hasQuestions = questions.length > 0;
   const currentQ = hasQuestions ? questions[currentQuestion] : null;
   const selectedAnswer = answers[currentQuestion];
-  const gradeLabel = selectedGrade !== null ? GRADES[selectedGrade].label : '';
   const isElementary = selectedGrade !== null && selectedGrade >= 3 && selectedGrade <= 5;
 
   const handleLogin = async () => {

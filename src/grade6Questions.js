@@ -318,7 +318,7 @@ export const grade6Questions = [
     text: "Artificial intelligence is being used to recommend songs, movies, and products online. What is a potential NEGATIVE impact of this technology?",
     options: [
       { letter: 'A', text: 'Users discover new content they enjoy' },
-      { letter: 'B', text: 'AI systems may create \"filter bubbles\" that limit exposure to diverse ideas and reinforce existing preferences' },
+      { letter: 'B', text: 'AI systems may create "filter bubbles" that limit exposure to diverse ideas and reinforce existing preferences' },
       { letter: 'C', text: 'Streaming services become more profitable' },
       { letter: 'D', text: 'People spend less time searching for content' }
     ],
@@ -1093,7 +1093,7 @@ export const grade6Questions = [
   },
   {
     id: 'TA-6-PT-020',
-    text: "A student\'s printer is not printing. They have already checked that it is turned on and connected. What is the NEXT logical troubleshooting step?",
+    text: "A student's printer is not printing. They have already checked that it is turned on and connected. What is the NEXT logical troubleshooting step?",
     options: [
       { letter: 'A', text: 'Purchase a new printer' },
       { letter: 'B', text: 'Reinstall the operating system' },
