@@ -1806,23 +1806,31 @@ function Dashboard({ profile, onLogout }) {
       {tourOpen && (
         <div
           onClick={() => setTourOpen(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)' }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px',
+          }}
         >
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              position: 'fixed',
-              top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 'calc(100% - 40px)', maxWidth: '680px',
-              maxHeight: '90vh', overflowY: 'auto',
+              width: '100%', maxWidth: '680px',
+              maxHeight: '85vh', overflowY: 'auto',
               background: 'white', borderRadius: '14px',
               boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
-              zIndex: 1001,
+              margin: 'auto',
             }}
           >
-            {/* Modal header */}
-            <div style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Sticky header with close button */}
+            <div style={{
+              position: 'sticky', top: 0, zIndex: 1,
+              background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)',
+              borderRadius: '14px 14px 0 0',
+              padding: '20px 28px',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Sparkles size={18} color='white' strokeWidth={2} />
                 <div>
@@ -1832,7 +1840,7 @@ function Dashboard({ profile, onLogout }) {
               </div>
               <button
                 onClick={() => setTourOpen(false)}
-                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.35)', color: 'white', borderRadius: '6px', padding: '6px 14px', fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}
+                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.35)', color: 'white', borderRadius: '6px', padding: '6px 14px', fontSize: '13px', cursor: 'pointer', fontWeight: 600, flexShrink: 0 }}
               >✕ Close</button>
             </div>
 
