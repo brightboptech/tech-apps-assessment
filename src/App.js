@@ -1853,7 +1853,7 @@ function Dashboard({ profile, onLogout }) {
                 <Sparkles size={18} color='white' strokeWidth={2} />
                 <div>
                   <div style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>Getting Started with TechGrowth Check</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.72)', marginTop: '2px' }}>Your first TIA-ready assessment.</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.72)', marginTop: '2px' }}>Your first TIA-ready assessment ready in a few steps.</div>
                 </div>
               </div>
               <button
