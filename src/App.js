@@ -176,9 +176,14 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
   const isAddMode = Boolean(existingClass);
   const startingStudentNumber = existingClass ? existingClass.maxStudentNumber + 1 : 1;
 
-  const canProceed =
-    className.trim().length > 0 && grade !== '' &&
-    count >= 1 && !generating;
+  // Button is only disabled for truly empty required fields — everything else shows a message
+  const canProceed = className.trim().length > 0 && count >= 1 && !generating;
+
+  const validationHint = (() => {
+    if (!className.trim() || count < 1) return null;
+    if (!isAddMode && !grade) return 'Select a grade level to continue.';
+    return null;
+  })();
 
   const loadExistingClasses = async () => {
     const { data } = await supabase
@@ -273,6 +278,10 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
   };
 
   const handleProceedToPayment = async () => {
+    if (!isAddMode && !grade) {
+      setError('Please select a grade level before proceeding.');
+      return;
+    }
     setGenerating(true);
     setError('');
     localStorage.setItem('pendingPassOrder', JSON.stringify({
@@ -468,14 +477,24 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
           </div>
         )}
 
+        {validationHint && (
+          <div style={{
+            background: '#FFF8E1', border: '1px solid #FFE082', borderRadius: '6px',
+            padding: '10px 14px', marginBottom: '16px',
+            fontSize: '13px', color: '#7A5F00',
+          }}>
+            {validationHint}
+          </div>
+        )}
+
         <button
           onClick={handleProceedToPayment}
-          disabled={!canProceed}
+          disabled={!canProceed || Boolean(validationHint)}
           style={{
             padding: '12px 32px', fontSize: '15px', fontWeight: 'bold',
             border: 'none', borderRadius: '6px',
-            backgroundColor: canProceed ? '#5B8DB8' : '#ccc',
-            color: 'white', cursor: canProceed ? 'pointer' : 'not-allowed',
+            backgroundColor: (canProceed && !validationHint) ? '#5B8DB8' : '#ccc',
+            color: 'white', cursor: (canProceed && !validationHint) ? 'pointer' : 'not-allowed',
           }}
         >
           {generating ? 'Processing…' : 'Proceed to Payment →'}
