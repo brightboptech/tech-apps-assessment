@@ -68,7 +68,7 @@ const PASS_PRINT_STYLES = `
   .cut   { font-size: 9px; color: #ccc; text-align: right; margin-top: 8px; letter-spacing: 1px; }
 `;
 
-function buildPassPrintHTML(passes, type, className, assessmentName, qrDataURLs) {
+function buildPassPrintHTML(passes, type, className, assessmentName, qrDataURLs, studentNames = {}) {
   const date = new Date().toLocaleDateString();
   const isPost = type === 'post';
   const accentColor = isPost ? '#3D7A5E' : '#5B8DB8';
@@ -80,6 +80,7 @@ function buildPassPrintHTML(passes, type, className, assessmentName, qrDataURLs)
 <title>${label} Passes – ${className}</title>
 <style>${PASS_PRINT_STYLES}
   h1 { color: ${accentColor}; }
+  .student-name { font-size: 11px; color: #333; margin-bottom: 2px; font-weight: 600; }
 </style></head>
 <body>
 <h1>TechGrowth Check — ${label} Passes</h1>
@@ -89,6 +90,8 @@ ${passes.map(({ studentNum, pre, post }) => {
   const token = isPost ? post : pre;
   const qrSrc = qrDataURLs[token] ?? '';
   const cardAssessment = assessmentName ? `<div class="info">${assessmentName}</div>` : '';
+  const name = studentNames[studentNum];
+  const nameHtml = name ? `<div class="student-name">${name}</div>` : '';
   return `<div class="pass">
   <div class="pass-top">
     <span class="student">Student ${studentNum}</span>
@@ -97,6 +100,7 @@ ${passes.map(({ studentNum, pre, post }) => {
   <div class="pass-body">
     ${qrSrc ? `<img class="qr-img" src="${qrSrc}" alt="QR"/>` : ''}
     <div class="pass-details">
+      ${nameHtml}
       <div class="token">${token}</div>
       ${cardAssessment}
       <div class="info">${className} &nbsp;·&nbsp; TechGrowth Check</div>
@@ -109,7 +113,7 @@ ${passes.map(({ studentNum, pre, post }) => {
 </body></html>`;
 }
 
-function buildMasterSheetHTML(passes, className, grade) {
+function buildMasterSheetHTML(passes, className, grade, studentNames = {}) {
   const date = new Date().toLocaleDateString();
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"/>
@@ -139,17 +143,21 @@ function buildMasterSheetHTML(passes, className, grade) {
       <th>Student #</th>
       <th>Pre-Test Pass Code</th>
       <th>Post-Test Pass Code</th>
-      <th>Student Name (write in)</th>
+      <th>Student Name</th>
     </tr>
   </thead>
   <tbody>
-    ${passes.map(({ studentNum, pre, post }) => `
+    ${passes.map(({ studentNum, pre, post }) => {
+      const name = studentNames[studentNum];
+      const nameCell = name ? name : '<span style="color:#ccc;">_________________________</span>';
+      return `
     <tr>
       <td>Student ${studentNum}</td>
       <td class="pre">${pre}</td>
       <td class="post">${post}</td>
-      <td style="color:#ccc;">_________________________</td>
-    </tr>`).join('')}
+      <td>${nameCell}</td>
+    </tr>`;
+    }).join('')}
   </tbody>
 </table>
 </body></html>`;
@@ -192,7 +200,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0.85rem 2rem;display
 .btn-outline-white:hover{border-color:#fff;background:rgba(255,255,255,0.1)}
 .hero{padding:7rem 2rem 4.5rem;background:linear-gradient(135deg,#3d5a6e 0%,#4a6b7a 40%,#5a7d8e 100%);text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 30% 20%,rgba(92,176,133,0.12) 0%,transparent 60%);pointer-events:none}
-.hero-badge{display:inline-block;background:rgba(92,176,133,0.2);color:var(--green);font-size:0.8rem;font-weight:600;padding:0.4rem 1rem;border-radius:20px;margin-bottom:1.5rem;letter-spacing:0.03em;text-transform:uppercase;border:1px solid rgba(92,176,133,0.3);font-family:'Inter',sans-serif}
+.hero-badge{display:inline-block;background:rgba(92,176,133,0.2);color:#fef8e8;font-size:0.8rem;font-weight:600;padding:0.4rem 1rem;border-radius:20px;margin-bottom:1.5rem;letter-spacing:0.03em;text-transform:uppercase;border:1px solid rgba(92,176,133,0.3);font-family:'Inter',sans-serif}
 .hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:1.25rem;max-width:850px;margin-left:auto;margin-right:auto;position:relative}
 .hero h1 em{font-style:italic;color:var(--green);font-family:'Source Sans 3',sans-serif}
 .hero p{font-size:1.1rem;color:rgba(255,255,255,0.8);max-width:640px;margin:0 auto 2.5rem;line-height:1.8;position:relative}
@@ -621,6 +629,8 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('pre');
   const [existingClasses, setExistingClasses] = useState([]);
+  const [studentNames, setStudentNames] = useState({});
+  const [isViewingExisting, setIsViewingExisting] = useState(false);
   const canvasRefs = useRef({});
 
   const appUrl = window.location.origin + window.location.pathname;
@@ -791,14 +801,63 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
     return urls;
   };
 
-  const handlePrintPre    = () => printDoc(buildPassPrintHTML(passes, 'pre',  className, '', getQrURLs()));
-  const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, '', getQrURLs()));
-  const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, grade));
+  const handlePrintPre    = () => printDoc(buildPassPrintHTML(passes, 'pre',  className, '', getQrURLs(), studentNames));
+  const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, '', getQrURLs(), studentNames));
+  const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, grade, studentNames));
+
+  const loadClassPasses = async (cls) => {
+    setGenerating(true);
+    setError('');
+    const { data, error: dbError } = await supabase
+      .from('tokens')
+      .select('token, test_type, student_number, grade_level')
+      .eq('teacher_id', profile.id)
+      .eq('class_name', cls)
+      .order('student_number');
+    if (dbError) {
+      setError('Could not load passes: ' + dbError.message);
+      setGenerating(false);
+      return;
+    }
+    const map = {};
+    data.forEach(({ token, test_type, student_number }) => {
+      if (!map[student_number]) map[student_number] = { studentNum: student_number, pre: null, post: null };
+      if (test_type === 'pre') map[student_number].pre = token;
+      else map[student_number].post = token;
+    });
+    setPasses(Object.values(map).sort((a, b) => a.studentNum - b.studentNum));
+    setIsViewingExisting(true);
+    setGenerating(false);
+  };
+
+  const handleExportCSV = () => {
+    const rows = [
+      ['Student Name', 'Student #', 'Pre-Test Pass Code', 'Post-Test Pass Code', 'Class', 'Grade'],
+      ...passes.map(p => [
+        studentNames[p.studentNum] || '',
+        `Student ${p.studentNum}`,
+        p.pre || '',
+        p.post || '',
+        className,
+        grade,
+      ]),
+    ];
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${className.replace(/\s+/g, '-')}-passes.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleAddMore = () => {
     setPasses([]);
     setStudentCount('');
     setError('');
+    setStudentNames({});
+    setIsViewingExisting(false);
     loadExistingClasses();
   };
 
@@ -838,12 +897,25 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
             background: '#D4EEE3', border: '1px solid #3D7A5E', borderRadius: '8px',
             padding: '11px 16px', marginBottom: '20px',
             fontSize: '13px', color: '#2A5C44',
-            display: 'flex', gap: '8px', alignItems: 'center',
+            display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap',
           }}>
             <CheckCircle size={15} color="#3D7A5E" strokeWidth={2} style={{ flexShrink: 0 }} />
-            <span>
+            <span style={{ flex: 1 }}>
               <strong>Adding to existing class:</strong> {existingClass.class_name} · Grade {existingClass.grade_level} · {existingClass.maxStudentNumber} student{existingClass.maxStudentNumber !== 1 ? 's' : ''} already generated · New passes start at Student {startingStudentNumber}
             </span>
+            {passes.length === 0 && (
+              <button
+                onClick={() => loadClassPasses(className.trim())}
+                disabled={generating}
+                style={{
+                  background: 'white', border: '1.5px solid #3D7A5E', borderRadius: '5px',
+                  color: '#3D7A5E', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+                  padding: '5px 12px', flexShrink: 0,
+                }}
+              >
+                {generating ? 'Loading…' : `View existing passes →`}
+              </button>
+            )}
           </div>
         )}
 
@@ -966,20 +1038,25 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
         <div style={{ background: 'white', borderRadius: '10px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
 
           {/* Instruction note */}
-          <div style={{
-            background: '#FFF8E1', border: '1px solid #FFE082', borderRadius: '8px',
-            padding: '11px 16px', marginBottom: '24px',
-            fontSize: '13px', color: '#7A5F00',
-            display: 'flex', gap: '8px', alignItems: 'flex-start',
-          }}>
-            <span style={{ flexShrink: 0, fontWeight: 800 }}>ℹ</span>
-            <span>Hand out <strong>pre-test passes</strong> first. Save <strong>post-test passes</strong> for after instruction.</span>
-          </div>
+          {!isViewingExisting && (
+            <div style={{
+              background: '#FFF8E1', border: '1px solid #FFE082', borderRadius: '8px',
+              padding: '11px 16px', marginBottom: '24px',
+              fontSize: '13px', color: '#7A5F00',
+              display: 'flex', gap: '8px', alignItems: 'flex-start',
+            }}>
+              <span style={{ flexShrink: 0, fontWeight: 800 }}>ℹ</span>
+              <span>Hand out <strong>pre-test passes</strong> first. Save <strong>post-test passes</strong> for after instruction.</span>
+            </div>
+          )}
 
-          {/* Header + print buttons */}
+          {/* Header + print/export buttons */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <h3 style={{ margin: '0 0 4px', color: '#3D6B8A' }}>{className} — Grade {grade}</h3>
+              <h3 style={{ margin: '0 0 4px', color: '#3D6B8A' }}>
+                {className} — Grade {grade}
+                {isViewingExisting && <span style={{ marginLeft: '10px', fontSize: '13px', fontWeight: 400, color: '#888' }}>(existing passes)</span>}
+              </h3>
               <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>
                 {passes.length} student{passes.length !== 1 ? 's' : ''} &nbsp;·&nbsp; {passes.length * 2} passes ({passes.length} pre-test + {passes.length} post-test)
                 {passes[0]?.studentNum > 1 && <span> &nbsp;·&nbsp; Students {passes[0].studentNum}–{passes[passes.length - 1].studentNum}</span>}
@@ -998,7 +1075,20 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
                 onClick={handlePrintMaster}
                 style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               ><Printer size={14} strokeWidth={2} color="#555" />Print Master Sheet</button>
+              <button
+                onClick={handleExportCSV}
+                style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              ><FileText size={14} strokeWidth={2} color="#555" />Export CSV</button>
             </div>
+          </div>
+
+          {/* Privacy note */}
+          <div style={{
+            background: '#F4F7FA', border: '1px solid #E2E8F0', borderRadius: '6px',
+            padding: '9px 14px', marginBottom: '16px',
+            fontSize: '12px', color: '#5f7a8a',
+          }}>
+            <strong>Student names are optional and for print purposes only.</strong> No student names are saved or retained by TechGrowth Check.
           </div>
 
           {/* Tabs */}
@@ -1027,10 +1117,11 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
               <thead>
                 <tr style={{ background: '#F4F7FA', textAlign: 'left' }}>
-                  <th style={{ padding: '10px 16px', fontWeight: 600, fontSize: '13px', color: '#3D4B5C' }}>Student #</th>
                   <th style={{ padding: '10px 16px', fontWeight: 600, fontSize: '13px', color: activeTab === 'pre' ? '#5B8DB8' : '#3D7A5E' }}>
-                    {activeTab === 'pre' ? 'Pre-Test' : 'Post-Test'} Pass
+                    {activeTab === 'pre' ? 'Pre-Test' : 'Post-Test'} Pass Code
                   </th>
+                  <th style={{ padding: '10px 16px', fontWeight: 600, fontSize: '13px', color: '#3D4B5C' }}>QR Code</th>
+                  <th style={{ padding: '10px 16px', fontWeight: 600, fontSize: '13px', color: '#3D4B5C' }}>Student Name <span style={{ fontWeight: 400, color: '#aaa' }}>(optional)</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -1039,12 +1130,25 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
                   const color = activeTab === 'pre' ? '#5B8DB8' : '#3D7A5E';
                   return (
                     <tr key={studentNum} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                      <td style={{ padding: '12px 16px', color: '#555' }}>Student {studentNum}</td>
                       <td style={{ padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
-                          <QRCodeSVG value={`${appUrl}?token=${token}`} size={64} />
-                          <span style={{ fontFamily: 'monospace', fontSize: '14px', fontWeight: 'bold', color, letterSpacing: '2px' }}>{token}</span>
-                        </div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 700, color, letterSpacing: '2px' }}>{token}</div>
+                        <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Student {studentNum}</div>
+                      </td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <QRCodeSVG value={`${appUrl}?token=${token}`} size={56} />
+                      </td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <input
+                          type="text"
+                          placeholder="Type name…"
+                          value={studentNames[studentNum] || ''}
+                          onChange={e => setStudentNames(prev => ({ ...prev, [studentNum]: e.target.value }))}
+                          style={{
+                            width: '100%', maxWidth: '220px', padding: '7px 10px',
+                            fontSize: '13px', border: '1.5px solid #e2e8f0',
+                            borderRadius: '5px', outline: 'none', boxSizing: 'border-box',
+                          }}
+                        />
                       </td>
                     </tr>
                   );
@@ -1062,7 +1166,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
           </div>
 
           {/* Add more students */}
-          <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #f0f0f0' }}>
+          <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button
               onClick={handleAddMore}
               style={{
@@ -1071,7 +1175,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
                 backgroundColor: 'white', color: '#5B8DB8', cursor: 'pointer',
               }}
             >
-              + Add More Students to {className}
+              {isViewingExisting ? '← Back to form' : `+ Add More Students to ${className}`}
             </button>
           </div>
         </div>
