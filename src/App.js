@@ -155,6 +155,462 @@ function buildMasterSheetHTML(passes, className, grade) {
 </body></html>`;
 }
 
+// ── Landing Page ──────────────────────────────────────────────────────────────
+
+const LANDING_CSS = `
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--slate:#3d5a6e;
+--slate-dark:#2c3e50;
+--slate-light:#4a6b7a;
+--green:#5cb085;
+--green-light:#e6f4ed;
+--green-dark:#3d8a64;
+--bg:#e8eef2;
+--bg-card:#edf2f6;
+--bg-white:#f7f9fb;
+--text:#2c3e50;
+--text-muted:#5f7a8a;
+--lavender:#8b7ec8;
+--lavender-light:#f0edf8;
+--gold:#d4a029;
+--gold-light:#fef8e8;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;color:var(--text);background:var(--bg-white);line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5,h6,.nav-logo{font-family:'Inter',sans-serif}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--slate);border-bottom:1px solid rgba(0,0,0,0.1)}
+.nav-logo{font-size:1.3rem;font-weight:700;color:#fff;text-decoration:none;cursor:pointer;background:none;border:none}
+.nav-logo span{color:var(--green)}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,0.75);font-size:0.9rem;font-weight:500;transition:color 0.2s}
+.nav-links a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.4rem;border-radius:6px;font-weight:600;font-size:0.9rem;text-decoration:none;transition:all 0.25s;cursor:pointer;border:none;font-family:'Inter',sans-serif}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green-dark);transform:translateY(-1px)}
+.btn-outline-white{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.4)}
+.btn-outline-white:hover{border-color:#fff;background:rgba(255,255,255,0.1)}
+.hero{padding:7rem 2rem 4.5rem;background:linear-gradient(135deg,#3d5a6e 0%,#4a6b7a 40%,#5a7d8e 100%);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 30% 20%,rgba(92,176,133,0.12) 0%,transparent 60%);pointer-events:none}
+.hero-badge{display:inline-block;background:rgba(92,176,133,0.2);color:var(--green);font-size:0.8rem;font-weight:600;padding:0.4rem 1rem;border-radius:20px;margin-bottom:1.5rem;letter-spacing:0.03em;text-transform:uppercase;border:1px solid rgba(92,176,133,0.3);font-family:'Inter',sans-serif}
+.hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:1.25rem;max-width:850px;margin-left:auto;margin-right:auto;position:relative}
+.hero h1 em{font-style:italic;color:var(--green);font-family:'Source Sans 3',sans-serif}
+.hero p{font-size:1.1rem;color:rgba(255,255,255,0.8);max-width:640px;margin:0 auto 2.5rem;line-height:1.8;position:relative}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative}
+.mission{padding:2.75rem 2rem;text-align:center;background:var(--bg);border-bottom:1px solid rgba(0,0,0,0.06)}
+.mission p{font-size:1.1rem;color:var(--slate-dark);max-width:720px;margin:0 auto;line-height:1.8}
+.mission p em{font-style:italic;color:var(--green);font-weight:600}
+.trust-bar{padding:1.75rem 2rem;text-align:center;background:var(--bg-white);border-bottom:1px solid rgba(0,0,0,0.05)}
+.trust-items{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap}
+.trust-item{font-size:0.85rem;color:var(--text);font-weight:500;display:flex;align-items:center;gap:0.4rem}
+.trust-item svg{width:18px;height:18px;color:var(--green)}
+.section-label{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);margin-bottom:0.75rem;font-family:'Inter',sans-serif}
+h2.section-title{font-size:clamp(1.8rem,3.5vw,2.3rem);font-weight:700;color:var(--slate-dark);margin-bottom:0.75rem;line-height:1.25}
+.problem{padding:4.5rem 2rem;max-width:900px;margin:0 auto;text-align:center}
+.problem p{font-size:1.05rem;color:var(--text-muted);max-width:680px;margin:0 auto;line-height:1.8}
+.highlight{background:var(--green-light);padding:1.5rem 2rem;border-radius:10px;margin-top:2rem;font-size:0.95rem;color:var(--slate-dark);line-height:1.7;border-left:4px solid var(--green);text-align:left}
+.how-it-works{padding:4.5rem 2rem;background:var(--bg)}
+.how-inner{max-width:1000px;margin:0 auto}
+.how-subtitle{text-align:center;color:var(--text-muted);margin-bottom:3rem;font-size:1.05rem}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:2rem}
+.step{background:#fff;border-radius:12px;padding:2rem 1.5rem;border:1px solid rgba(0,0,0,0.06);transition:transform 0.2s}
+.step:hover{transform:translateY(-3px)}
+.step-num{width:36px;height:36px;border-radius:50%;background:var(--green-light);color:var(--green-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;margin-bottom:1rem;font-family:'Inter',sans-serif}
+.step h3{font-size:1.05rem;font-weight:600;margin-bottom:0.5rem;color:var(--slate-dark)}
+.step p{font-size:0.9rem;color:var(--text-muted);line-height:1.6}
+.flex-cards{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.flex-card{background:#fff;border-radius:12px;padding:2rem;border:1px solid rgba(0,0,0,0.06)}
+.flex-card h3{font-size:1.05rem;font-weight:600;color:var(--slate-dark);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem}
+.flex-card h3 svg{width:22px;height:22px;color:var(--green)}
+.flex-card p{font-size:0.9rem;color:var(--text-muted);line-height:1.6}
+.features{padding:4.5rem 2rem;max-width:1000px;margin:0 auto}
+.features-subtitle{text-align:center;color:var(--text-muted);margin-bottom:3rem;font-size:1.05rem}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.feature-card{padding:1.75rem;border-radius:12px;border:1px solid rgba(0,0,0,0.06);background:var(--bg-card)}
+.feature-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
+.feature-card h3{font-size:1rem;font-weight:600;margin-bottom:0.4rem;color:var(--slate-dark)}
+.feature-card p{font-size:0.88rem;color:var(--text-muted);line-height:1.6}
+.sample-report{padding:4.5rem 2rem;background:var(--bg)}
+.report-inner{max-width:950px;margin:0 auto}
+.report-subtitle{text-align:center;color:var(--text-muted);margin-bottom:2.5rem;font-size:1.05rem}
+.report-preview{background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,0.08);overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+.report-header{background:var(--slate);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.report-header h4{color:#fff;font-size:0.95rem;font-weight:600}
+.report-header .badge{background:var(--green);color:#fff;font-size:0.7rem;padding:0.25rem 0.7rem;border-radius:12px;font-weight:600}
+.class-summary{padding:1.5rem 2rem;border-bottom:1px solid rgba(0,0,0,0.06)}
+.class-summary h5{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--green-dark);font-weight:700;margin-bottom:1rem}
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem}
+.summary-box{background:var(--bg-card);border-radius:8px;padding:1rem;text-align:center;border:1px solid rgba(0,0,0,0.04)}
+.summary-box.highlight-box{background:var(--green-light);border-color:rgba(92,176,133,0.2)}
+.summary-box .box-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:0.3rem}
+.summary-box .box-value{font-size:1.5rem;font-weight:700;color:var(--slate-dark);font-family:'Inter',sans-serif}
+.summary-box .box-sub{font-size:0.7rem;color:var(--text-muted)}
+.student-data{padding:1.5rem 2rem}
+.student-data h5{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--slate-dark);font-weight:700;margin-bottom:0.25rem;display:inline}
+.sort-note{font-size:0.7rem;color:var(--text-muted);margin-left:0.5rem;text-transform:uppercase;letter-spacing:0.05em}
+.privacy-note{font-size:0.78rem;color:var(--text-muted);margin:0.75rem 0 1rem;padding:0.6rem 0.8rem;background:var(--bg-card);border-radius:6px;line-height:1.5}
+.report-table{width:100%;border-collapse:collapse;font-size:0.85rem}
+.report-table th{text-align:left;padding:0.65rem 0.75rem;background:var(--bg);color:var(--text-muted);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;border-bottom:2px solid rgba(0,0,0,0.08)}
+.report-table td{padding:0.65rem 0.75rem;border-bottom:1px solid rgba(0,0,0,0.04);color:var(--text)}
+.report-table tr:last-child td{border-bottom:none}
+.student-label{font-weight:500;color:var(--slate-dark)}
+.growth-pos{color:var(--green-dark);font-weight:700}
+.met-yes{display:inline-block;background:var(--green-light);color:var(--green-dark);font-size:0.75rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:4px}
+.report-footer{padding:1rem 2rem;background:var(--bg);display:flex;align-items:center;justify-content:space-between;font-size:0.8rem;color:var(--text-muted)}
+.report-footer .btn{font-size:0.8rem;padding:0.4rem 1rem}
+.pricing{padding:4.5rem 2rem;background:var(--bg-white)}
+.pricing-inner{max-width:600px;margin:0 auto;text-align:center}
+.pricing-subtitle{color:var(--text-muted);margin-bottom:2.5rem;font-size:1.05rem}
+.price-card{background:#fff;border-radius:16px;padding:3rem 2.5rem;border:2px solid var(--green);text-align:center}
+.price-amount{font-size:3.5rem;font-weight:700;color:var(--slate-dark);font-family:'Inter',sans-serif}
+.price-amount span{font-size:1rem;font-weight:400;color:var(--text-muted)}
+.price-desc{color:var(--text-muted);margin:0.5rem 0 1.5rem;font-size:0.95rem}
+.price-features{list-style:none;text-align:left;margin-bottom:2rem}
+.price-features li{padding:0.5rem 0;font-size:0.92rem;color:var(--text);display:flex;align-items:flex-start;gap:0.6rem;border-bottom:1px solid rgba(0,0,0,0.04)}
+.price-features li:last-child{border-bottom:none}
+.check{color:var(--green);font-weight:700;flex-shrink:0;margin-top:2px}
+.tia{padding:4.5rem 2rem;max-width:900px;margin:0 auto}
+.tia-subtitle{text-align:center;color:var(--text-muted);margin-bottom:2.5rem;font-size:1.05rem;max-width:700px;margin-left:auto;margin-right:auto}
+.tia-content{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.tia-level{text-align:center;padding:2rem 1.5rem;border-radius:12px;border:1px solid rgba(0,0,0,0.06);background:var(--bg-card)}
+.tia-level h3{font-size:1rem;font-weight:600;margin-bottom:0.4rem;color:var(--slate-dark)}
+.tia-level p{font-size:0.85rem;color:var(--text-muted);line-height:1.6}
+.level-badge{display:inline-block;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:600;margin-bottom:0.75rem;font-family:'Inter',sans-serif}
+.level-1 .level-badge{background:var(--green-light);color:var(--green-dark)}
+.level-2 .level-badge{background:var(--lavender-light);color:var(--lavender)}
+.level-3 .level-badge{background:var(--gold-light);color:#8a6b1a}
+.tia-note{text-align:center;margin-top:2rem;font-size:0.9rem;color:var(--text-muted);line-height:1.7;max-width:600px;margin-left:auto;margin-right:auto}
+.tia-note a{color:var(--green);text-decoration:none;font-weight:500}
+.tia-note a:hover{text-decoration:underline}
+.cta-section{padding:5rem 2rem;background:var(--slate);text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 70% 80%,rgba(92,176,133,0.1) 0%,transparent 60%);pointer-events:none}
+.cta-section h2{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:700;color:#fff;margin-bottom:1rem;position:relative}
+.cta-section p{color:rgba(255,255,255,0.7);font-size:1.05rem;max-width:580px;margin:0 auto 2rem;line-height:1.7;position:relative}
+.cta-section .btn-green{font-size:1rem;padding:0.85rem 2.5rem;position:relative}
+footer{padding:2.5rem 2rem;text-align:center;border-top:1px solid rgba(0,0,0,0.06);background:var(--bg-white)}
+footer p{font-size:0.82rem;color:var(--text-muted)}
+footer a{color:var(--green);text-decoration:none}
+@media(max-width:768px){
+  nav{padding:0.75rem 1rem}
+  .nav-links a:not(.btn){display:none}
+  .hero{padding:6rem 1.5rem 3.5rem}
+  .tia-content{grid-template-columns:1fr}
+  .hero-cta{flex-direction:column;align-items:center}
+  .flex-cards{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:repeat(2,1fr)}
+  .summary-grid .summary-box:last-child{grid-column:span 2}
+  .report-table{font-size:0.75rem}
+}
+`;
+
+const LANDING_HTML = `
+<nav>
+  <a href="#top" class="nav-logo">TechGrowth <span>Check</span></a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#report">Sample report</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#" class="btn btn-green" data-cta="1">Log in</a>
+  </div>
+</nav>
+
+<section class="hero" id="top">
+  <div class="hero-badge">Rewarding educator excellence in Texas</div>
+  <h1>Helping educators get <em>rewarded for excellence</em> in Texas</h1>
+  <p>Pre/post assessments aligned to the Technology Applications TEKS that make it easy to demonstrate student growth for the Teacher Incentive Allotment (TIA). Grades K&ndash;8. Set up in minutes.</p>
+  <div class="hero-cta">
+    <a href="#" class="btn btn-green" data-cta="1">Get started &#8594;</a>
+    <a href="#how" class="btn btn-outline-white">See how it works</a>
+  </div>
+</section>
+
+<div class="mission">
+  <p>Our mission is simple: help educators who teach the Technology Applications TEKS demonstrate <em>student growth</em> &mdash; easily and on their own terms &mdash; so they can earn the recognition and higher pay they deserve through the Teacher Incentive Allotment.</p>
+</div>
+
+<div class="trust-bar">
+  <div class="trust-items">
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      Aligned to Technology Applications TEKS
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      Grades K&ndash;8
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      TIA growth reports included
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      No subscriptions
+    </div>
+  </div>
+</div>
+
+<section class="problem">
+  <div class="section-label">The challenge</div>
+  <h2 class="section-title">Technology Applications educators deserve a path to higher pay, too.</h2>
+  <p>The Teacher Incentive Allotment (TIA) elevates the education profession by rewarding educators who demonstrate student growth. But unlike STAAR-tested subjects, educators who teach the Technology Applications TEKS don&apos;t have a standardized way to measure that growth &mdash; making it harder to earn a designation and the higher pay that comes with it.</p>
+  <div class="highlight">
+    <strong>Technology Applications TEKS are not assessed through STAAR.</strong> That means educators need a third-party assessment to demonstrate student growth for TIA. TechGrowth Check was built specifically for this &mdash; giving you the reliable, TEKS-aligned growth data your district needs.
+  </div>
+</section>
+
+<section class="how-it-works" id="how">
+  <div class="how-inner">
+    <div class="section-label" style="text-align:center">How it works</div>
+    <h2 class="section-title" style="text-align:center">Simple setup. Powerful growth data.</h2>
+    <p class="how-subtitle">Everything you need to demonstrate student growth &mdash; nothing you don&apos;t.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Build your assessment</h3>
+        <p>Choose your grade level and select which Technology Applications TEKS standards to assess. Customize the number of questions to fit your instructional time and schedule.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Generate student passes</h3>
+        <p>Purchase passes for your students. Each student receives a unique pre-test and post-test passcode with a printable QR code &mdash; ready to hand out.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Students take assessments</h3>
+        <p>Students scan their QR code or type their passcode. The pre-test happens before instruction, the post-test after. No student accounts needed.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>View your growth report</h3>
+        <p>See every student&apos;s pre- and post-test scores side by side. Measure growth and download a report in CSV or PDF format for TIA.</p>
+      </div>
+    </div>
+    <div class="flex-cards">
+      <div class="flex-card">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Multi-grade flexibility
+        </h3>
+        <p>Teach multiple grade levels? Mix and match grades in a single class. Build assessments that reflect the students you actually have &mdash; not just one grade band.</p>
+      </div>
+      <div class="flex-card">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Fits your schedule
+        </h3>
+        <p>Choose which standards to include and how many questions per standard. Build a 15-minute check-in or a full-period assessment &mdash; whatever fits your instructional time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="section-label" style="text-align:center">Why TechGrowth Check</div>
+  <h2 class="section-title" style="text-align:center">Built by educators, for educators</h2>
+  <p class="features-subtitle">Every feature is designed to make demonstrating student growth easier.</p>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--green-light);color:var(--green-dark)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </div>
+      <h3>TEKS-aligned question bank</h3>
+      <p>Every question maps directly to a specific Technology Applications TEKS standard. No guessing about alignment.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--lavender-light);color:var(--lavender)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+      </div>
+      <h3>Student growth measurement</h3>
+      <p>Pre-test and post-test scores are compared automatically &mdash; measuring growth at the individual student level, exactly how TIA requires.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--gold-light);color:var(--gold)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+      </div>
+      <h3>TIA-ready growth reports</h3>
+      <p>Download a growth report with student-level data in CSV or PDF format, ready for your district&apos;s TIA submission. No extra data wrangling.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--green-light);color:var(--green-dark)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <h3>Secure and anonymous</h3>
+      <p>Students use anonymous passcodes &mdash; no accounts, no personal data collected. Assessment integrity stays protected.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--lavender-light);color:var(--lavender)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <h3>Grades K&ndash;8 coverage</h3>
+      <p>Full question sets across every grade band. Elementary and middle school Technology Applications TEKS &mdash; all covered.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--gold-light);color:var(--gold)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <h3>Custom class management</h3>
+      <p>Create classes, add students anytime, and manage multiple periods &mdash; all from your teacher dashboard.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sample-report" id="report">
+  <div class="report-inner">
+    <div class="section-label" style="text-align:center">Sample report</div>
+    <h2 class="section-title" style="text-align:center">See what your growth data looks like</h2>
+    <p class="report-subtitle">Here&apos;s a preview of the TIA Growth Report you&apos;ll be able to generate and download.</p>
+    <div class="report-preview">
+      <div class="report-header">
+        <h4>TIA Growth Report &mdash; Technology Applications</h4>
+        <span class="badge">Sample</span>
+      </div>
+      <div class="class-summary">
+        <h5>Class Summary</h5>
+        <div class="summary-grid">
+          <div class="summary-box">
+            <div class="box-label">Students (Both)</div>
+            <div class="box-value">24</div>
+          </div>
+          <div class="summary-box">
+            <div class="box-label">Avg Pre-Score</div>
+            <div class="box-value">42.3%</div>
+          </div>
+          <div class="summary-box">
+            <div class="box-label">Avg Post-Score</div>
+            <div class="box-value">76.8%</div>
+          </div>
+          <div class="summary-box highlight-box">
+            <div class="box-label">Avg Growth</div>
+            <div class="box-value" style="color:var(--green-dark)">+34.5%</div>
+          </div>
+          <div class="summary-box">
+            <div class="box-label">Students Grew</div>
+            <div class="box-value">23 / 24</div>
+            <div class="box-sub">95.8%</div>
+          </div>
+        </div>
+      </div>
+      <div class="student-data">
+        <h5>Student-Level Data</h5><span class="sort-note">Sorted by Growth</span>
+        <div class="privacy-note">
+          <strong>i</strong>&ensp;Student names are optional and for print purposes only. No student names are saved or retained by TechGrowth Check.
+        </div>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Pre-Score</th>
+              <th>Post-Score</th>
+              <th>Points of Growth</th>
+              <th>Met Growth Goal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="student-label">Student 1</td><td>38.0%</td><td>82.0%</td><td class="growth-pos">+44.0%</td><td><span class="met-yes">Yes</span></td></tr>
+            <tr><td class="student-label">Student 2</td><td>41.0%</td><td>83.0%</td><td class="growth-pos">+42.0%</td><td><span class="met-yes">Yes</span></td></tr>
+            <tr><td class="student-label">Student 3</td><td>35.0%</td><td>74.0%</td><td class="growth-pos">+39.0%</td><td><span class="met-yes">Yes</span></td></tr>
+            <tr><td class="student-label">Student 4</td><td>44.0%</td><td>79.0%</td><td class="growth-pos">+35.0%</td><td><span class="met-yes">Yes</span></td></tr>
+            <tr><td class="student-label">Student 5</td><td>52.0%</td><td>78.0%</td><td class="growth-pos">+26.0%</td><td><span class="met-yes">Yes</span></td></tr>
+            <tr><td style="color:var(--text-muted);font-style:italic" colspan="5">&hellip; 19 more students</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="report-footer">
+        <span>Generated by TechGrowth Check</span>
+        <span class="btn btn-green" style="pointer-events:none;opacity:0.7">Download CSV / PDF</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Simple, transparent pricing</h2>
+    <p class="pricing-subtitle">No subscriptions. No contracts. Pay only for what you need.</p>
+    <div class="price-card">
+      <div class="price-amount">$2 <span>/ student</span></div>
+      <p class="price-desc">One-time purchase per student. Includes both pre-test and post-test.</p>
+      <ul class="price-features">
+        <li><span class="check">&#10003;</span> Pre-test and post-test passes included</li>
+        <li><span class="check">&#10003;</span> Printable QR codes for each student</li>
+        <li><span class="check">&#10003;</span> TIA-ready growth report with CSV and PDF download</li>
+        <li><span class="check">&#10003;</span> Custom assessment builder &mdash; choose your standards</li>
+        <li><span class="check">&#10003;</span> Read-aloud support for younger students</li>
+        <li><span class="check">&#10003;</span> Add more students to any class anytime</li>
+        <li><span class="check">&#10003;</span> Mix and match grades for multi-grade classes</li>
+      </ul>
+      <a href="#" class="btn btn-green" style="width:100%;justify-content:center;font-size:1rem;padding:0.85rem" data-cta="1">Get started &#8594;</a>
+    </div>
+  </div>
+</section>
+
+<section class="tia" id="tia">
+  <div class="section-label" style="text-align:center">Built for the Teacher Incentive Allotment</div>
+  <h2 class="section-title" style="text-align:center">Designed around how TIA actually works</h2>
+  <p class="tia-subtitle">The Teacher Incentive Allotment rewards educators who demonstrate student growth. Through approved local designation systems, districts identify their most effective educators at three levels.</p>
+  <div class="tia-content">
+    <div class="tia-level level-1">
+      <div class="level-badge">Recognized</div>
+      <h3>Demonstrate consistent growth</h3>
+      <p>Show that your students are growing in their understanding of Technology Applications standards throughout the year.</p>
+    </div>
+    <div class="tia-level level-2">
+      <div class="level-badge">Exemplary</div>
+      <h3>Exceed growth expectations</h3>
+      <p>Provide student growth data that shows above-average impact across your classes and standards.</p>
+    </div>
+    <div class="tia-level level-3">
+      <div class="level-badge">Master</div>
+      <h3>Lead in student outcomes</h3>
+      <p>Present comprehensive growth data that demonstrates exceptional impact on student learning.</p>
+    </div>
+  </div>
+  <p class="tia-note">TechGrowth Check helps you collect the student growth data your district needs for TIA designation decisions. Learn more about TIA at <a href="https://tiatexas.org" target="_blank" rel="noopener">tiatexas.org</a>.</p>
+</section>
+
+<section class="cta-section">
+  <h2>Your students are already growing. Now you can prove it.</h2>
+  <p>Set up your first assessment in minutes. Demonstrate the student growth that earns you the recognition &mdash; and higher pay &mdash; you deserve.</p>
+  <a href="#" class="btn btn-green" data-cta="1">Get started &#8594;</a>
+</section>
+
+<footer>
+  <p>&copy; 2025 BrightBop Tech. All rights reserved. <a href="mailto:brightboptech@gmail.com">Contact us</a></p>
+</footer>
+`;
+
+function LandingPage({ onGetStarted }) {
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'lp-css';
+    style.textContent = LANDING_CSS;
+    document.head.appendChild(style);
+
+    const link = document.createElement('link');
+    link.id = 'lp-fonts';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap';
+    document.head.appendChild(link);
+
+    return () => {
+      document.getElementById('lp-css')?.remove();
+      document.getElementById('lp-fonts')?.remove();
+    };
+  }, []);
+
+  const handleClick = (e) => {
+    if (e.target.closest('[data-cta]')) {
+      e.preventDefault();
+      onGetStarted();
+    }
+  };
+
+  return (
+    <div onClick={handleClick} dangerouslySetInnerHTML={{ __html: LANDING_HTML }} />
+  );
+}
+
 function GeneratePasses({ profile, onBack, paymentSessionId }) {
   const [className, setClassName] = useState('');
   const [grade, setGrade] = useState('');
@@ -3923,7 +4379,15 @@ function App() {
     );
   }
 
-  // ── Student screens (unchanged except Teacher Login link) ────────────────
+  // ── Landing page for non-student visitors ───────────────────────────────
+  if (!isLoggedIn) {
+    const p = new URLSearchParams(window.location.search);
+    if (!p.has('token') && !window.location.pathname.startsWith('/student')) {
+      return <LandingPage onGetStarted={() => setShowTeacherLogin(true)} />;
+    }
+  }
+
+  // ── Student screens ──────────────────────────────────────────────────────
 
   if (!isLoggedIn) {
     return (
