@@ -3,9 +3,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  console.log("STRIPE KEY LENGTH:", process.env.STRIPE_SECRET_KEY?.length, "STARTS WITH:", process.env.STRIPE_SECRET_KEY?.substring(0, 7));
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
+if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {

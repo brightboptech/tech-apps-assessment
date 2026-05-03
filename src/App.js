@@ -178,7 +178,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
 
   const canProceed =
     className.trim().length > 0 && grade !== '' &&
-    count >= 1 && count <= 200 && !generating;
+    count >= 1 && !generating;
 
   const loadExistingClasses = async () => {
     const { data } = await supabase
@@ -431,7 +431,6 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
             <input
               type="number"
               min="1"
-              max="200"
               placeholder="e.g. 25"
               value={studentCount}
               onChange={e => setStudentCount(e.target.value)}
