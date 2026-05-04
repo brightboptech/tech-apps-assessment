@@ -2812,11 +2812,22 @@ function Dashboard({ profile, onLogout }) {
             {steps.map(step => (
               <div
                 key={step.num}
+                onClick={step.onClick}
                 style={{
                   background: 'white', borderRadius: '12px',
                   padding: '28px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
                   display: 'flex', flexDirection: 'column',
                   border: '1px solid #eef2f7',
+                  cursor: 'pointer',
+                  transition: 'box-shadow 0.15s, transform 0.15s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.13)';
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.07)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 {/* Icon badge */}
@@ -2831,22 +2842,9 @@ function Dashboard({ profile, onLogout }) {
                 <h3 style={{ margin: '0 0 8px', fontSize: '16px', fontWeight: 700, color: '#1e293b' }}>
                   {step.title}
                 </h3>
-                <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#64748b', lineHeight: 1.6, flex: 1 }}>
+                <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: 1.6 }}>
                   {step.desc}
                 </p>
-                <button
-                  onClick={step.onClick}
-                  style={{
-                    alignSelf: 'flex-start', padding: '9px 20px',
-                    fontSize: '13px', fontWeight: 700,
-                    background: step.bg, color: step.color,
-                    border: 'none', borderRadius: '6px', cursor: 'pointer',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-                >
-                  Open →
-                </button>
               </div>
             ))}
           </div>
