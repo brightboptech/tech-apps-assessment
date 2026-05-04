@@ -225,9 +225,9 @@ function BetaSignupPage({ onBack }) {
           <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#D4EEE3', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <CheckCircle size={32} color="#3D7A5E" strokeWidth={2} />
           </div>
-          <h1 style={{ color: '#1E3A4A', margin: '0 0 12px', fontSize: '22px', fontWeight: 800 }}>You're on the list!</h1>
+          <h1 style={{ color: '#1E3A4A', margin: '0 0 12px', fontSize: '22px', fontWeight: 800 }}>Thanks for your interest!</h1>
           <p style={{ color: '#64748b', fontSize: '15px', lineHeight: 1.6, margin: '0 0 28px' }}>
-            Thanks for signing up for TechGrowth Check beta access. We'll be in touch at <strong>{email}</strong> with your free access code.
+            We've received your request for beta access to TechGrowth Check. We'll review your submission and reach out at <strong>{email}</strong> if you're selected for the program.
           </p>
           <button onClick={onBack} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700, border: 'none', borderRadius: '8px', backgroundColor: '#5B8DB8', color: 'white', cursor: 'pointer' }}>
             Back to Home
