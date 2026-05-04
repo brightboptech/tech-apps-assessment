@@ -2658,18 +2658,46 @@ function Dashboard({ profile, onLogout }) {
 
   useEffect(() => {
     const loadFolders = async () => {
-      const [fResult, aResult] = await Promise.all([
-        supabase.from('class_folders').select('*').eq('teacher_id', profile.id).order('folder_name'),
-        supabase.from('class_folder_assignments').select('*').eq('teacher_id', profile.id),
-      ]);
-      if (fResult.error) {
-        console.error('[folders] load error:', fResult.error.message);
-        // Don't set folderError here — table may just not be created yet
+      // Step 1: load folders
+      const { data: folderData, error: folderErr } = await supabase
+        .from('class_folders')
+        .select('id, teacher_id, folder_name, created_at')
+        .eq('teacher_id', profile.id)
+        .order('folder_name');
+
+      if (folderErr) {
+        console.error('[folders] class_folders query failed:', folderErr);
         return;
       }
-      setFolders(fResult.data || []);
+      setFolders(folderData || []);
+
+      // Step 2: load assignments (table may not exist yet — handled gracefully)
+      const { data: assignData, error: assignErr } = await supabase
+        .from('class_folder_assignments')
+        .select('teacher_id, class_name, folder_id')
+        .eq('teacher_id', profile.id);
+
+      if (assignErr) {
+        if (assignErr.code === '42P01') {
+          console.info('[folders] class_folder_assignments table not found — folder assignment disabled until you run:\n\n' +
+            'CREATE TABLE class_folder_assignments (\n' +
+            '  teacher_id UUID REFERENCES teachers(id) ON DELETE CASCADE,\n' +
+            '  class_name TEXT NOT NULL,\n' +
+            '  folder_id UUID REFERENCES class_folders(id) ON DELETE CASCADE,\n' +
+            '  PRIMARY KEY (teacher_id, class_name)\n' +
+            ');\n' +
+            'ALTER TABLE class_folder_assignments ENABLE ROW LEVEL SECURITY;\n' +
+            'CREATE POLICY "Teachers manage own assignments" ON class_folder_assignments\n' +
+            '  USING (auth.uid() = teacher_id) WITH CHECK (auth.uid() = teacher_id);'
+          );
+        } else {
+          console.error('[folders] class_folder_assignments query failed:', assignErr);
+        }
+        return; // folderAssignments stays {}
+      }
+
       const map = {};
-      (aResult.data || []).forEach(a => { map[a.class_name] = a.folder_id; });
+      (assignData || []).forEach(a => { map[a.class_name] = a.folder_id; });
       setFolderAssignments(map);
     };
     loadFolders();
