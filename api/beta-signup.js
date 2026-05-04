@@ -94,9 +94,9 @@ module.exports = async (req, res) => {
     console.warn('[beta-signup] RESEND_API_KEY not set — skipping email notification');
   }
 
-  // Return success as long as either supabase or email worked
-  if (!results.supabase && !results.email) {
-    return res.status(500).json({ error: 'Could not save signup — Supabase table may not exist yet. Check server logs.' });
+  // Email is optional — success depends only on the Supabase insert
+  if (!results.supabase) {
+    return res.status(500).json({ error: 'Could not save signup — check server logs.' });
   }
 
   res.json({ ok: true, ...results });
