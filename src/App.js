@@ -11,7 +11,7 @@ import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
-  BarChart2, Printer, Clock, Lock, CheckCircle, Layers, FolderPlus, Folder, X,
+  BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X,
 } from 'lucide-react';
 
 
@@ -2622,22 +2622,6 @@ function Dashboard({ profile, onLogout }) {
   const [dashClasses, setDashClasses] = useState([]);
   const [initialClass, setInitialClass] = useState(null);
 
-  // Folders
-  const [folders, setFolders] = useState([]);
-  const [folderAssignments, setFolderAssignments] = useState({});
-  const [showNewFolder, setShowNewFolder] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
-  const [foldersLoading, setFoldersLoading] = useState(false);
-  const [folderError, setFolderError] = useState('');
-  const [collapsedFolders, setCollapsedFolders] = useState(new Set());
-
-  const toggleFolderCollapse = (folderId) =>
-    setCollapsedFolders(prev => {
-      const next = new Set(prev);
-      if (next.has(folderId)) next.delete(folderId); else next.add(folderId);
-      return next;
-    });
-
   useEffect(() => {
     const loadDashClasses = async () => {
       const { data } = await supabase
@@ -2654,53 +2638,6 @@ function Dashboard({ profile, onLogout }) {
       setDashClasses(Object.values(map).sort((a, b) => a.class_name.localeCompare(b.class_name)));
     };
     loadDashClasses();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    const loadFolders = async () => {
-      // Step 1: load folders
-      const { data: folderData, error: folderErr } = await supabase
-        .from('class_folders')
-        .select('id, teacher_id, folder_name, created_at')
-        .eq('teacher_id', profile.id)
-        .order('folder_name');
-
-      if (folderErr) {
-        console.error('[folders] class_folders query failed:', folderErr);
-        return;
-      }
-      setFolders(folderData || []);
-
-      // Step 2: load assignments (table may not exist yet — handled gracefully)
-      const { data: assignData, error: assignErr } = await supabase
-        .from('class_folder_assignments')
-        .select('teacher_id, class_name, folder_id')
-        .eq('teacher_id', profile.id);
-
-      if (assignErr) {
-        if (assignErr.code === '42P01') {
-          console.info('[folders] class_folder_assignments table not found — folder assignment disabled until you run:\n\n' +
-            'CREATE TABLE class_folder_assignments (\n' +
-            '  teacher_id UUID REFERENCES teachers(id) ON DELETE CASCADE,\n' +
-            '  class_name TEXT NOT NULL,\n' +
-            '  folder_id UUID REFERENCES class_folders(id) ON DELETE CASCADE,\n' +
-            '  PRIMARY KEY (teacher_id, class_name)\n' +
-            ');\n' +
-            'ALTER TABLE class_folder_assignments ENABLE ROW LEVEL SECURITY;\n' +
-            'CREATE POLICY "Teachers manage own assignments" ON class_folder_assignments\n' +
-            '  USING (auth.uid() = teacher_id) WITH CHECK (auth.uid() = teacher_id);'
-          );
-        } else {
-          console.error('[folders] class_folder_assignments query failed:', assignErr);
-        }
-        return; // folderAssignments stays {}
-      }
-
-      const map = {};
-      (assignData || []).forEach(a => { map[a.class_name] = a.folder_id; });
-      setFolderAssignments(map);
-    };
-    loadFolders();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync section to URL path for back-button support
@@ -2736,80 +2673,6 @@ function Dashboard({ profile, onLogout }) {
 
   const firstName = (profile.full_name || 'Teacher').split(' ')[0];
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
-
-  const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) return;
-    const nameClean = newFolderName.trim();
-    const duplicate = folders.some(f => f.folder_name.toLowerCase() === nameClean.toLowerCase());
-    if (duplicate) {
-      setFolderError(`A folder named "${nameClean}" already exists.`);
-      return;
-    }
-    setFoldersLoading(true);
-    setFolderError('');
-    const { data, error: insertErr } = await supabase
-      .from('class_folders')
-      .insert([{ teacher_id: profile.id, folder_name: nameClean }])
-      .select()
-      .single();
-    if (insertErr) {
-      console.error('[folders] insert error:', insertErr);
-      setFolderError(
-        insertErr.code === '42P01'
-          ? 'The class_folders table does not exist yet. Create it in Supabase first (see console for SQL).'
-          : insertErr.message
-      );
-      console.info('[folders] Run this SQL in Supabase:\n' +
-        'CREATE TABLE class_folders (\n' +
-        '  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n' +
-        '  teacher_id UUID REFERENCES teachers(id) ON DELETE CASCADE,\n' +
-        '  folder_name TEXT NOT NULL,\n' +
-        '  created_at TIMESTAMPTZ DEFAULT NOW()\n' +
-        ');\n' +
-        'ALTER TABLE class_folders ENABLE ROW LEVEL SECURITY;\n' +
-        'CREATE POLICY "Teachers manage own folders" ON class_folders\n' +
-        '  USING (auth.uid() = teacher_id) WITH CHECK (auth.uid() = teacher_id);\n\n' +
-        'CREATE TABLE class_folder_assignments (\n' +
-        '  teacher_id UUID REFERENCES teachers(id) ON DELETE CASCADE,\n' +
-        '  class_name TEXT NOT NULL,\n' +
-        '  folder_id UUID REFERENCES class_folders(id) ON DELETE CASCADE,\n' +
-        '  PRIMARY KEY (teacher_id, class_name)\n' +
-        ');\n' +
-        'ALTER TABLE class_folder_assignments ENABLE ROW LEVEL SECURITY;\n' +
-        'CREATE POLICY "Teachers manage own assignments" ON class_folder_assignments\n' +
-        '  USING (auth.uid() = teacher_id) WITH CHECK (auth.uid() = teacher_id);'
-      );
-      setFoldersLoading(false);
-      return;
-    }
-    if (data) {
-      setFolders(prev => [...prev, data].sort((a, b) => a.folder_name.localeCompare(b.folder_name)));
-    }
-    setNewFolderName('');
-    setShowNewFolder(false);
-    setFoldersLoading(false);
-  };
-
-  const handleMoveToFolder = async (className, folderId) => {
-    if (!folderId) {
-      await supabase.from('class_folder_assignments').delete().eq('teacher_id', profile.id).eq('class_name', className);
-      setFolderAssignments(prev => { const n = { ...prev }; delete n[className]; return n; });
-    } else {
-      await supabase.from('class_folder_assignments').upsert([{ teacher_id: profile.id, class_name: className, folder_id: folderId }], { onConflict: 'teacher_id,class_name' });
-      setFolderAssignments(prev => ({ ...prev, [className]: folderId }));
-    }
-  };
-
-  const handleDeleteFolder = async (folderId) => {
-    await supabase.from('class_folder_assignments').delete().eq('folder_id', folderId).eq('teacher_id', profile.id);
-    await supabase.from('class_folders').delete().eq('id', folderId);
-    setFolders(prev => prev.filter(f => f.id !== folderId));
-    setFolderAssignments(prev => {
-      const n = { ...prev };
-      Object.keys(n).forEach(k => { if (n[k] === folderId) delete n[k]; });
-      return n;
-    });
-  };
 
   const steps = [
     {
@@ -3038,149 +2901,38 @@ function Dashboard({ profile, onLogout }) {
             style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '14px', cursor: 'pointer', padding: 0, marginBottom: '24px' }}
           >← Back to Dashboard</button>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
-            <h2 style={{ margin: 0, color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Layers size={22} color="#3D6B8A" strokeWidth={1.75} />
-              My Classes
-            </h2>
-            <button
-              onClick={() => setShowNewFolder(v => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, background: 'white', border: '1.5px solid #E2E8F0', borderRadius: '6px', cursor: 'pointer', color: '#3D4B5C' }}
-            >
-              <FolderPlus size={15} /> New Folder
-            </button>
-          </div>
-          <p style={{ margin: '0 0 20px', color: '#64748b', fontSize: '14px' }}>
-            Click "View Passes" to see and reprint QR codes for any class. Use folders to organize.
+          <h2 style={{ margin: '0 0 6px', color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Layers size={22} color="#3D6B8A" strokeWidth={1.75} />
+            My Classes
+          </h2>
+          <p style={{ margin: '0 0 24px', color: '#64748b', fontSize: '14px' }}>
+            Click "View Passes" to see and reprint QR codes for any class.
           </p>
 
-          {showNewFolder && (
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <input
-                  type="text"
-                  placeholder="Folder name (e.g. Fall 2025)"
-                  value={newFolderName}
-                  onChange={e => { setNewFolderName(e.target.value); setFolderError(''); }}
-                  onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
-                  autoFocus
-                  style={{ padding: '9px 12px', fontSize: '14px', border: '1.5px solid #5B8DB8', borderRadius: '6px', outline: 'none', minWidth: '200px', boxSizing: 'border-box' }}
-                />
-                <button onClick={handleCreateFolder} disabled={foldersLoading || !newFolderName.trim()} style={{ padding: '9px 18px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '6px', background: '#5B8DB8', color: 'white', cursor: foldersLoading ? 'not-allowed' : 'pointer' }}>
-                  {foldersLoading ? 'Creating…' : 'Create'}
-                </button>
-                <button onClick={() => { setShowNewFolder(false); setNewFolderName(''); setFolderError(''); }} style={{ padding: '9px 14px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
-                  Cancel
-                </button>
-              </div>
-              {folderError && (
-                <div style={{ marginTop: '8px', padding: '10px 14px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', fontSize: '13px', color: '#DC2626' }}>
-                  {folderError}
+          {dashClasses.length === 0 ? (
+            <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', textAlign: 'center', color: '#94a3b8', border: '1px solid #eef2f7' }}>
+              <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
+              <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
+              <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px' }}>
+              {dashClasses.map(c => (
+                <div key={c.class_name} style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', marginBottom: '3px' }}>{c.class_name}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
+                    Grade {c.grade_level} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
+                  </div>
+                  <button
+                    onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
+                    style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                  >View Passes →</button>
                 </div>
-              )}
+              ))}
             </div>
           )}
-
-          {(() => {
-            const ClassCard = ({ c }) => (
-              <div style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', marginBottom: '3px' }}>{c.class_name}</div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '12px' }}>
-                  Grade {c.grade_level} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
-                </div>
-                {folders.length > 0 && (
-                  <select
-                    value={folderAssignments[c.class_name] || ''}
-                    onChange={e => handleMoveToFolder(c.class_name, e.target.value)}
-                    style={{ fontSize: '12px', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 8px', marginBottom: '10px', background: 'white', cursor: 'pointer', width: '100%' }}
-                  >
-                    <option value="">No folder</option>
-                    {folders.map(f => <option key={f.id} value={f.id}>{f.folder_name}</option>)}
-                  </select>
-                )}
-                <button
-                  onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
-                  style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-                >View Passes →</button>
-              </div>
-            );
-
-            // Always show ALL folders (including empty ones) — bug fix: was filtering out empty folders
-            const folderSections = folders.map(f => ({
-              folder: f,
-              classes: dashClasses.filter(c => folderAssignments[c.class_name] === f.id),
-            }));
-            const unassigned = dashClasses.filter(c => !folderAssignments[c.class_name]);
-
-            return (
-              <div>
-                {/* Folder sections */}
-                {folderSections.map(({ folder, classes }) => {
-                  const collapsed = collapsedFolders.has(folder.id);
-                  return (
-                    <div key={folder.id} style={{ marginBottom: '20px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                      {/* Folder header — click to collapse */}
-                      <div
-                        onClick={() => toggleFolderCollapse(folder.id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 18px', cursor: 'pointer', userSelect: 'none', background: '#F8FAFC', borderBottom: collapsed ? 'none' : '1px solid #E2E8F0' }}
-                      >
-                        <Folder size={16} color="#5B8DB8" strokeWidth={2} style={{ flexShrink: 0 }} />
-                        <span style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', flex: 1 }}>{folder.folder_name}</span>
-                        <span style={{ fontSize: '12px', color: '#94a3b8', marginRight: '8px' }}>
-                          {classes.length} class{classes.length !== 1 ? 'es' : ''}
-                        </span>
-                        <span style={{ fontSize: '12px', color: '#94a3b8', marginRight: '4px' }}>{collapsed ? '▶' : '▼'}</span>
-                        <button
-                          onClick={e => { e.stopPropagation(); if (window.confirm(`Delete folder "${folder.folder_name}"? Classes will become unassigned.`)) handleDeleteFolder(folder.id); }}
-                          style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', borderRadius: '4px', flexShrink: 0 }}
-                          title="Delete folder"
-                        ><X size={13} /></button>
-                      </div>
-
-                      {/* Folder contents */}
-                      {!collapsed && (
-                        <div style={{ padding: '16px 18px' }}>
-                          {classes.length === 0 ? (
-                            <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8', fontStyle: 'italic' }}>
-                              No classes in this folder yet. Use the "No folder" dropdown on a class card to move it here.
-                            </p>
-                          ) : (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}>
-                              {classes.map(c => <ClassCard key={c.class_name} c={c} />)}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-
-                {/* Unassigned classes */}
-                {(unassigned.length > 0 || dashClasses.length === 0) && (
-                  <div>
-                    {folders.length > 0 && unassigned.length > 0 && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', marginTop: '4px' }}>
-                        <span style={{ fontWeight: 600, fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unassigned Classes</span>
-                      </div>
-                    )}
-                    {dashClasses.length === 0 ? (
-                      <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', textAlign: 'center', color: '#94a3b8' }}>
-                        <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
-                        <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
-                        <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}>
-                        {unassigned.map(c => <ClassCard key={c.class_name} c={c} />)}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
         </div>
       )}
     </div>
