@@ -11,7 +11,7 @@ import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
-  BarChart2, Printer, Clock, Lock, CheckCircle, Layers,
+  BarChart2, Printer, Clock, Lock, CheckCircle, Layers, FolderPlus, Folder, X,
 } from 'lucide-react';
 
 
@@ -165,6 +165,131 @@ function buildMasterSheetHTML(passes, className, grade, studentNames = {}) {
 </body></html>`;
 }
 
+// ── Beta Signup Page ─────────────────────────────────────────────────────────
+
+function BetaSignupPage({ onBack }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [school, setSchool] = useState('');
+  const [district, setDistrict] = useState('');
+  const [comments, setComments] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !email.trim() || !school.trim()) {
+      setError('Please fill in Name, Email, and School.');
+      return;
+    }
+    setSubmitting(true);
+    setError('');
+    try {
+      const { error: dbErr } = await supabase.from('beta_signups').insert([{
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        school: school.trim(),
+        district: district.trim(),
+        comments: comments.trim(),
+      }]);
+      if (dbErr) throw new Error(dbErr.message);
+      setSubmitted(true);
+    } catch (err) {
+      setError('Could not submit: ' + err.message);
+    }
+    setSubmitting(false);
+  };
+
+  const wrapStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(160deg, #2D3D4A 0%, #3D6B8A 50%, #5B8DB8 100%)',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center', padding: '24px',
+  };
+
+  const inp = {
+    width: '100%', padding: '11px 14px', fontSize: '15px',
+    border: '1.5px solid #e2e8f0', borderRadius: '7px',
+    marginBottom: '14px', boxSizing: 'border-box', outline: 'none',
+  };
+
+  if (submitted) {
+    return (
+      <div style={wrapStyle}>
+        <div className="tc-beta-card" style={{ background: 'white', borderRadius: '16px', padding: '40px 36px', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 24px 64px rgba(0,0,0,0.28)' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#D4EEE3', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <CheckCircle size={32} color="#3D7A5E" strokeWidth={2} />
+          </div>
+          <h1 style={{ color: '#1E3A4A', margin: '0 0 12px', fontSize: '22px', fontWeight: 800 }}>You're on the list!</h1>
+          <p style={{ color: '#64748b', fontSize: '15px', lineHeight: 1.6, margin: '0 0 28px' }}>
+            Thanks for signing up for TechGrowth Check beta access. We'll be in touch at <strong>{email}</strong> with your free access code.
+          </p>
+          <button onClick={onBack} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700, border: 'none', borderRadius: '8px', backgroundColor: '#5B8DB8', color: 'white', cursor: 'pointer' }}>
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={wrapStyle}>
+      <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <div style={{ fontSize: '42px', fontWeight: 800, letterSpacing: '-1.5px', color: 'white', lineHeight: 1, marginBottom: '8px' }}>
+          TechGrowth<span style={{ color: '#7BC4A0' }}> Check</span>
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', margin: 0 }}>Beta Access</p>
+      </div>
+      <div className="tc-beta-card" style={{ background: 'white', borderRadius: '16px', padding: '36px 32px', maxWidth: '480px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.28)' }}>
+        <h2 style={{ color: '#2D3D4A', margin: '0 0 6px', fontSize: '20px', fontWeight: 700 }}>Join the Beta</h2>
+        <p style={{ color: '#64748b', margin: '0 0 24px', fontSize: '14px', lineHeight: 1.5 }}>
+          Try TechGrowth Check free and share your feedback. Beta testers get full access — no payment required.
+        </p>
+
+        <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '5px' }}>Name <span style={{ color: '#ef4444' }}>*</span></label>
+        <input type="text" placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} style={inp} />
+
+        <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '5px' }}>Email <span style={{ color: '#ef4444' }}>*</span></label>
+        <input type="email" placeholder="you@school.edu" value={email} onChange={e => setEmail(e.target.value)} style={inp} />
+
+        <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '5px' }}>School <span style={{ color: '#ef4444' }}>*</span></label>
+        <input type="text" placeholder="School name" value={school} onChange={e => setSchool(e.target.value)} style={inp} />
+
+        <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '5px' }}>District <span style={{ color: '#94a3b8', fontWeight: 400 }}>(optional)</span></label>
+        <input type="text" placeholder="School district" value={district} onChange={e => setDistrict(e.target.value)} style={inp} />
+
+        <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '5px' }}>Comments <span style={{ color: '#94a3b8', fontWeight: 400 }}>(optional)</span></label>
+        <textarea
+          placeholder="What subjects or grade levels do you teach? Any questions?"
+          value={comments}
+          onChange={e => setComments(e.target.value)}
+          rows={3}
+          style={{ ...inp, resize: 'vertical', fontFamily: 'inherit' }}
+        />
+
+        {error && <p style={{ color: '#ef4444', fontSize: '13px', margin: '-8px 0 12px' }}>{error}</p>}
+
+        <button
+          onClick={handleSubmit}
+          disabled={submitting}
+          style={{
+            width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700,
+            border: 'none', borderRadius: '8px',
+            backgroundColor: submitting ? '#e2e8f0' : '#5B8DB8',
+            color: submitting ? '#94a3b8' : 'white',
+            cursor: submitting ? 'not-allowed' : 'pointer', marginBottom: '12px',
+          }}
+        >
+          {submitting ? 'Submitting…' : 'Request Beta Access →'}
+        </button>
+        <button onClick={onBack} style={{ width: '100%', padding: '11px', fontSize: '14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
+          ← Back
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Landing Page ──────────────────────────────────────────────────────────────
 
 const LANDING_CSS = `
@@ -189,7 +314,10 @@ const LANDING_CSS = `
 html{scroll-behavior:smooth}
 body{font-family:'Source Sans 3',sans-serif;color:var(--text);background:var(--bg-white);line-height:1.7;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6,.nav-logo{font-family:'Inter',sans-serif}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--slate);border-bottom:1px solid rgba(0,0,0,0.1)}
+.beta-top-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#1a6b6e;color:#fff;text-align:center;padding:0.45rem 1rem;font-size:0.8rem;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.65rem;line-height:1.3}
+.beta-top-bar a{color:#7BC4A0;font-weight:700;text-decoration:none;white-space:nowrap;border:1px solid rgba(123,196,160,0.5);padding:0.15rem 0.6rem;border-radius:4px}
+.beta-top-bar a:hover{background:rgba(123,196,160,0.15)}
+nav{position:fixed;top:36px;left:0;right:0;z-index:100;padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--slate);border-bottom:1px solid rgba(0,0,0,0.1)}
 .nav-logo{font-size:1.3rem;font-weight:700;color:#fff;text-decoration:none;cursor:pointer;background:none;border:none}
 .nav-logo span{color:var(--green)}
 .nav-links{display:flex;gap:2rem;align-items:center}
@@ -200,7 +328,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0.85rem 2rem;display
 .btn-green:hover{background:var(--green-dark);transform:translateY(-1px)}
 .btn-outline-white{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.4)}
 .btn-outline-white:hover{border-color:#fff;background:rgba(255,255,255,0.1)}
-.hero{padding:7rem 2rem 4.5rem;background:linear-gradient(135deg,#3d5a6e 0%,#4a6b7a 40%,#5a7d8e 100%);text-align:center;position:relative;overflow:hidden}
+.hero{padding:9.5rem 2rem 4.5rem;background:linear-gradient(135deg,#3d5a6e 0%,#4a6b7a 40%,#5a7d8e 100%);text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 30% 20%,rgba(92,176,133,0.12) 0%,transparent 60%);pointer-events:none}
 .hero-badge{display:inline-block;background:rgba(92,176,133,0.2);color:#fef8e8;font-size:0.8rem;font-weight:600;padding:0.4rem 1rem;border-radius:20px;margin-bottom:1.5rem;letter-spacing:0.03em;text-transform:uppercase;border:1px solid rgba(92,176,133,0.3);font-family:'Inter',sans-serif}
 .hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:1.25rem;max-width:850px;margin-left:auto;margin-right:auto;position:relative}
@@ -303,7 +431,7 @@ footer a{color:var(--green);text-decoration:none}
 @media(max-width:768px){
   nav{padding:0.75rem 1rem}
   .nav-links a:not(.btn){display:none}
-  .hero{padding:6rem 1.5rem 3.5rem}
+  .hero{padding:8.5rem 1.5rem 3.5rem}
   .tia-content{grid-template-columns:1fr}
   .hero-cta{flex-direction:column;align-items:center}
   .flex-cards{grid-template-columns:1fr}
@@ -314,6 +442,10 @@ footer a{color:var(--green);text-decoration:none}
 `;
 
 const LANDING_HTML = `
+<div class="beta-top-bar">
+  🎉 Now accepting beta testers — try TechGrowth Check free and share your feedback.
+  <a href="#" data-beta="1">Join Beta →</a>
+</div>
 <nav>
   <a href="#top" class="nav-logo">TechGrowth <span>Check</span></a>
   <div class="nav-links">
@@ -590,7 +722,7 @@ const LANDING_HTML = `
 </footer>
 `;
 
-function LandingPage({ onGetStarted }) {
+function LandingPage({ onGetStarted, onJoinBeta }) {
   useEffect(() => {
     const style = document.createElement('style');
     style.id = 'lp-css';
@@ -610,10 +742,8 @@ function LandingPage({ onGetStarted }) {
   }, []);
 
   const handleClick = (e) => {
-    if (e.target.closest('[data-cta]')) {
-      e.preventDefault();
-      onGetStarted();
-    }
+    if (e.target.closest('[data-cta]')) { e.preventDefault(); onGetStarted(); }
+    if (e.target.closest('[data-beta]')) { e.preventDefault(); onJoinBeta(); }
   };
 
   return (
@@ -635,10 +765,30 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const [isViewingExisting, setIsViewingExisting] = useState(false);
   const canvasRefs = useRef({});
 
+  // Multi-class additional rows
+  const [additionalClasses, setAdditionalClasses] = useState([]);
+  // Multi-class results after payment
+  const [multiClassResults, setMultiClassResults] = useState([]);
+  const [activeResultClass, setActiveResultClass] = useState(0);
+
+  // Beta code
+  const [showBetaCode, setShowBetaCode] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
+  const [betaCodeError, setBetaCodeError] = useState('');
+
+  const addAnotherClass = () =>
+    setAdditionalClasses(prev => [...prev, { id: String(Date.now()), className: '', grade: '', studentCount: '' }]);
+  const removeAdditionalClass = (id) =>
+    setAdditionalClasses(prev => prev.filter(c => c.id !== id));
+  const updateAdditionalClass = (id, field, value) =>
+    setAdditionalClasses(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
+
   const appUrl = window.location.origin + window.location.pathname;
   const count = parseInt(studentCount, 10) || 0;
   const price = Math.max(parseFloat(pricePerStudent) || 2, 2);
-  const totalCost = (price * count).toFixed(2);
+  const additionalStudentCount = additionalClasses.reduce((sum, c) => sum + (parseInt(c.studentCount) || 0), 0);
+  const totalStudents = count + additionalStudentCount;
+  const totalCost = (price * totalStudents).toFixed(2);
 
   const existingClass = existingClasses.find(c => c.class_name === className.trim());
   const isAddMode = Boolean(existingClass);
@@ -680,9 +830,16 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     const stored = localStorage.getItem('pendingPassOrder');
     if (!stored) return;
     const order = JSON.parse(stored);
-    setClassName(order.className);
-    setGrade(order.grade);
-    setStudentCount(order.studentCount);
+    if (order.classes && order.classes.length > 0) {
+      const first = order.classes[0];
+      setClassName(first.className);
+      setGrade(first.grade);
+      setStudentCount(first.studentCount);
+    } else {
+      setClassName(order.className);
+      setGrade(order.grade);
+      setStudentCount(order.studentCount);
+    }
     setPricePerStudent(order.pricePerStudent);
     verifyAndGenerate(paymentSessionId, order);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -707,37 +864,49 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         return;
       }
 
-      const n = parseInt(order.studentCount, 10);
-      const startAt = parseInt(order.startingStudentNumber, 10) || 1;
-      const rows = [];
-      const passData = [];
-      for (let i = 0; i < n; i++) {
-        const studentNum = startAt + i;
-        const pre  = makeToken();
-        const post = makeToken();
-        rows.push(
-          { token: pre,  grade_level: Number(order.grade), test_type: 'pre',
-            teacher_id: profile.id, class_name: order.className, student_number: studentNum },
-          { token: post, grade_level: Number(order.grade), test_type: 'post',
-            teacher_id: profile.id, class_name: order.className, student_number: studentNum },
-        );
-        passData.push({ studentNum, pre, post });
+      // Support both old single-class and new multi-class localStorage format
+      const classes = order.classes || [{
+        className: order.className,
+        grade: order.grade,
+        studentCount: order.studentCount,
+        startingStudentNumber: order.startingStudentNumber || '1',
+      }];
+
+      const allRows = [];
+      const byClass = {};
+
+      for (const cls of classes) {
+        const n = parseInt(cls.studentCount, 10);
+        const startAt = parseInt(cls.startingStudentNumber, 10) || 1;
+        const classKey = cls.className;
+        if (!byClass[classKey]) byClass[classKey] = { className: cls.className, grade: cls.grade, passes: [] };
+        for (let i = 0; i < n; i++) {
+          const studentNum = startAt + i;
+          const pre  = makeToken();
+          const post = makeToken();
+          allRows.push(
+            { token: pre,  grade_level: Number(cls.grade), test_type: 'pre',  teacher_id: profile.id, class_name: cls.className, student_number: studentNum },
+            { token: post, grade_level: Number(cls.grade), test_type: 'post', teacher_id: profile.id, class_name: cls.className, student_number: studentNum },
+          );
+          byClass[classKey].passes.push({ studentNum, pre, post });
+        }
       }
 
-      const { error: insertError } = await supabase.from('tokens').insert(rows);
+      const { error: insertError } = await supabase.from('tokens').insert(allRows);
       if (insertError) {
         setError('Could not save passes: ' + insertError.message);
         setGenerating(false);
         return;
       }
 
+      const totalN = allRows.length / 2;
       await supabase.from('payments').insert([{
         teacher_id: profile.id,
         stripe_session_id: sessionId,
         amount_paid: data.amountTotal,
-        num_students: n,
-        class_name: order.className,
-        grade_level: Number(order.grade),
+        num_students: totalN,
+        class_name: classes.map(c => c.className).join(', '),
+        grade_level: Number(classes[0].grade),
       }]);
 
       localStorage.removeItem('pendingPassOrder');
@@ -746,7 +915,18 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       cleanUrl.searchParams.delete('session_id');
       window.history.replaceState({}, '', cleanUrl.toString());
 
-      setPasses(passData);
+      const classList = Object.values(byClass);
+      if (classList.length === 1) {
+        setClassName(classList[0].className);
+        setGrade(classList[0].grade);
+        setPasses(classList[0].passes);
+      } else {
+        setMultiClassResults(classList);
+        setActiveResultClass(0);
+        setClassName(classList[0].className);
+        setGrade(classList[0].grade);
+        setPasses(classList[0].passes);
+      }
     } catch (err) {
       setError('Something went wrong: ' + err.message);
     }
@@ -760,22 +940,38 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     }
     setGenerating(true);
     setError('');
-    localStorage.setItem('pendingPassOrder', JSON.stringify({
+
+    // Build the primary class entry
+    const primaryClass = {
       className: className.trim(),
-      grade,
+      grade: grade || String(existingClass?.grade_level || ''),
       studentCount: String(count),
-      pricePerStudent: String(price),
       startingStudentNumber: String(startingStudentNumber),
+    };
+
+    // Merge with additional classes
+    const allClasses = [primaryClass, ...additionalClasses.map(ac => {
+      const ex = existingClasses.find(c => c.class_name === ac.className.trim());
+      return {
+        className: ac.className.trim(),
+        grade: ac.grade,
+        studentCount: ac.studentCount,
+        startingStudentNumber: String(ex ? ex.maxStudentNumber + 1 : 1),
+      };
+    })].filter(c => c.className && c.grade && parseInt(c.studentCount) > 0);
+
+    localStorage.setItem('pendingPassOrder', JSON.stringify({
+      classes: allClasses,
+      pricePerStudent: String(price),
     }));
+
     try {
       const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          numStudents: count,
+          classes: allClasses,
           pricePerStudent: price,
-          className: className.trim(),
-          gradeLevel: grade,
           teacherId: profile.id,
         }),
       });
@@ -792,6 +988,58 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       localStorage.removeItem('pendingPassOrder');
       setGenerating(false);
     }
+  };
+
+  const handleBetaGenerate = async () => {
+    if (!betaCode.trim()) { setBetaCodeError('Enter your beta code.'); return; }
+    if (!isAddMode && !grade) { setBetaCodeError('Please select a grade level.'); return; }
+    setGenerating(true);
+    setBetaCodeError('');
+    try {
+      const { data: codeData, error: codeErr } = await supabase
+        .from('beta_codes')
+        .select('*')
+        .eq('code', betaCode.trim().toUpperCase())
+        .maybeSingle();
+
+      if (codeErr || !codeData) {
+        setBetaCodeError('Invalid beta code.');
+        setGenerating(false);
+        return;
+      }
+      if (codeData.expires_at && new Date(codeData.expires_at) < new Date()) {
+        setBetaCodeError('This beta code has expired.');
+        setGenerating(false);
+        return;
+      }
+      if ((codeData.used_students || 0) + count > (codeData.max_students || 0)) {
+        setBetaCodeError(`This code only has ${(codeData.max_students || 0) - (codeData.used_students || 0)} student passes remaining.`);
+        setGenerating(false);
+        return;
+      }
+
+      const rows = [];
+      const passData = [];
+      for (let i = 0; i < count; i++) {
+        const studentNum = startingStudentNumber + i;
+        const pre  = makeToken();
+        const post = makeToken();
+        rows.push(
+          { token: pre,  grade_level: Number(grade), test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: studentNum },
+          { token: post, grade_level: Number(grade), test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: studentNum },
+        );
+        passData.push({ studentNum, pre, post });
+      }
+
+      const { error: insertError } = await supabase.from('tokens').insert(rows);
+      if (insertError) { setBetaCodeError('Could not save passes: ' + insertError.message); setGenerating(false); return; }
+
+      await supabase.from('beta_codes').update({ used_students: (codeData.used_students || 0) + count }).eq('code', codeData.code);
+      setPasses(passData);
+    } catch (err) {
+      setBetaCodeError('Something went wrong: ' + err.message);
+    }
+    setGenerating(false);
   };
 
   const printDoc = (html) => {
@@ -873,6 +1121,9 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     setError('');
     setStudentNames({});
     setIsViewingExisting(false);
+    setMultiClassResults([]);
+    setActiveResultClass(0);
+    setAdditionalClasses([]);
     loadExistingClasses();
   };
 
@@ -1010,13 +1261,58 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           </div>
         </div>
 
-        {count > 0 && (
+        {/* Additional class rows */}
+        {additionalClasses.map((ac, acIdx) => (
+          <div key={ac.id} style={{ background: '#F4F7FA', borderRadius: '8px', padding: '16px', marginBottom: '12px', border: '1px solid #E2E8F0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#3D4B5C' }}>Class {acIdx + 2}</span>
+              <button
+                onClick={() => removeAdditionalClass(ac.id)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 4px', display: 'flex', alignItems: 'center' }}
+                aria-label="Remove class"
+              ><X size={16} /></button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>Class Name</label>
+                <input type="text" list="class-name-suggestions" placeholder="e.g. Period 4" value={ac.className} onChange={e => updateAdditionalClass(ac.id, 'className', e.target.value)} style={fieldStyle} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>Grade Level</label>
+                <select value={ac.grade} onChange={e => updateAdditionalClass(ac.id, 'grade', e.target.value)} style={fieldStyle}>
+                  <option value="">Select grade…</option>
+                  {PASS_GRADES.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>Number of Students</label>
+                <input type="number" min="1" placeholder="e.g. 25" value={ac.studentCount} onChange={e => updateAdditionalClass(ac.id, 'studentCount', e.target.value)} style={fieldStyle} />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <button
+          onClick={addAnotherClass}
+          style={{
+            padding: '8px 16px', fontSize: '13px', fontWeight: 600,
+            border: '1.5px dashed #5B8DB8', borderRadius: '6px',
+            backgroundColor: 'transparent', color: '#5B8DB8',
+            cursor: 'pointer', marginBottom: '20px', display: 'block',
+          }}
+        >
+          + Add Another Class
+        </button>
+
+        {totalStudents > 0 && (
           <div style={{
             background: '#F0F7FF', border: '1px solid #C5D9EC', borderRadius: '8px',
             padding: '12px 16px', marginBottom: '20px',
             fontSize: '15px', color: '#3D6B8A', fontWeight: 600,
           }}>
-            {count} student{count !== 1 ? 's' : ''} × ${price.toFixed(2)} = <strong>${totalCost}</strong>
+            {totalStudents} student{totalStudents !== 1 ? 's' : ''}
+            {additionalClasses.length > 0 ? ` across ${1 + additionalClasses.length} classes` : ''}
+            {' '}× ${price.toFixed(2)} = <strong>${totalCost}</strong>
           </div>
         )}
 
@@ -1043,10 +1339,73 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           {generating ? 'Processing…' : 'Proceed to Payment →'}
         </button>
 
+        {/* Beta code section */}
+        <div style={{ marginTop: '14px' }}>
+          <button
+            onClick={() => { setShowBetaCode(v => !v); setBetaCodeError(''); }}
+            style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+          >
+            {showBetaCode ? 'Hide beta code ↑' : 'Have a beta code? →'}
+          </button>
+          {showBetaCode && (
+            <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                placeholder="Beta code"
+                value={betaCode}
+                onChange={e => { setBetaCode(e.target.value.toUpperCase()); setBetaCodeError(''); }}
+                style={{ padding: '10px 12px', fontSize: '15px', border: '1.5px solid #ddd', borderRadius: '6px', fontFamily: 'monospace', letterSpacing: '2px', width: '180px', boxSizing: 'border-box' }}
+              />
+              <button
+                onClick={handleBetaGenerate}
+                disabled={!canProceed || Boolean(validationHint) || generating}
+                style={{
+                  padding: '10px 22px', fontSize: '14px', fontWeight: 700,
+                  border: 'none', borderRadius: '6px',
+                  backgroundColor: (canProceed && !validationHint) ? '#2E7F84' : '#ccc',
+                  color: 'white', cursor: (canProceed && !validationHint) ? 'pointer' : 'not-allowed',
+                }}
+              >
+                {generating ? 'Processing…' : 'Use Code'}
+              </button>
+              {betaCodeError && <p style={{ color: '#f44336', margin: 0, fontSize: '13px', width: '100%', marginTop: '-4px' }}>{betaCodeError}</p>}
+            </div>
+          )}
+        </div>
+
         {error && (
           <p style={{ color: '#f44336', marginTop: '12px', fontSize: '14px' }}>{error}</p>
         )}
       </div>
+
+      {/* Multi-class result tabs */}
+      {multiClassResults.length > 1 && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          {multiClassResults.map((mc, idx) => (
+            <button
+              key={mc.className}
+              onClick={() => {
+                setActiveResultClass(idx);
+                setClassName(mc.className);
+                setGrade(mc.grade);
+                setPasses(mc.passes);
+                setStudentNames({});
+                setActiveTab('pre');
+              }}
+              style={{
+                padding: '8px 18px', fontSize: '13px', fontWeight: 700,
+                border: '2px solid ' + (idx === activeResultClass ? '#5B8DB8' : '#E2E8F0'),
+                borderRadius: '6px',
+                background: idx === activeResultClass ? '#EAF1F8' : 'white',
+                color: idx === activeResultClass ? '#3D6B8A' : '#64748b',
+                cursor: 'pointer',
+              }}
+            >
+              {mc.className}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Results */}
       {passes.length > 0 && (
@@ -2240,9 +2599,14 @@ function ResultsDashboard({ profile, onBack }) {
 }
 
 function Dashboard({ profile, onLogout }) {
+  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'schedule', 'create-assessment', 'tia-report'];
+
   const [section, setSection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('payment') === 'success' ? 'generate-passes' : 'overview';
+    if (params.get('payment') === 'success') return 'generate-passes';
+    const path = window.location.pathname.replace(/^\//, '');
+    if (VALID_SECTIONS.includes(path)) return path;
+    return 'overview';
   });
   const [paymentSessionId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -2252,6 +2616,13 @@ function Dashboard({ profile, onLogout }) {
   const [tourOpen, setTourOpen] = useState(false);
   const [dashClasses, setDashClasses] = useState([]);
   const [initialClass, setInitialClass] = useState(null);
+
+  // Folders
+  const [folders, setFolders] = useState([]);
+  const [folderAssignments, setFolderAssignments] = useState({});
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [foldersLoading, setFoldersLoading] = useState(false);
 
   useEffect(() => {
     const loadDashClasses = async () => {
@@ -2272,6 +2643,43 @@ function Dashboard({ profile, onLogout }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    const loadFolders = async () => {
+      try {
+        const [{ data: fData }, { data: aData }] = await Promise.all([
+          supabase.from('class_folders').select('*').eq('teacher_id', profile.id).order('folder_name'),
+          supabase.from('class_folder_assignments').select('*').eq('teacher_id', profile.id),
+        ]);
+        setFolders(fData || []);
+        const map = {};
+        (aData || []).forEach(a => { map[a.class_name] = a.folder_id; });
+        setFolderAssignments(map);
+      } catch (_) { /* tables may not exist yet */ }
+    };
+    loadFolders();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync section to URL path for back-button support
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') return; // payment flow manages its own URL
+    const path = section === 'overview' ? '/' : '/' + section;
+    if (window.location.pathname !== path) {
+      window.history.pushState({ section }, '', path);
+    }
+  }, [section]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const handlePop = (e) => {
+      const s = e.state?.section;
+      if (s) { setSection(s); return; }
+      const path = window.location.pathname.replace(/^\//, '');
+      setSection(VALID_SECTIONS.includes(path) ? path : 'overview');
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') === 'cancelled') {
       localStorage.removeItem('pendingPassOrder');
@@ -2283,6 +2691,40 @@ function Dashboard({ profile, onLogout }) {
 
   const firstName = (profile.full_name || 'Teacher').split(' ')[0];
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return;
+    setFoldersLoading(true);
+    const { data } = await supabase.from('class_folders').insert([{
+      teacher_id: profile.id,
+      folder_name: newFolderName.trim(),
+    }]).select().single();
+    if (data) setFolders(prev => [...prev, data].sort((a, b) => a.folder_name.localeCompare(b.folder_name)));
+    setNewFolderName('');
+    setShowNewFolder(false);
+    setFoldersLoading(false);
+  };
+
+  const handleMoveToFolder = async (className, folderId) => {
+    if (!folderId) {
+      await supabase.from('class_folder_assignments').delete().eq('teacher_id', profile.id).eq('class_name', className);
+      setFolderAssignments(prev => { const n = { ...prev }; delete n[className]; return n; });
+    } else {
+      await supabase.from('class_folder_assignments').upsert([{ teacher_id: profile.id, class_name: className, folder_id: folderId }], { onConflict: 'teacher_id,class_name' });
+      setFolderAssignments(prev => ({ ...prev, [className]: folderId }));
+    }
+  };
+
+  const handleDeleteFolder = async (folderId) => {
+    await supabase.from('class_folder_assignments').delete().eq('folder_id', folderId).eq('teacher_id', profile.id);
+    await supabase.from('class_folders').delete().eq('id', folderId);
+    setFolders(prev => prev.filter(f => f.id !== folderId));
+    setFolderAssignments(prev => {
+      const n = { ...prev };
+      Object.keys(n).forEach(k => { if (n[k] === folderId) delete n[k]; });
+      return n;
+    });
+  };
 
   const steps = [
     {
@@ -2511,49 +2953,115 @@ function Dashboard({ profile, onLogout }) {
             style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '14px', cursor: 'pointer', padding: 0, marginBottom: '24px' }}
           >← Back to Dashboard</button>
 
-          <h2 style={{ margin: '0 0 8px', color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Layers size={22} color="#3D6B8A" strokeWidth={1.75} />
-            My Classes
-          </h2>
-          <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>
-            Click "View Passes" to see and reprint QR codes for any class.
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
+            <h2 style={{ margin: 0, color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Layers size={22} color="#3D6B8A" strokeWidth={1.75} />
+              My Classes
+            </h2>
+            <button
+              onClick={() => setShowNewFolder(v => !v)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, background: 'white', border: '1.5px solid #E2E8F0', borderRadius: '6px', cursor: 'pointer', color: '#3D4B5C' }}
+            >
+              <FolderPlus size={15} /> New Folder
+            </button>
+          </div>
+          <p style={{ margin: '0 0 20px', color: '#64748b', fontSize: '14px' }}>
+            Click "View Passes" to see and reprint QR codes for any class. Use folders to organize.
           </p>
 
+          {showNewFolder && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                placeholder="Folder name (e.g. Fall 2025)"
+                value={newFolderName}
+                onChange={e => setNewFolderName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
+                autoFocus
+                style={{ padding: '9px 12px', fontSize: '14px', border: '1.5px solid #5B8DB8', borderRadius: '6px', outline: 'none', minWidth: '200px', boxSizing: 'border-box' }}
+              />
+              <button onClick={handleCreateFolder} disabled={foldersLoading || !newFolderName.trim()} style={{ padding: '9px 18px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '6px', background: '#5B8DB8', color: 'white', cursor: 'pointer' }}>
+                {foldersLoading ? 'Creating…' : 'Create'}
+              </button>
+              <button onClick={() => { setShowNewFolder(false); setNewFolderName(''); }} style={{ padding: '9px 14px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
+                Cancel
+              </button>
+            </div>
+          )}
+
           {dashClasses.length === 0 ? (
-            <div style={{
-              background: 'white', borderRadius: '10px', padding: '40px 28px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.07)', textAlign: 'center', color: '#94a3b8',
-            }}>
+            <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', textAlign: 'center', color: '#94a3b8' }}>
               <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
               <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
               <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
             </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-              {dashClasses.map(c => (
-                <div key={c.class_name} style={{
-                  background: 'white', borderRadius: '12px', padding: '22px 20px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7',
-                  display: 'flex', flexDirection: 'column',
-                }}>
-                  <div style={{ fontWeight: 700, fontSize: '16px', color: '#1e293b', marginBottom: '4px' }}>{c.class_name}</div>
-                  <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
-                    Grade {c.grade_level} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
-                  </div>
-                  <button
-                    onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
-                    style={{
-                      marginTop: 'auto', padding: '9px 18px', fontSize: '13px', fontWeight: 700,
-                      background: '#D4EEE3', color: '#3D7A5E',
-                      border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-                  >View Passes →</button>
+          ) : (() => {
+            const ClassCard = ({ c }) => (
+              <div style={{ background: 'white', borderRadius: '12px', padding: '22px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontWeight: 700, fontSize: '16px', color: '#1e293b', marginBottom: '4px' }}>{c.class_name}</div>
+                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '14px' }}>
+                  Grade {c.grade_level} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
                 </div>
-              ))}
-            </div>
-          )}
+                {folders.length > 0 && (
+                  <select
+                    value={folderAssignments[c.class_name] || ''}
+                    onChange={e => handleMoveToFolder(c.class_name, e.target.value)}
+                    style={{ fontSize: '12px', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 8px', marginBottom: '12px', background: 'white', cursor: 'pointer' }}
+                  >
+                    <option value="">No folder</option>
+                    {folders.map(f => <option key={f.id} value={f.id}>{f.folder_name}</option>)}
+                  </select>
+                )}
+                <button
+                  onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
+                  style={{ marginTop: 'auto', padding: '9px 18px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
+                  onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+                  onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                >View Passes →</button>
+              </div>
+            );
+
+            const unassigned = dashClasses.filter(c => !folderAssignments[c.class_name]);
+            const inFolders = folders.map(f => ({
+              folder: f,
+              classes: dashClasses.filter(c => folderAssignments[c.class_name] === f.id),
+            })).filter(({ classes }) => classes.length > 0);
+
+            return (
+              <div>
+                {inFolders.map(({ folder, classes }) => (
+                  <div key={folder.id} style={{ marginBottom: '28px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                      <Folder size={16} color="#5B8DB8" />
+                      <span style={{ fontWeight: 700, fontSize: '15px', color: '#3D4B5C' }}>{folder.folder_name}</span>
+                      <span style={{ fontSize: '12px', color: '#94a3b8' }}>{classes.length} class{classes.length !== 1 ? 'es' : ''}</span>
+                      <button
+                        onClick={() => { if (window.confirm(`Delete folder "${folder.folder_name}"? Classes will become unassigned.`)) handleDeleteFolder(folder.id); }}
+                        style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                        title="Delete folder"
+                      ><X size={14} /></button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                      {classes.map(c => <ClassCard key={c.class_name} c={c} />)}
+                    </div>
+                  </div>
+                ))}
+
+                {unassigned.length > 0 && (
+                  <div>
+                    {inFolders.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                        <span style={{ fontWeight: 600, fontSize: '14px', color: '#94a3b8' }}>Unassigned</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                      {unassigned.map(c => <ClassCard key={c.class_name} c={c} />)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
@@ -4145,6 +4653,9 @@ function App() {
     return hash.includes('type=recovery');
   });
 
+  // ── Beta signup page ─────────────────────────────────────────────────────
+  const [showBetaSignup, setShowBetaSignup] = useState(() => window.location.pathname === '/beta');
+
   // ── Teacher auth state ───────────────────────────────────────────────────
   const [showTeacherLogin, setShowTeacherLogin] = useState(false);
   const [teacherProfile, setTeacherProfile] = useState(null);
@@ -4580,11 +5091,31 @@ function App() {
     );
   }
 
+  // ── Beta signup page (anyone can access) ────────────────────────────────
+  if (showBetaSignup) {
+    return (
+      <BetaSignupPage
+        onBack={() => {
+          setShowBetaSignup(false);
+          window.history.replaceState({}, '', '/');
+        }}
+      />
+    );
+  }
+
   // ── Landing page for non-student visitors ───────────────────────────────
   if (!isLoggedIn) {
     const p = new URLSearchParams(window.location.search);
     if (!p.has('token') && !window.location.pathname.startsWith('/student')) {
-      return <LandingPage onGetStarted={() => setShowTeacherLogin(true)} />;
+      return (
+        <LandingPage
+          onGetStarted={() => setShowTeacherLogin(true)}
+          onJoinBeta={() => {
+            window.history.pushState({}, '', '/beta');
+            setShowBetaSignup(true);
+          }}
+        />
+      );
     }
   }
 

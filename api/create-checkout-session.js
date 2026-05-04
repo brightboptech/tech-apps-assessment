@@ -3,7 +3,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
@@ -14,37 +14,47 @@ if (req.method === 'OPTIONS') return res.status(200).end();
     }
 
     const stripe = require('stripe')(key);
+    const { classes, pricePerStudent, teacherId, numStudents, className, gradeLevel } = req.body;
 
-    const { numStudents, pricePerStudent, className, gradeLevel, teacherId } = req.body;
-
-    if (!numStudents || !pricePerStudent || !className || !gradeLevel) {
-      return res.status(400).json({ error: 'Missing required fields: numStudents, pricePerStudent, className, gradeLevel' });
+    // Support both new multi-class format ({ classes: [...], pricePerStudent }) and
+    // old single-class format ({ numStudents, pricePerStudent, className, gradeLevel })
+    let lineItemClasses;
+    if (classes && Array.isArray(classes) && classes.length > 0) {
+      lineItemClasses = classes;
+    } else if (numStudents && className && gradeLevel) {
+      lineItemClasses = [{ className, grade: gradeLevel, studentCount: numStudents }];
+    } else {
+      return res.status(400).json({ error: 'Missing required fields: provide either classes array or numStudents/className/gradeLevel' });
     }
 
     const unitAmountCents = Math.round(Math.max(parseFloat(pricePerStudent) || 2, 2) * 100);
     const origin = req.headers.origin || 'https://techgrowthcheck.vercel.app';
 
+    const lineItems = lineItemClasses.map(cls => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: `Student Passes — ${cls.className} (Grade ${cls.grade || cls.gradeLevel})`,
+          description: `${cls.studentCount || cls.numStudents} student passes (pre-test + post-test access)`,
+        },
+        unit_amount: unitAmountCents,
+      },
+      quantity: parseInt(cls.studentCount || cls.numStudents, 10),
+    }));
+
+    const totalStudents = lineItems.reduce((sum, li) => sum + li.quantity, 0);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: `Student Passes — ${className} (Grade ${gradeLevel})`,
-            description: `${numStudents} student passes (pre-test + post-test access)`,
-          },
-          unit_amount: unitAmountCents,
-        },
-        quantity: numStudents,
-      }],
+      line_items: lineItems,
       mode: 'payment',
       success_url: `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?payment=cancelled`,
       metadata: {
         teacher_id: String(teacherId || ''),
-        class_name: className,
-        grade_level: String(gradeLevel),
-        num_students: String(numStudents),
+        class_names: lineItemClasses.map(c => c.className).join(', '),
+        num_classes: String(lineItemClasses.length),
+        num_students: String(totalStudents),
       },
     });
 

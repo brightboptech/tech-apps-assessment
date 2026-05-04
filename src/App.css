@@ -100,6 +100,53 @@
   70%  { transform: scale(0.88) rotate(-6deg);  }
   100% { transform: scale(1)    rotate(0deg);   }
 }
+/* Mobile responsive */
+@media (max-width: 600px) {
+  /* Dashboard header */
+  .tc-dash-header-inner {
+    gap: 8px;
+  }
+  .tc-dash-header-inner > div:first-child > div:first-child {
+    font-size: 18px;
+  }
+  /* Section containers */
+  .tc-section-pad {
+    padding: 0 12px !important;
+    margin-top: 20px !important;
+  }
+  /* Form grids collapse to 1-col */
+  .tc-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+  /* Button groups wrap and go full-width */
+  .tc-btn-group {
+    flex-direction: column;
+  }
+  .tc-btn-group > button {
+    width: 100%;
+    justify-content: center;
+  }
+  /* Passes table: compact tokens */
+  .tc-pass-token {
+    font-size: 14px !important;
+    letter-spacing: 1px !important;
+  }
+  /* Student login logo */
+  .tc-student-logo {
+    font-size: 38px !important;
+  }
+  /* Beta signup */
+  .tc-beta-card {
+    padding: 28px 20px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .tc-student-logo {
+    font-size: 30px !important;
+  }
+}
+
 /* Progress-bar rocket flame */
 .spb-flame {
   transform-box: fill-box;
