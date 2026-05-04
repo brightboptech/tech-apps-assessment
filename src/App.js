@@ -2629,6 +2629,14 @@ function Dashboard({ profile, onLogout }) {
   const [newFolderName, setNewFolderName] = useState('');
   const [foldersLoading, setFoldersLoading] = useState(false);
   const [folderError, setFolderError] = useState('');
+  const [collapsedFolders, setCollapsedFolders] = useState(new Set());
+
+  const toggleFolderCollapse = (folderId) =>
+    setCollapsedFolders(prev => {
+      const next = new Set(prev);
+      if (next.has(folderId)) next.delete(folderId); else next.add(folderId);
+      return next;
+    });
 
   useEffect(() => {
     const loadDashClasses = async () => {
@@ -2703,11 +2711,17 @@ function Dashboard({ profile, onLogout }) {
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
+    const nameClean = newFolderName.trim();
+    const duplicate = folders.some(f => f.folder_name.toLowerCase() === nameClean.toLowerCase());
+    if (duplicate) {
+      setFolderError(`A folder named "${nameClean}" already exists.`);
+      return;
+    }
     setFoldersLoading(true);
     setFolderError('');
     const { data, error: insertErr } = await supabase
       .from('class_folders')
-      .insert([{ teacher_id: profile.id, folder_name: newFolderName.trim() }])
+      .insert([{ teacher_id: profile.id, folder_name: nameClean }])
       .select()
       .single();
     if (insertErr) {
@@ -3039,24 +3053,18 @@ function Dashboard({ profile, onLogout }) {
             </div>
           )}
 
-          {dashClasses.length === 0 ? (
-            <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', textAlign: 'center', color: '#94a3b8' }}>
-              <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
-              <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
-              <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
-            </div>
-          ) : (() => {
+          {(() => {
             const ClassCard = ({ c }) => (
-              <div style={{ background: 'white', borderRadius: '12px', padding: '22px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontWeight: 700, fontSize: '16px', color: '#1e293b', marginBottom: '4px' }}>{c.class_name}</div>
-                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '14px' }}>
+              <div style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', marginBottom: '3px' }}>{c.class_name}</div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '12px' }}>
                   Grade {c.grade_level} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
                 </div>
                 {folders.length > 0 && (
                   <select
                     value={folderAssignments[c.class_name] || ''}
                     onChange={e => handleMoveToFolder(c.class_name, e.target.value)}
-                    style={{ fontSize: '12px', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 8px', marginBottom: '12px', background: 'white', cursor: 'pointer' }}
+                    style={{ fontSize: '12px', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 8px', marginBottom: '10px', background: 'white', cursor: 'pointer', width: '100%' }}
                   >
                     <option value="">No folder</option>
                     {folders.map(f => <option key={f.id} value={f.id}>{f.folder_name}</option>)}
@@ -3064,49 +3072,82 @@ function Dashboard({ profile, onLogout }) {
                 )}
                 <button
                   onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
-                  style={{ marginTop: 'auto', padding: '9px 18px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
+                  style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
                   onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
                   onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
                 >View Passes →</button>
               </div>
             );
 
-            const unassigned = dashClasses.filter(c => !folderAssignments[c.class_name]);
-            const inFolders = folders.map(f => ({
+            // Always show ALL folders (including empty ones) — bug fix: was filtering out empty folders
+            const folderSections = folders.map(f => ({
               folder: f,
               classes: dashClasses.filter(c => folderAssignments[c.class_name] === f.id),
-            })).filter(({ classes }) => classes.length > 0);
+            }));
+            const unassigned = dashClasses.filter(c => !folderAssignments[c.class_name]);
 
             return (
               <div>
-                {inFolders.map(({ folder, classes }) => (
-                  <div key={folder.id} style={{ marginBottom: '28px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <Folder size={16} color="#5B8DB8" />
-                      <span style={{ fontWeight: 700, fontSize: '15px', color: '#3D4B5C' }}>{folder.folder_name}</span>
-                      <span style={{ fontSize: '12px', color: '#94a3b8' }}>{classes.length} class{classes.length !== 1 ? 'es' : ''}</span>
-                      <button
-                        onClick={() => { if (window.confirm(`Delete folder "${folder.folder_name}"? Classes will become unassigned.`)) handleDeleteFolder(folder.id); }}
-                        style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
-                        title="Delete folder"
-                      ><X size={14} /></button>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-                      {classes.map(c => <ClassCard key={c.class_name} c={c} />)}
-                    </div>
-                  </div>
-                ))}
+                {/* Folder sections */}
+                {folderSections.map(({ folder, classes }) => {
+                  const collapsed = collapsedFolders.has(folder.id);
+                  return (
+                    <div key={folder.id} style={{ marginBottom: '20px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                      {/* Folder header — click to collapse */}
+                      <div
+                        onClick={() => toggleFolderCollapse(folder.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 18px', cursor: 'pointer', userSelect: 'none', background: '#F8FAFC', borderBottom: collapsed ? 'none' : '1px solid #E2E8F0' }}
+                      >
+                        <Folder size={16} color="#5B8DB8" strokeWidth={2} style={{ flexShrink: 0 }} />
+                        <span style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', flex: 1 }}>{folder.folder_name}</span>
+                        <span style={{ fontSize: '12px', color: '#94a3b8', marginRight: '8px' }}>
+                          {classes.length} class{classes.length !== 1 ? 'es' : ''}
+                        </span>
+                        <span style={{ fontSize: '12px', color: '#94a3b8', marginRight: '4px' }}>{collapsed ? '▶' : '▼'}</span>
+                        <button
+                          onClick={e => { e.stopPropagation(); if (window.confirm(`Delete folder "${folder.folder_name}"? Classes will become unassigned.`)) handleDeleteFolder(folder.id); }}
+                          style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', borderRadius: '4px', flexShrink: 0 }}
+                          title="Delete folder"
+                        ><X size={13} /></button>
+                      </div>
 
-                {unassigned.length > 0 && (
+                      {/* Folder contents */}
+                      {!collapsed && (
+                        <div style={{ padding: '16px 18px' }}>
+                          {classes.length === 0 ? (
+                            <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8', fontStyle: 'italic' }}>
+                              No classes in this folder yet. Use the "No folder" dropdown on a class card to move it here.
+                            </p>
+                          ) : (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}>
+                              {classes.map(c => <ClassCard key={c.class_name} c={c} />)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Unassigned classes */}
+                {(unassigned.length > 0 || dashClasses.length === 0) && (
                   <div>
-                    {inFolders.length > 0 && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                        <span style={{ fontWeight: 600, fontSize: '14px', color: '#94a3b8' }}>Unassigned</span>
+                    {folders.length > 0 && unassigned.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', marginTop: '4px' }}>
+                        <span style={{ fontWeight: 600, fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unassigned Classes</span>
                       </div>
                     )}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-                      {unassigned.map(c => <ClassCard key={c.class_name} c={c} />)}
-                    </div>
+                    {dashClasses.length === 0 ? (
+                      <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', textAlign: 'center', color: '#94a3b8' }}>
+                        <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
+                        <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
+                        <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}>
+                        {unassigned.map(c => <ClassCard key={c.class_name} c={c} />)}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
