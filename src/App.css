@@ -103,12 +103,9 @@
 /* Mobile responsive */
 @media (max-width: 600px) {
   /* Dashboard header */
-  .tc-dash-header-inner {
-    gap: 8px;
-  }
-  .tc-dash-header-inner > div:first-child > div:first-child {
-    font-size: 18px;
-  }
+  .tc-dash-header { padding: 10px 16px !important; }
+  .tc-dash-header-inner { gap: 8px; }
+  .tc-dash-header-inner > div:first-child > div:first-child { font-size: 18px !important; }
   /* Section containers */
   .tc-section-pad {
     padding: 0 12px !important;
@@ -139,6 +136,23 @@
   .tc-beta-card {
     padding: 28px 20px !important;
   }
+  /* Student login card */
+  .tc-login-card {
+    padding: 28px 20px !important;
+  }
+  /* Assessment Prev/Next buttons full width on mobile */
+  .tc-assess-nav {
+    flex-direction: column;
+  }
+  .tc-assess-nav button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Hide token badge on narrow screens — overlaps with title */
+  .tc-token-badge { display: none; }
 }
 
 @media (max-width: 400px) {

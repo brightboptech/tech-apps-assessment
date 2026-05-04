@@ -433,26 +433,53 @@ h2.section-title{font-size:clamp(1.8rem,3.5vw,2.3rem);font-weight:700;color:var(
 footer{padding:2.5rem 2rem;text-align:center;border-top:1px solid rgba(0,0,0,0.06);background:var(--bg-white)}
 footer p{font-size:0.82rem;color:var(--text-muted)}
 footer a{color:var(--green);text-decoration:none}
+.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:40px;height:40px;padding:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;cursor:pointer}
+.hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px}
+.beta-top-bar .short-text{display:none}
 @media(max-width:768px){
-  nav{padding:0.75rem 1rem}
-  .nav-links a:not(.btn){display:none}
-  .hero{padding:9.5rem 1.5rem 3.5rem}
-  .tia-content{grid-template-columns:1fr}
+  .hamburger{display:flex}
+  .nav-links{display:none;flex-direction:column;width:100%;padding:0.75rem 0 0.5rem;border-top:1px solid rgba(255,255,255,0.12);margin-top:0.6rem}
+  .nav-links.nav-open{display:flex}
+  .nav-links a:not(.btn){display:block!important;padding:0.55rem 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+  .nav-links .btn{margin-top:0.5rem;align-self:flex-start}
+  nav{padding:0.75rem 1rem;flex-wrap:wrap;align-items:center}
+  .hero{padding:10rem 1.25rem 3.5rem}
   .hero-cta{flex-direction:column;align-items:center}
+  .hero-cta .btn{min-width:200px;justify-content:center}
+  .tia-content{grid-template-columns:1fr}
   .flex-cards{grid-template-columns:1fr}
   .summary-grid{grid-template-columns:repeat(2,1fr)}
   .summary-grid .summary-box:last-child{grid-column:span 2}
-  .report-table{font-size:0.75rem}
+  .student-data{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .report-table{font-size:0.75rem;min-width:480px}
+  .report-header{flex-direction:column;align-items:flex-start;gap:0.5rem}
+  .price-card{padding:2rem 1.5rem}
+}
+@media(max-width:600px){
+  .beta-top-bar .full-text{display:none}
+  .beta-top-bar .short-text{display:inline}
+  .beta-top-bar{font-size:0.88rem;padding:0.6rem 1rem;gap:0.6rem}
+  .beta-top-bar a{font-size:0.82rem;padding:0.2rem 0.7rem}
+  nav{top:46px}
+  .hero{padding:9.5rem 1rem 3rem}
+}
+@media(max-width:400px){
+  .hero h1{font-size:clamp(1.75rem,7vw,2.2rem)}
+  .price-card{padding:1.75rem 1.25rem}
 }
 `;
 
 const LANDING_HTML = `
 <div class="beta-top-bar">
-  Now accepting beta testers — try TechGrowth Check free and share your feedback.
+  <span class="full-text">Now accepting beta testers — try TechGrowth Check free and share your feedback.</span>
+  <span class="short-text">Now in beta — try it free!</span>
   <a href="#" data-beta="1">Join Beta →</a>
 </div>
 <nav>
   <a href="#top" class="nav-logo">TechGrowth <span>Check</span></a>
+  <button class="hamburger" data-hamburger="1" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
   <div class="nav-links">
     <a href="#how">How it works</a>
     <a href="#report">Sample report</a>
@@ -749,6 +776,13 @@ function LandingPage({ onGetStarted, onJoinBeta }) {
   const handleClick = (e) => {
     if (e.target.closest('[data-cta]')) { e.preventDefault(); onGetStarted(); }
     if (e.target.closest('[data-beta]')) { e.preventDefault(); onJoinBeta(); }
+    if (e.target.closest('[data-hamburger]')) {
+      e.preventDefault();
+      document.querySelector('.nav-links')?.classList.toggle('nav-open');
+    }
+    if (e.target.closest('.nav-links a')) {
+      document.querySelector('.nav-links')?.classList.remove('nav-open');
+    }
   };
 
   return (
@@ -2723,8 +2757,8 @@ function Dashboard({ profile, onLogout }) {
     <div style={{ minHeight: '100vh', background: '#F4F7FA' }}>
 
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', color: 'white', padding: '14px 32px', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="tc-dash-header" style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', color: 'white', padding: '14px 32px', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
+        <div className="tc-dash-header-inner" style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ margin: '0 0 2px', fontSize: '22px', fontWeight: 800, letterSpacing: '-0.5px', lineHeight: 1 }}>
               TechGrowth<span style={{ color: '#7BC4A0' }}> Check</span>
@@ -5010,7 +5044,7 @@ function App() {
           </p>
         </div>
 
-        <div style={{
+        <div className="tc-login-card" style={{
           background: 'white', borderRadius: '16px', padding: '40px 36px',
           maxWidth: '420px', width: '100%',
           boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
@@ -5024,6 +5058,11 @@ function App() {
 
           <input
             type="text"
+            inputMode="text"
+            autoCapitalize="characters"
+            autoCorrect="off"
+            autoComplete="off"
+            spellCheck="false"
             placeholder="Enter Student Pass"
             value={tokenInput}
             onChange={(e) => setTokenInput(e.target.value.toUpperCase())}
@@ -5343,7 +5382,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div style={{
+        <div className="tc-token-badge" style={{
           position: 'absolute', top: '18px', right: '20px',
           background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
           color: 'rgba(255,255,255,0.75)', padding: '8px 16px',
@@ -5490,7 +5529,7 @@ function App() {
                 ))}
               </div>
 
-              <div style={{
+              <div className="tc-assess-nav" style={{
                 display: 'flex', justifyContent: 'space-between',
                 marginTop: '20px', gap: '10px',
               }}>
