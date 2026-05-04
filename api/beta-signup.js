@@ -11,29 +11,93 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: name, email, school' });
   }
 
+  const cleanName     = String(name).trim();
+  const cleanEmail    = String(email).trim().toLowerCase();
+  const cleanSchool   = String(school).trim();
+  const cleanDistrict = String(district || '').trim();
+  const cleanComments = String(comments || '').trim();
+
+  const results = { supabase: false, email: false };
+
+  // ── Save to Supabase ─────────────────────────────────────────────────────
   try {
     const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.REACT_APP_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY
-    );
+    const sbUrl = process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
+    const sbKey = process.env.SUPABASE_SERVICE_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-    const { error } = await supabase.from('beta_signups').insert([{
-      name: String(name).trim(),
-      email: String(email).trim().toLowerCase(),
-      school: String(school).trim(),
-      district: String(district || '').trim(),
-      comments: String(comments || '').trim(),
-    }]);
-
-    if (error) {
-      console.error('[beta-signup] Supabase error:', error);
-      return res.status(500).json({ error: error.message });
+    if (sbUrl && sbKey) {
+      const supabase = createClient(sbUrl, sbKey);
+      const { error: dbErr } = await supabase.from('beta_signups').insert([{
+        name: cleanName, email: cleanEmail, school: cleanSchool,
+        district: cleanDistrict, comments: cleanComments,
+      }]);
+      if (dbErr) {
+        console.error('[beta-signup] Supabase error:', dbErr.message);
+        if (dbErr.code === '42P01') {
+          console.info('[beta-signup] Create table with:\n' +
+            'CREATE TABLE beta_signups (\n' +
+            '  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n' +
+            '  name TEXT NOT NULL,\n' +
+            '  email TEXT NOT NULL,\n' +
+            '  school TEXT NOT NULL,\n' +
+            '  district TEXT,\n' +
+            '  comments TEXT,\n' +
+            '  created_at TIMESTAMPTZ DEFAULT NOW()\n);\n' +
+            'ALTER TABLE beta_signups ENABLE ROW LEVEL SECURITY;\n' +
+            'CREATE POLICY "Anyone can insert" ON beta_signups FOR INSERT WITH CHECK (true);'
+          );
+        }
+      } else {
+        results.supabase = true;
+      }
     }
-
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('[beta-signup] Error:', err);
-    res.status(500).json({ error: err.message });
+  } catch (e) {
+    console.error('[beta-signup] Supabase exception:', e.message);
   }
+
+  // ── Send email notification via Resend ───────────────────────────────────
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    try {
+      const emailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'TechGrowth Check <onboarding@resend.dev>',
+          to: ['brightboptech@gmail.com'],
+          subject: `New Beta Signup: ${cleanName}`,
+          html: `
+            <h2 style="color:#3D6B8A">New Beta Signup — TechGrowth Check</h2>
+            <table style="border-collapse:collapse;font-family:sans-serif;font-size:15px">
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Name</td><td>${cleanName}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Email</td><td><a href="mailto:${cleanEmail}">${cleanEmail}</a></td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">School</td><td>${cleanSchool}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">District</td><td>${cleanDistrict || '—'}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Comments</td><td>${cleanComments || '—'}</td></tr>
+            </table>
+          `,
+        }),
+      });
+      if (emailRes.ok) {
+        results.email = true;
+      } else {
+        const body = await emailRes.text();
+        console.error('[beta-signup] Resend error:', body);
+      }
+    } catch (e) {
+      console.error('[beta-signup] Resend exception:', e.message);
+    }
+  } else {
+    console.warn('[beta-signup] RESEND_API_KEY not set — skipping email notification');
+  }
+
+  // Return success as long as either supabase or email worked
+  if (!results.supabase && !results.email) {
+    return res.status(500).json({ error: 'Could not save signup — Supabase table may not exist yet. Check server logs.' });
+  }
+
+  res.json({ ok: true, ...results });
 };

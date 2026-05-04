@@ -185,14 +185,19 @@ function BetaSignupPage({ onBack }) {
     setSubmitting(true);
     setError('');
     try {
-      const { error: dbErr } = await supabase.from('beta_signups').insert([{
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        school: school.trim(),
-        district: district.trim(),
-        comments: comments.trim(),
-      }]);
-      if (dbErr) throw new Error(dbErr.message);
+      const res = await fetch('/api/beta-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          school: school.trim(),
+          district: district.trim(),
+          comments: comments.trim(),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Submission failed');
       setSubmitted(true);
     } catch (err) {
       setError('Could not submit: ' + err.message);
@@ -314,10 +319,10 @@ const LANDING_CSS = `
 html{scroll-behavior:smooth}
 body{font-family:'Source Sans 3',sans-serif;color:var(--text);background:var(--bg-white);line-height:1.7;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6,.nav-logo{font-family:'Inter',sans-serif}
-.beta-top-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#1a6b6e;color:#fff;text-align:center;padding:0.45rem 1rem;font-size:0.8rem;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.65rem;line-height:1.3}
-.beta-top-bar a{color:#7BC4A0;font-weight:700;text-decoration:none;white-space:nowrap;border:1px solid rgba(123,196,160,0.5);padding:0.15rem 0.6rem;border-radius:4px}
-.beta-top-bar a:hover{background:rgba(123,196,160,0.15)}
-nav{position:fixed;top:36px;left:0;right:0;z-index:100;padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--slate);border-bottom:1px solid rgba(0,0,0,0.1)}
+.beta-top-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#D97706;color:#fff;text-align:center;padding:0.75rem 1.5rem;font-size:0.95rem;font-family:'Inter',sans-serif;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.85rem;line-height:1.4;letter-spacing:0.01em;box-shadow:0 2px 8px rgba(0,0,0,0.18)}
+.beta-top-bar a{color:#fff;font-weight:800;text-decoration:none;white-space:nowrap;background:rgba(0,0,0,0.18);padding:0.25rem 0.9rem;border-radius:4px;border:1.5px solid rgba(255,255,255,0.45);font-size:0.9rem}
+.beta-top-bar a:hover{background:rgba(0,0,0,0.3)}
+nav{position:fixed;top:50px;left:0;right:0;z-index:100;padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--slate);border-bottom:1px solid rgba(0,0,0,0.1)}
 .nav-logo{font-size:1.3rem;font-weight:700;color:#fff;text-decoration:none;cursor:pointer;background:none;border:none}
 .nav-logo span{color:var(--green)}
 .nav-links{display:flex;gap:2rem;align-items:center}
@@ -328,7 +333,7 @@ nav{position:fixed;top:36px;left:0;right:0;z-index:100;padding:0.85rem 2rem;disp
 .btn-green:hover{background:var(--green-dark);transform:translateY(-1px)}
 .btn-outline-white{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.4)}
 .btn-outline-white:hover{border-color:#fff;background:rgba(255,255,255,0.1)}
-.hero{padding:9.5rem 2rem 4.5rem;background:linear-gradient(135deg,#3d5a6e 0%,#4a6b7a 40%,#5a7d8e 100%);text-align:center;position:relative;overflow:hidden}
+.hero{padding:10.5rem 2rem 4.5rem;background:linear-gradient(135deg,#3d5a6e 0%,#4a6b7a 40%,#5a7d8e 100%);text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 30% 20%,rgba(92,176,133,0.12) 0%,transparent 60%);pointer-events:none}
 .hero-badge{display:inline-block;background:rgba(92,176,133,0.2);color:#fef8e8;font-size:0.8rem;font-weight:600;padding:0.4rem 1rem;border-radius:20px;margin-bottom:1.5rem;letter-spacing:0.03em;text-transform:uppercase;border:1px solid rgba(92,176,133,0.3);font-family:'Inter',sans-serif}
 .hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:1.25rem;max-width:850px;margin-left:auto;margin-right:auto;position:relative}
@@ -431,7 +436,7 @@ footer a{color:var(--green);text-decoration:none}
 @media(max-width:768px){
   nav{padding:0.75rem 1rem}
   .nav-links a:not(.btn){display:none}
-  .hero{padding:8.5rem 1.5rem 3.5rem}
+  .hero{padding:9.5rem 1.5rem 3.5rem}
   .tia-content{grid-template-columns:1fr}
   .hero-cta{flex-direction:column;align-items:center}
   .flex-cards{grid-template-columns:1fr}
@@ -443,7 +448,7 @@ footer a{color:var(--green);text-decoration:none}
 
 const LANDING_HTML = `
 <div class="beta-top-bar">
-  🎉 Now accepting beta testers — try TechGrowth Check free and share your feedback.
+  Now accepting beta testers — try TechGrowth Check free and share your feedback.
   <a href="#" data-beta="1">Join Beta →</a>
 </div>
 <nav>
@@ -2623,6 +2628,7 @@ function Dashboard({ profile, onLogout }) {
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [foldersLoading, setFoldersLoading] = useState(false);
+  const [folderError, setFolderError] = useState('');
 
   useEffect(() => {
     const loadDashClasses = async () => {
@@ -2644,16 +2650,19 @@ function Dashboard({ profile, onLogout }) {
 
   useEffect(() => {
     const loadFolders = async () => {
-      try {
-        const [{ data: fData }, { data: aData }] = await Promise.all([
-          supabase.from('class_folders').select('*').eq('teacher_id', profile.id).order('folder_name'),
-          supabase.from('class_folder_assignments').select('*').eq('teacher_id', profile.id),
-        ]);
-        setFolders(fData || []);
-        const map = {};
-        (aData || []).forEach(a => { map[a.class_name] = a.folder_id; });
-        setFolderAssignments(map);
-      } catch (_) { /* tables may not exist yet */ }
+      const [fResult, aResult] = await Promise.all([
+        supabase.from('class_folders').select('*').eq('teacher_id', profile.id).order('folder_name'),
+        supabase.from('class_folder_assignments').select('*').eq('teacher_id', profile.id),
+      ]);
+      if (fResult.error) {
+        console.error('[folders] load error:', fResult.error.message);
+        // Don't set folderError here — table may just not be created yet
+        return;
+      }
+      setFolders(fResult.data || []);
+      const map = {};
+      (aResult.data || []).forEach(a => { map[a.class_name] = a.folder_id; });
+      setFolderAssignments(map);
     };
     loadFolders();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -2695,11 +2704,45 @@ function Dashboard({ profile, onLogout }) {
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
     setFoldersLoading(true);
-    const { data } = await supabase.from('class_folders').insert([{
-      teacher_id: profile.id,
-      folder_name: newFolderName.trim(),
-    }]).select().single();
-    if (data) setFolders(prev => [...prev, data].sort((a, b) => a.folder_name.localeCompare(b.folder_name)));
+    setFolderError('');
+    const { data, error: insertErr } = await supabase
+      .from('class_folders')
+      .insert([{ teacher_id: profile.id, folder_name: newFolderName.trim() }])
+      .select()
+      .single();
+    if (insertErr) {
+      console.error('[folders] insert error:', insertErr);
+      setFolderError(
+        insertErr.code === '42P01'
+          ? 'The class_folders table does not exist yet. Create it in Supabase first (see console for SQL).'
+          : insertErr.message
+      );
+      console.info('[folders] Run this SQL in Supabase:\n' +
+        'CREATE TABLE class_folders (\n' +
+        '  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n' +
+        '  teacher_id UUID REFERENCES teachers(id) ON DELETE CASCADE,\n' +
+        '  folder_name TEXT NOT NULL,\n' +
+        '  created_at TIMESTAMPTZ DEFAULT NOW()\n' +
+        ');\n' +
+        'ALTER TABLE class_folders ENABLE ROW LEVEL SECURITY;\n' +
+        'CREATE POLICY "Teachers manage own folders" ON class_folders\n' +
+        '  USING (auth.uid() = teacher_id) WITH CHECK (auth.uid() = teacher_id);\n\n' +
+        'CREATE TABLE class_folder_assignments (\n' +
+        '  teacher_id UUID REFERENCES teachers(id) ON DELETE CASCADE,\n' +
+        '  class_name TEXT NOT NULL,\n' +
+        '  folder_id UUID REFERENCES class_folders(id) ON DELETE CASCADE,\n' +
+        '  PRIMARY KEY (teacher_id, class_name)\n' +
+        ');\n' +
+        'ALTER TABLE class_folder_assignments ENABLE ROW LEVEL SECURITY;\n' +
+        'CREATE POLICY "Teachers manage own assignments" ON class_folder_assignments\n' +
+        '  USING (auth.uid() = teacher_id) WITH CHECK (auth.uid() = teacher_id);'
+      );
+      setFoldersLoading(false);
+      return;
+    }
+    if (data) {
+      setFolders(prev => [...prev, data].sort((a, b) => a.folder_name.localeCompare(b.folder_name)));
+    }
     setNewFolderName('');
     setShowNewFolder(false);
     setFoldersLoading(false);
@@ -2970,22 +3013,29 @@ function Dashboard({ profile, onLogout }) {
           </p>
 
           {showNewFolder && (
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <input
-                type="text"
-                placeholder="Folder name (e.g. Fall 2025)"
-                value={newFolderName}
-                onChange={e => setNewFolderName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
-                autoFocus
-                style={{ padding: '9px 12px', fontSize: '14px', border: '1.5px solid #5B8DB8', borderRadius: '6px', outline: 'none', minWidth: '200px', boxSizing: 'border-box' }}
-              />
-              <button onClick={handleCreateFolder} disabled={foldersLoading || !newFolderName.trim()} style={{ padding: '9px 18px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '6px', background: '#5B8DB8', color: 'white', cursor: 'pointer' }}>
-                {foldersLoading ? 'Creating…' : 'Create'}
-              </button>
-              <button onClick={() => { setShowNewFolder(false); setNewFolderName(''); }} style={{ padding: '9px 14px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
-                Cancel
-              </button>
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  placeholder="Folder name (e.g. Fall 2025)"
+                  value={newFolderName}
+                  onChange={e => { setNewFolderName(e.target.value); setFolderError(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
+                  autoFocus
+                  style={{ padding: '9px 12px', fontSize: '14px', border: '1.5px solid #5B8DB8', borderRadius: '6px', outline: 'none', minWidth: '200px', boxSizing: 'border-box' }}
+                />
+                <button onClick={handleCreateFolder} disabled={foldersLoading || !newFolderName.trim()} style={{ padding: '9px 18px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '6px', background: '#5B8DB8', color: 'white', cursor: foldersLoading ? 'not-allowed' : 'pointer' }}>
+                  {foldersLoading ? 'Creating…' : 'Create'}
+                </button>
+                <button onClick={() => { setShowNewFolder(false); setNewFolderName(''); setFolderError(''); }} style={{ padding: '9px 14px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
+              {folderError && (
+                <div style={{ marginTop: '8px', padding: '10px 14px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', fontSize: '13px', color: '#DC2626' }}>
+                  {folderError}
+                </div>
+              )}
             </div>
           )}
 
