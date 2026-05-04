@@ -619,7 +619,7 @@ function LandingPage({ onGetStarted }) {
   );
 }
 
-function GeneratePasses({ profile, onBack, paymentSessionId }) {
+function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null }) {
   const [className, setClassName] = useState('');
   const [grade, setGrade] = useState('');
   const [studentCount, setStudentCount] = useState('');
@@ -683,6 +683,14 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
     setStudentCount(order.studentCount);
     setPricePerStudent(order.pricePerStudent);
     verifyAndGenerate(paymentSessionId, order);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (initialClass && !paymentSessionId) {
+      setClassName(initialClass.class_name);
+      setGrade(String(initialClass.grade_level));
+      loadClassPasses(initialClass.class_name);
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const verifyAndGenerate = async (sessionId, order) => {
@@ -819,11 +827,20 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
       setGenerating(false);
       return;
     }
+    // Split by test type so we can assign sequential fallback numbers for old
+    // records that have null student_number.
+    const preRows  = data.filter(r => r.test_type === 'pre');
+    const postRows = data.filter(r => r.test_type === 'post');
     const map = {};
-    data.forEach(({ token, test_type, student_number }) => {
-      if (!map[student_number]) map[student_number] = { studentNum: student_number, pre: null, post: null };
-      if (test_type === 'pre') map[student_number].pre = token;
-      else map[student_number].post = token;
+    preRows.forEach(({ token, student_number }, idx) => {
+      const num = (student_number != null && student_number > 0) ? student_number : (idx + 1);
+      if (!map[num]) map[num] = { studentNum: num, pre: null, post: null };
+      map[num].pre = token;
+    });
+    postRows.forEach(({ token, student_number }, idx) => {
+      const num = (student_number != null && student_number > 0) ? student_number : (idx + 1);
+      if (!map[num]) map[num] = { studentNum: num, pre: null, post: null };
+      map[num].post = token;
     });
     setPasses(Object.values(map).sort((a, b) => a.studentNum - b.studentNum));
     setIsViewingExisting(true);
@@ -1125,14 +1142,15 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
                 </tr>
               </thead>
               <tbody>
-                {passes.map(({ studentNum, pre, post }) => {
+                {passes.map(({ studentNum, pre, post }, idx) => {
+                  const displayNum = (studentNum != null && studentNum > 0) ? studentNum : (idx + 1);
                   const token = activeTab === 'pre' ? pre : post;
                   const color = activeTab === 'pre' ? '#5B8DB8' : '#3D7A5E';
                   return (
-                    <tr key={studentNum} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <tr key={displayNum} style={{ borderBottom: '1px solid #f0f0f0' }}>
                       <td style={{ padding: '12px 16px' }}>
                         <div style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 700, color, letterSpacing: '2px' }}>{token}</div>
-                        <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Student {studentNum}</div>
+                        <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Student {displayNum}</div>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <QRCodeSVG value={`${appUrl}?token=${token}`} size={56} />
@@ -1141,8 +1159,8 @@ function GeneratePasses({ profile, onBack, paymentSessionId }) {
                         <input
                           type="text"
                           placeholder="Type name…"
-                          value={studentNames[studentNum] || ''}
-                          onChange={e => setStudentNames(prev => ({ ...prev, [studentNum]: e.target.value }))}
+                          value={studentNames[displayNum] || ''}
+                          onChange={e => setStudentNames(prev => ({ ...prev, [displayNum]: e.target.value }))}
                           style={{
                             width: '100%', maxWidth: '220px', padding: '7px 10px',
                             fontSize: '13px', border: '1.5px solid #e2e8f0',
@@ -2234,6 +2252,26 @@ function Dashboard({ profile, onLogout }) {
   });
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+  const [dashClasses, setDashClasses] = useState([]);
+  const [initialClass, setInitialClass] = useState(null);
+
+  useEffect(() => {
+    const loadDashClasses = async () => {
+      const { data } = await supabase
+        .from('tokens')
+        .select('class_name, grade_level')
+        .eq('teacher_id', profile.id)
+        .eq('test_type', 'pre');
+      if (!data) return;
+      const map = {};
+      data.forEach(({ class_name, grade_level }) => {
+        if (!map[class_name]) map[class_name] = { class_name, grade_level, count: 0 };
+        map[class_name].count++;
+      });
+      setDashClasses(Object.values(map).sort((a, b) => a.class_name.localeCompare(b.class_name)));
+    };
+    loadDashClasses();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -2261,7 +2299,7 @@ function Dashboard({ profile, onLogout }) {
       title: 'Create Classes & Generate Student Passes',
       desc: 'Purchase student passes, generate QR codes, and manage your classes.',
       body: 'Generate one pre-test pass and one post-test pass per student. Print them as a sheet or display QR codes — students can begin by scanning or typing their 8-character code.',
-      onClick: () => setSection('generate-passes'), color: '#3D7A5E', bg: '#D4EEE3',
+      onClick: () => { setInitialClass(null); setSection('generate-passes'); }, color: '#3D7A5E', bg: '#D4EEE3',
     },
     {
       num: 3, Icon: TrendingUp,
@@ -2338,6 +2376,34 @@ function Dashboard({ profile, onLogout }) {
               </div>
             )}
           </div>
+
+          {/* My Classes — quick access to existing class passes */}
+          {dashClasses.length > 0 && (
+            <div style={{ marginBottom: '32px' }}>
+              <h3 style={{ margin: '0 0 14px', color: '#3D6B8A', fontSize: '17px', fontWeight: 700 }}>My Classes</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+                {dashClasses.map(c => (
+                  <div key={c.class_name} style={{
+                    background: 'white', borderRadius: '10px', padding: '16px 18px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7',
+                    display: 'flex', flexDirection: 'column', gap: '2px',
+                  }}>
+                    <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', marginBottom: '2px' }}>{c.class_name}</div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>Grade {c.grade_level} · {c.count} student{c.count !== 1 ? 's' : ''}</div>
+                    <button
+                      onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
+                      style={{
+                        marginTop: '12px', alignSelf: 'flex-start',
+                        padding: '6px 14px', fontSize: '12px', fontWeight: 700,
+                        background: '#D4EEE3', color: '#3D7A5E',
+                        border: 'none', borderRadius: '5px', cursor: 'pointer',
+                      }}
+                    >View Passes →</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Navigation cards — always visible */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
@@ -2454,7 +2520,7 @@ function Dashboard({ profile, onLogout }) {
         </>
       )}
 
-      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('overview')} paymentSessionId={paymentSessionId} />}
+      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('overview')} paymentSessionId={paymentSessionId} initialClass={initialClass} />}
       {section === 'create-assessment' && <CreateAssessment  profile={profile} onBack={() => setSection('overview')} />}
       {section === 'results'           && <ResultsDashboard  profile={profile} onBack={() => setSection('overview')} />}
       {section === 'schedule'          && <ScheduleManager   profile={profile} onBack={() => setSection('overview')} />}
