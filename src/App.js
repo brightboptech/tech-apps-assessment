@@ -754,6 +754,69 @@ const LANDING_HTML = `
 </footer>
 `;
 
+function LoginSelectorScreen({ onStudent, onTeacher, onBack }) {
+  const cardBase = {
+    width: '100%', minHeight: '88px', background: 'white', border: 'none',
+    borderRadius: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center',
+    gap: '20px', padding: '20px 24px', boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+    textAlign: 'left', transition: 'transform 0.15s, box-shadow 0.15s',
+  };
+  const hover = e => {
+    e.currentTarget.style.transform = 'translateY(-2px)';
+    e.currentTarget.style.boxShadow = '0 10px 32px rgba(0,0,0,0.26)';
+  };
+  const unhover = e => {
+    e.currentTarget.style.transform = 'translateY(0)';
+    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.18)';
+  };
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(160deg, #2D3D4A 0%, #3D6B8A 50%, #5B8DB8 100%)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '24px', position: 'relative',
+    }}>
+      <button onClick={onBack} style={{
+        position: 'absolute', top: '24px', left: '24px',
+        background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)',
+        fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
+        padding: '8px 4px',
+      }}>← Back</button>
+
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div style={{ fontSize: '42px', fontWeight: 800, letterSpacing: '-1.5px', color: 'white', lineHeight: 1, marginBottom: '10px' }}>
+          TechGrowth<span style={{ color: '#7BC4A0' }}> Check</span>
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0 }}>
+          How are you logging in today?
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '420px' }}>
+        <button style={cardBase} onClick={onStudent} onMouseEnter={hover} onMouseLeave={unhover}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#EAF1F8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <KeyRound size={22} color="#3D6B8A" strokeWidth={2} />
+          </div>
+          <div>
+            <div style={{ fontSize: '17px', fontWeight: 700, color: '#1e293b', marginBottom: '3px' }}>I'm a Student</div>
+            <div style={{ fontSize: '13px', color: '#64748b' }}>Enter your student pass to begin</div>
+          </div>
+        </button>
+
+        <button style={cardBase} onClick={onTeacher} onMouseEnter={hover} onMouseLeave={unhover}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#D4EEE3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <ClipboardList size={22} color="#3D7A5E" strokeWidth={2} />
+          </div>
+          <div>
+            <div style={{ fontSize: '17px', fontWeight: 700, color: '#1e293b', marginBottom: '3px' }}>I'm a Teacher</div>
+            <div style={{ fontSize: '13px', color: '#64748b' }}>Log in to your dashboard</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function LandingPage({ onGetStarted, onJoinBeta }) {
   useEffect(() => {
     const style = document.createElement('style');
@@ -4556,6 +4619,10 @@ function App() {
     return hash.includes('type=recovery');
   });
 
+  // ── Login selector ───────────────────────────────────────────────────────
+  const [showLoginSelector, setShowLoginSelector] = useState(false);
+  const [showStudentLogin, setShowStudentLogin] = useState(false);
+
   // ── Beta signup page ─────────────────────────────────────────────────────
   const [showBetaSignup, setShowBetaSignup] = useState(() => window.location.pathname === '/beta');
 
@@ -4993,9 +5060,19 @@ function App() {
   if (showTeacherLogin) {
     return (
       <TeacherLoginScreen
-        onBack={() => { setShowTeacherLogin(false); setTeacherLoginError(''); }}
+        onBack={() => { setShowTeacherLogin(false); setTeacherLoginError(''); setShowLoginSelector(true); }}
         serverError={teacherLoginError}
         onClearServerError={() => setTeacherLoginError('')}
+      />
+    );
+  }
+
+  if (showLoginSelector) {
+    return (
+      <LoginSelectorScreen
+        onStudent={() => { setShowLoginSelector(false); setShowStudentLogin(true); }}
+        onTeacher={() => { setShowLoginSelector(false); setShowTeacherLogin(true); }}
+        onBack={() => setShowLoginSelector(false)}
       />
     );
   }
@@ -5013,12 +5090,12 @@ function App() {
   }
 
   // ── Landing page for non-student visitors ───────────────────────────────
-  if (!isLoggedIn) {
+  if (!isLoggedIn && !showStudentLogin) {
     const p = new URLSearchParams(window.location.search);
     if (!p.has('token') && !window.location.pathname.startsWith('/student')) {
       return (
         <LandingPage
-          onGetStarted={() => setShowTeacherLogin(true)}
+          onGetStarted={() => setShowLoginSelector(true)}
           onJoinBeta={() => {
             window.history.pushState({}, '', '/beta');
             setShowBetaSignup(true);
@@ -5047,6 +5124,14 @@ function App() {
             The only TIA-ready assessment platform built for Technology Applications TEKS
           </p>
         </div>
+
+        {showStudentLogin && (
+          <button onClick={() => { setShowStudentLogin(false); setShowLoginSelector(true); }} style={{
+            background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)',
+            fontSize: '15px', cursor: 'pointer', alignSelf: 'flex-start',
+            marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 0',
+          }}>← Back</button>
+        )}
 
         <div className="tc-login-card" style={{
           background: 'white', borderRadius: '16px', padding: '40px 36px',
