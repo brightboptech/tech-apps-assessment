@@ -4561,6 +4561,12 @@ function App() {
   // ── Beta signup page ─────────────────────────────────────────────────────
   const [showBetaSignup, setShowBetaSignup] = useState(() => window.location.pathname === '/beta');
 
+  useEffect(() => {
+    const handlePop = () => setShowBetaSignup(window.location.pathname === '/beta');
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []);
+
   // ── Teacher auth state ───────────────────────────────────────────────────
   const [showTeacherLogin, setShowTeacherLogin] = useState(false);
   const [teacherProfile, setTeacherProfile] = useState(null);
