@@ -11,7 +11,7 @@ import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
-  BarChart2, Printer, Clock, Lock, CheckCircle,
+  BarChart2, Printer, Clock, Lock, CheckCircle, Layers,
 } from 'lucide-react';
 
 
@@ -86,15 +86,16 @@ function buildPassPrintHTML(passes, type, className, assessmentName, qrDataURLs,
 <h1>TechGrowth Check — ${label} Passes</h1>
 <p class="meta">Class: <strong>${className}</strong>${metaAssessment} &nbsp;·&nbsp; ${date}</p>
 <div class="grid">
-${passes.map(({ studentNum, pre, post }) => {
+${passes.map(({ studentNum, pre, post }, idx) => {
+  const displayNum = (studentNum != null && studentNum > 0) ? studentNum : (idx + 1);
   const token = isPost ? post : pre;
   const qrSrc = qrDataURLs[token] ?? '';
   const cardAssessment = assessmentName ? `<div class="info">${assessmentName}</div>` : '';
-  const name = studentNames[studentNum];
+  const name = studentNames[displayNum];
   const nameHtml = name ? `<div class="student-name">${name}</div>` : '';
   return `<div class="pass">
   <div class="pass-top">
-    <span class="student">Student ${studentNum}</span>
+    <span class="student">Student ${displayNum}</span>
     <span class="badge ${badgeClass}">${label}</span>
   </div>
   <div class="pass-body">
@@ -147,12 +148,13 @@ function buildMasterSheetHTML(passes, className, grade, studentNames = {}) {
     </tr>
   </thead>
   <tbody>
-    ${passes.map(({ studentNum, pre, post }) => {
-      const name = studentNames[studentNum];
+    ${passes.map(({ studentNum, pre, post }, idx) => {
+      const displayNum = (studentNum != null && studentNum > 0) ? studentNum : (idx + 1);
+      const name = studentNames[displayNum];
       const nameCell = name ? name : '<span style="color:#ccc;">_________________________</span>';
       return `
     <tr>
-      <td>Student ${studentNum}</td>
+      <td>Student ${displayNum}</td>
       <td class="pre">${pre}</td>
       <td class="post">${post}</td>
       <td>${nameCell}</td>
@@ -850,14 +852,10 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const handleExportCSV = () => {
     const rows = [
       ['Student Name', 'Student #', 'Pre-Test Pass Code', 'Post-Test Pass Code', 'Class', 'Grade'],
-      ...passes.map(p => [
-        studentNames[p.studentNum] || '',
-        `Student ${p.studentNum}`,
-        p.pre || '',
-        p.post || '',
-        className,
-        grade,
-      ]),
+      ...passes.map((p, idx) => {
+        const dn = (p.studentNum != null && p.studentNum > 0) ? p.studentNum : (idx + 1);
+        return [studentNames[dn] || '', `Student ${dn}`, p.pre || '', p.post || '', className, grade];
+      }),
     ];
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -2322,6 +2320,13 @@ function Dashboard({ profile, onLogout }) {
       body: 'Select a pre-assessment and post-assessment, fill in your report header, and generate a detailed growth report. Includes class summary, student-level data, and standards breakdown — ready to print or export as PDF.',
       onClick: () => setSection('tia-report'), color: '#2E7F84', bg: '#E5F4F5',
     },
+    {
+      num: 6, Icon: Layers, showInTour: false,
+      title: 'My Classes',
+      desc: 'View passes, reprint QR codes, and manage your existing classes.',
+      body: '',
+      onClick: () => setSection('my-classes'), color: '#3D5A6E', bg: '#E8EDF2',
+    },
   ];
 
   return (
@@ -2378,33 +2383,6 @@ function Dashboard({ profile, onLogout }) {
           </div>
 
           {/* My Classes — quick access to existing class passes */}
-          {dashClasses.length > 0 && (
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{ margin: '0 0 14px', color: '#3D6B8A', fontSize: '17px', fontWeight: 700 }}>My Classes</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
-                {dashClasses.map(c => (
-                  <div key={c.class_name} style={{
-                    background: 'white', borderRadius: '10px', padding: '16px 18px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7',
-                    display: 'flex', flexDirection: 'column', gap: '2px',
-                  }}>
-                    <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', marginBottom: '2px' }}>{c.class_name}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>Grade {c.grade_level} · {c.count} student{c.count !== 1 ? 's' : ''}</div>
-                    <button
-                      onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
-                      style={{
-                        marginTop: '12px', alignSelf: 'flex-start',
-                        padding: '6px 14px', fontSize: '12px', fontWeight: 700,
-                        background: '#D4EEE3', color: '#3D7A5E',
-                        border: 'none', borderRadius: '5px', cursor: 'pointer',
-                      }}
-                    >View Passes →</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Navigation cards — always visible */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
             {steps.map(step => (
@@ -2490,12 +2468,12 @@ function Dashboard({ profile, onLogout }) {
 
             {/* Scrollable steps */}
             <div style={{ flex: 1, overflowY: 'auto' }}>
-              {steps.map((step, i) => (
+              {steps.filter(s => s.showInTour !== false).map((step, i, arr) => (
                 <div
                   key={step.num}
                   style={{
                     display: 'flex', gap: '20px', padding: '24px',
-                    borderBottom: i < steps.length - 1 ? '1px solid #f0f0f0' : 'none',
+                    borderBottom: i < arr.length - 1 ? '1px solid #f0f0f0' : 'none',
                     alignItems: 'flex-start',
                   }}
                 >
@@ -2525,6 +2503,59 @@ function Dashboard({ profile, onLogout }) {
       {section === 'results'           && <ResultsDashboard  profile={profile} onBack={() => setSection('overview')} />}
       {section === 'schedule'          && <ScheduleManager   profile={profile} onBack={() => setSection('overview')} />}
       {section === 'tia-report'        && <TIAGrowthReport   profile={profile} onBack={() => setSection('overview')} />}
+
+      {section === 'my-classes' && (
+        <div style={{ maxWidth: '960px', margin: '36px auto', padding: '0 24px' }}>
+          <button
+            onClick={() => setSection('overview')}
+            style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '14px', cursor: 'pointer', padding: 0, marginBottom: '24px' }}
+          >← Back to Dashboard</button>
+
+          <h2 style={{ margin: '0 0 8px', color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Layers size={22} color="#3D6B8A" strokeWidth={1.75} />
+            My Classes
+          </h2>
+          <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>
+            Click "View Passes" to see and reprint QR codes for any class.
+          </p>
+
+          {dashClasses.length === 0 ? (
+            <div style={{
+              background: 'white', borderRadius: '10px', padding: '40px 28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.07)', textAlign: 'center', color: '#94a3b8',
+            }}>
+              <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
+              <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
+              <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+              {dashClasses.map(c => (
+                <div key={c.class_name} style={{
+                  background: 'white', borderRadius: '12px', padding: '22px 20px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7',
+                  display: 'flex', flexDirection: 'column',
+                }}>
+                  <div style={{ fontWeight: 700, fontSize: '16px', color: '#1e293b', marginBottom: '4px' }}>{c.class_name}</div>
+                  <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+                    Grade {c.grade_level} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
+                  </div>
+                  <button
+                    onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
+                    style={{
+                      marginTop: 'auto', padding: '9px 18px', fontSize: '13px', fontWeight: 700,
+                      background: '#D4EEE3', color: '#3D7A5E',
+                      border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                  >View Passes →</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
