@@ -2700,6 +2700,31 @@ function ResultsDashboard({ profile, onBack }) {
   );
 }
 
+const DASHBOARD_QUOTES = [
+  { quote: "The illiterate of the 21st century will not be those who cannot read and write, but those who cannot learn, unlearn, and relearn.", author: "Alvin Toffler" },
+  { quote: "A computer is the most remarkable tool that we've ever come up with — it's the equivalent of a bicycle for our minds.", author: "Steve Jobs" },
+  { quote: "Technology will never replace great teachers, but technology in the hands of great teachers can be transformational.", author: "George Couros" },
+  { quote: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+  { quote: "One child, one teacher, one book, one pen can change the world.", author: "Malala Yousafzai" },
+  { quote: "Education is not preparation for life; education is life itself.", author: "John Dewey" },
+  { quote: "Leadership and learning are indispensable to each other.", author: "John F. Kennedy" },
+  { quote: "Education is the great equalizer of the conditions of men.", author: "Horace Mann" },
+  { quote: "A teacher affects eternity; he can never tell where his influence stops.", author: "Henry Adams" },
+  { quote: "I touch the future. I teach.", author: "Christa McAuliffe" },
+  { quote: "The function of education is to teach one to think intensively and to think critically. Intelligence plus character — that is the goal of true education.", author: "Martin Luther King Jr." },
+  { quote: "The greatest sign of success for a teacher is to be able to say, 'The children are now working as if I did not exist.'", author: "Maria Montessori" },
+  { quote: "Children must be taught how to think, not what to think.", author: "Margaret Mead" },
+  { quote: "Do the best you can until you know better. Then when you know better, do better.", author: "Maya Angelou" },
+  { quote: "Becoming is better than being.", author: "Carol Dweck" },
+  { quote: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+  { quote: "The roots of education are bitter, but the fruit is sweet.", author: "Aristotle" },
+  { quote: "Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.", author: "Albert Einstein" },
+  { quote: "The principal goal of education is to create men and women who are capable of doing new things, not simply repeating what other generations have done.", author: "Jean Piaget" },
+  { quote: "We need technology in every classroom and in every student and teacher's hand, because it is the pen and paper of our time, and it is the lens through which we experience much of our world.", author: "David Warlick" },
+  { quote: "Teachers need to integrate technology seamlessly into the curriculum instead of viewing it as an add-on, an afterthought, or an event.", author: "Heidi Hayes Jacobs" },
+  { quote: "Education is what survives when what has been learned has been forgotten.", author: "B.F. Skinner" },
+];
+
 function Dashboard({ profile, onLogout }) {
   const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'schedule', 'create-assessment', 'tia-report'];
 
@@ -2716,6 +2741,7 @@ function Dashboard({ profile, onLogout }) {
   });
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+  const [quoteIdx] = useState(() => Math.floor(Math.random() * DASHBOARD_QUOTES.length));
   const [dashClasses, setDashClasses] = useState([]);
   const [initialClass, setInitialClass] = useState(null);
 
@@ -2910,6 +2936,19 @@ function Dashboard({ profile, onLogout }) {
                 </p>
               </div>
             ))}
+          </div>
+
+          {/* Rotating inspirational quote */}
+          <div style={{ marginTop: '48px', paddingBottom: '16px', textAlign: 'center' }}>
+            <p style={{
+              fontStyle: 'italic', color: '#94a3b8', fontSize: '14px',
+              lineHeight: 1.75, margin: '0 auto 6px', maxWidth: '620px',
+            }}>
+              &ldquo;{DASHBOARD_QUOTES[quoteIdx].quote}&rdquo;
+            </p>
+            <p style={{ color: '#b0bec8', fontSize: '12px', margin: 0, letterSpacing: '0.02em' }}>
+              — {DASHBOARD_QUOTES[quoteIdx].author}
+            </p>
           </div>
         </div>
       )}
