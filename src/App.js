@@ -4024,6 +4024,8 @@ function ResetPasswordScreen({ onDone }) {
 }
 
 function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
+  const [mode, setMode] = useState('login'); // 'login' | 'signup'
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -4034,6 +4036,19 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
   const [forgotLoading, setForgotLoading]           = useState(false);
   const [forgotSent, setForgotSent]                 = useState(false);
   const [forgotError, setForgotError]               = useState('');
+
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [signupError, setSignupError]         = useState('');
+  const [signupLoading, setSignupLoading]     = useState(false);
+  const [signupDone, setSignupDone]           = useState(false);
+
+  const switchMode = (next) => {
+    setMode(next);
+    setEmail(''); setPassword(''); setConfirmPassword('');
+    setError(''); setSignupError('');
+    setShowForgotPassword(false); setForgotSent(false);
+    onClearServerError?.();
+  };
 
   const handleForgotPassword = async () => {
     if (!forgotEmail.trim()) { setForgotError('Please enter your email address.'); return; }
@@ -4063,7 +4078,31 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
     // On success the App-level onAuthStateChange listener takes over
   };
 
+  const handleSignup = async () => {
+    if (password !== confirmPassword) {
+      setSignupError('Passwords do not match.'); return;
+    }
+    if (password.length < 6) {
+      setSignupError('Password must be at least 6 characters.'); return;
+    }
+    setSignupLoading(true);
+    setSignupError('');
+    const { data, error: authError } = await supabase.auth.signUp({ email: email.trim(), password });
+    if (authError) {
+      setSignupError(authError.message);
+      setSignupLoading(false);
+      return;
+    }
+    if (data.session) {
+      // Email verification disabled — onAuthStateChange will log them in automatically
+    } else {
+      setSignupDone(true);
+    }
+    setSignupLoading(false);
+  };
+
   const ready = email.length > 0 && password.length > 0 && !loading;
+  const signupReady = email.length > 0 && password.length > 0 && confirmPassword.length > 0 && !signupLoading;
   const displayError = error || serverError;
 
   return (
@@ -4083,118 +4122,232 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
         </p>
       </div>
 
-      <div style={{
+      <div className="tc-login-card" style={{
         background: 'white', borderRadius: '16px', padding: '40px 36px',
         maxWidth: '460px', width: '100%',
         boxShadow: '0 24px 64px rgba(0,0,0,0.28)',
       }}>
-        <h1 style={{ color: '#2D3D4A', margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>Teacher Login</h1>
-        <p style={{ color: '#64748b', margin: '0 0 28px', fontSize: '14px' }}>
-          TechGrowth Check · Educator Portal
-        </p>
+        {mode === 'login' ? (
+          <>
+            <h1 style={{ color: '#2D3D4A', margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>Teacher Login</h1>
+            <p style={{ color: '#64748b', margin: '0 0 28px', fontSize: '14px' }}>
+              TechGrowth Check · Educator Portal
+            </p>
 
-        <label style={labelStyle}>Email</label>
-        <input
-          type="email"
-          placeholder="teacher@district.edu"
-          value={email}
-          onChange={(e) => { setEmail(e.target.value); onClearServerError?.(); }}
-          disabled={loading}
-          style={inputStyle}
-        />
+            <label style={labelStyle}>Email</label>
+            <input
+              type="email"
+              placeholder="teacher@district.edu"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); onClearServerError?.(); }}
+              disabled={loading}
+              style={inputStyle}
+            />
 
-        <label style={labelStyle}>Password</label>
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && ready && handleLogin()}
-          disabled={loading}
-          style={{ ...inputStyle, marginBottom: '10px' }}
-        />
+            <label style={labelStyle}>Password</label>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && ready && handleLogin()}
+              disabled={loading}
+              style={{ ...inputStyle, marginBottom: '10px' }}
+            />
 
-        {displayError && (
-          <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '12px' }}>{displayError}</p>
-        )}
+            {displayError && (
+              <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '12px' }}>{displayError}</p>
+            )}
 
-        <button
-          onClick={handleLogin}
-          disabled={!ready}
-          style={{
-            width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700,
-            border: 'none', borderRadius: '8px', marginBottom: '12px',
-            backgroundColor: ready ? '#5B8DB8' : '#e2e8f0',
-            color: ready ? 'white' : '#94a3b8',
-            cursor: ready ? 'pointer' : 'not-allowed',
-            transition: 'background-color 0.15s',
-          }}
-        >
-          {loading ? 'Signing in…' : 'Sign In'}
-        </button>
+            <button
+              onClick={handleLogin}
+              disabled={!ready}
+              style={{
+                width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700,
+                border: 'none', borderRadius: '8px', marginBottom: '12px',
+                backgroundColor: ready ? '#5B8DB8' : '#e2e8f0',
+                color: ready ? 'white' : '#94a3b8',
+                cursor: ready ? 'pointer' : 'not-allowed',
+                transition: 'background-color 0.15s',
+              }}
+            >
+              {loading ? 'Signing in…' : 'Sign In'}
+            </button>
 
-        <button
-          onClick={() => { setShowForgotPassword(true); setForgotSent(false); setForgotError(''); setForgotEmail(''); }}
-          style={{
-            background: 'none', border: 'none', padding: '0', marginBottom: '16px',
-            color: '#5B8DB8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline',
-            display: 'block', width: '100%', textAlign: 'center',
-          }}
-        >
-          Forgot Password?
-        </button>
+            <button
+              onClick={() => { setShowForgotPassword(true); setForgotSent(false); setForgotError(''); setForgotEmail(''); }}
+              style={{
+                background: 'none', border: 'none', padding: '0', marginBottom: '16px',
+                color: '#5B8DB8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline',
+                display: 'block', width: '100%', textAlign: 'center',
+              }}
+            >
+              Forgot Password?
+            </button>
 
-        {showForgotPassword && (
-          <div style={{
-            borderTop: '1px solid #e2e8f0', paddingTop: '20px', marginBottom: '16px',
-          }}>
-            {forgotSent ? (
-              <p style={{ color: '#2E7F84', fontSize: '14px', textAlign: 'center', margin: 0 }}>
-                ✓ Check your email for a password reset link.
-              </p>
+            {showForgotPassword && (
+              <div style={{
+                borderTop: '1px solid #e2e8f0', paddingTop: '20px', marginBottom: '16px',
+              }}>
+                {forgotSent ? (
+                  <p style={{ color: '#2E7F84', fontSize: '14px', textAlign: 'center', margin: 0 }}>
+                    ✓ Check your email for a password reset link.
+                  </p>
+                ) : (
+                  <>
+                    <label style={labelStyle}>Your Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="teacher@district.edu"
+                      value={forgotEmail}
+                      onChange={(e) => { setForgotEmail(e.target.value); setForgotError(''); }}
+                      onKeyDown={(e) => e.key === 'Enter' && !forgotLoading && handleForgotPassword()}
+                      disabled={forgotLoading}
+                      style={{ ...inputStyle, marginBottom: '10px' }}
+                    />
+                    {forgotError && (
+                      <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '10px' }}>{forgotError}</p>
+                    )}
+                    <button
+                      onClick={handleForgotPassword}
+                      disabled={forgotLoading}
+                      style={{
+                        width: '100%', padding: '11px', fontSize: '14px', fontWeight: 600,
+                        border: 'none', borderRadius: '8px',
+                        backgroundColor: forgotLoading ? '#e2e8f0' : '#2E7F84',
+                        color: forgotLoading ? '#94a3b8' : 'white',
+                        cursor: forgotLoading ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {forgotLoading ? 'Sending…' : 'Send Reset Email'}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
+            <p style={{ textAlign: 'center', fontSize: '13px', color: '#64748b', margin: '0 0 16px' }}>
+              Don't have an account?{' '}
+              <button
+                onClick={() => switchMode('signup')}
+                style={{ background: 'none', border: 'none', padding: 0, color: '#5B8DB8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Sign up
+              </button>
+            </p>
+
+            <button
+              onClick={onBack}
+              style={{
+                width: '100%', padding: '12px', fontSize: '14px',
+                border: '2px solid #e2e8f0', borderRadius: '8px',
+                background: 'white', color: '#64748b', cursor: 'pointer',
+              }}
+            >
+              ← Back to Student Login
+            </button>
+          </>
+        ) : (
+          <>
+            <h1 style={{ color: '#2D3D4A', margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>Create Teacher Account</h1>
+            <p style={{ color: '#64748b', margin: '0 0 28px', fontSize: '14px' }}>
+              TechGrowth Check · Educator Portal
+            </p>
+
+            {signupDone ? (
+              <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                <div style={{ fontSize: '40px', marginBottom: '16px' }}>✉️</div>
+                <h2 style={{ color: '#2D3D4A', fontSize: '18px', fontWeight: 700, margin: '0 0 10px' }}>Check your email</h2>
+                <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6, margin: '0 0 24px' }}>
+                  We sent a verification link to <strong>{email}</strong>. Click the link to activate your account, then come back to sign in.
+                </p>
+                <button
+                  onClick={() => switchMode('login')}
+                  style={{
+                    width: '100%', padding: '13px', fontSize: '15px', fontWeight: 600,
+                    border: 'none', borderRadius: '8px',
+                    backgroundColor: '#5B8DB8', color: 'white', cursor: 'pointer',
+                  }}
+                >
+                  Go to Login
+                </button>
+              </div>
             ) : (
               <>
-                <label style={labelStyle}>Your Email Address</label>
+                <label style={labelStyle}>Email</label>
                 <input
                   type="email"
                   placeholder="teacher@district.edu"
-                  value={forgotEmail}
-                  onChange={(e) => { setForgotEmail(e.target.value); setForgotError(''); }}
-                  onKeyDown={(e) => e.key === 'Enter' && !forgotLoading && handleForgotPassword()}
-                  disabled={forgotLoading}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={signupLoading}
+                  style={inputStyle}
+                />
+
+                <label style={labelStyle}>Password</label>
+                <input
+                  type="password"
+                  placeholder="At least 6 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={signupLoading}
+                  style={inputStyle}
+                />
+
+                <label style={labelStyle}>Confirm Password</label>
+                <input
+                  type="password"
+                  placeholder="Repeat password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && signupReady && handleSignup()}
+                  disabled={signupLoading}
                   style={{ ...inputStyle, marginBottom: '10px' }}
                 />
-                {forgotError && (
-                  <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '10px' }}>{forgotError}</p>
+
+                {signupError && (
+                  <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '12px' }}>{signupError}</p>
                 )}
+
                 <button
-                  onClick={handleForgotPassword}
-                  disabled={forgotLoading}
+                  onClick={handleSignup}
+                  disabled={!signupReady}
                   style={{
-                    width: '100%', padding: '11px', fontSize: '14px', fontWeight: 600,
-                    border: 'none', borderRadius: '8px',
-                    backgroundColor: forgotLoading ? '#e2e8f0' : '#2E7F84',
-                    color: forgotLoading ? '#94a3b8' : 'white',
-                    cursor: forgotLoading ? 'not-allowed' : 'pointer',
+                    width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700,
+                    border: 'none', borderRadius: '8px', marginBottom: '16px',
+                    backgroundColor: signupReady ? '#5B8DB8' : '#e2e8f0',
+                    color: signupReady ? 'white' : '#94a3b8',
+                    cursor: signupReady ? 'pointer' : 'not-allowed',
+                    transition: 'background-color 0.15s',
                   }}
                 >
-                  {forgotLoading ? 'Sending…' : 'Send Reset Email'}
+                  {signupLoading ? 'Creating account…' : 'Create Account'}
+                </button>
+
+                <p style={{ textAlign: 'center', fontSize: '13px', color: '#64748b', margin: '0 0 16px' }}>
+                  Already have an account?{' '}
+                  <button
+                    onClick={() => switchMode('login')}
+                    style={{ background: 'none', border: 'none', padding: 0, color: '#5B8DB8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Log in
+                  </button>
+                </p>
+
+                <button
+                  onClick={onBack}
+                  style={{
+                    width: '100%', padding: '12px', fontSize: '14px',
+                    border: '2px solid #e2e8f0', borderRadius: '8px',
+                    background: 'white', color: '#64748b', cursor: 'pointer',
+                  }}
+                >
+                  ← Back to Student Login
                 </button>
               </>
             )}
-          </div>
+          </>
         )}
-
-        <button
-          onClick={onBack}
-          style={{
-            width: '100%', padding: '12px', fontSize: '14px',
-            border: '2px solid #e2e8f0', borderRadius: '8px',
-            background: 'white', color: '#64748b', cursor: 'pointer',
-          }}
-        >
-          ← Back to Student Login
-        </button>
       </div>
 
       <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', marginTop: '24px' }}>
