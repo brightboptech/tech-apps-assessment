@@ -4196,7 +4196,7 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
               disabled={!ready}
               style={{
                 width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700,
-                border: 'none', borderRadius: '8px', marginBottom: '12px',
+                border: 'none', borderRadius: '8px', marginBottom: '10px',
                 backgroundColor: ready ? '#5B8DB8' : '#e2e8f0',
                 color: ready ? 'white' : '#94a3b8',
                 cursor: ready ? 'pointer' : 'not-allowed',
@@ -4207,10 +4207,24 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
             </button>
 
             <button
+              onClick={() => switchMode('signup')}
+              style={{
+                width: '100%', padding: '13px', fontSize: '15px', fontWeight: 600,
+                border: '2px solid #5B8DB8', borderRadius: '8px', marginBottom: '14px',
+                background: 'white', color: '#5B8DB8', cursor: 'pointer',
+                transition: 'background-color 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#EAF1F8'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'white'; }}
+            >
+              Create an Account →
+            </button>
+
+            <button
               onClick={() => { setShowForgotPassword(true); setForgotSent(false); setForgotError(''); setForgotEmail(''); }}
               style={{
                 background: 'none', border: 'none', padding: '0', marginBottom: '16px',
-                color: '#5B8DB8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline',
+                color: '#94a3b8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline',
                 display: 'block', width: '100%', textAlign: 'center',
               }}
             >
@@ -4257,16 +4271,6 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
                 )}
               </div>
             )}
-
-            <p style={{ textAlign: 'center', fontSize: '13px', color: '#64748b', margin: '0 0 16px' }}>
-              Don't have an account?{' '}
-              <button
-                onClick={() => switchMode('signup')}
-                style={{ background: 'none', border: 'none', padding: 0, color: '#5B8DB8', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
-              >
-                Sign up
-              </button>
-            </p>
 
           </>
         ) : (
