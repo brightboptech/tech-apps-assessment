@@ -4780,10 +4780,23 @@ function App() {
   const [showBetaSignup, setShowBetaSignup] = useState(() => window.location.pathname === '/beta');
 
   useEffect(() => {
-    const handlePop = () => setShowBetaSignup(window.location.pathname === '/beta');
+    const handlePop = (e) => {
+      setShowBetaSignup(window.location.pathname === '/beta');
+      const screen = e.state?.tcScreen;
+      if (screen === 'teacher-login') {
+        setShowLoginSelector(false);
+        setShowTeacherLogin(true);
+      } else if (screen === 'login-selector') {
+        setShowTeacherLogin(false);
+        setShowLoginSelector(true);
+      } else {
+        setShowTeacherLogin(false);
+        setShowLoginSelector(false);
+      }
+    };
     window.addEventListener('popstate', handlePop);
     return () => window.removeEventListener('popstate', handlePop);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Teacher auth state ───────────────────────────────────────────────────
   const [showTeacherLogin, setShowTeacherLogin] = useState(false);
@@ -5224,8 +5237,8 @@ function App() {
     return (
       <LoginSelectorScreen
         onStudent={() => { setShowLoginSelector(false); setShowStudentLogin(true); }}
-        onTeacher={() => { setShowLoginSelector(false); setShowTeacherLogin(true); }}
-        onBack={() => setShowLoginSelector(false)}
+        onTeacher={() => { setShowLoginSelector(false); window.history.pushState({ tcScreen: 'teacher-login' }, '', '/'); setShowTeacherLogin(true); }}
+        onBack={() => { window.history.back(); }}
       />
     );
   }
@@ -5248,7 +5261,7 @@ function App() {
     if (!p.has('token') && !window.location.pathname.startsWith('/student')) {
       return (
         <LandingPage
-          onGetStarted={() => setShowLoginSelector(true)}
+          onGetStarted={() => { window.history.pushState({ tcScreen: 'login-selector' }, '', '/'); setShowLoginSelector(true); }}
           onJoinBeta={() => {
             window.history.pushState({}, '', '/beta');
             setShowBetaSignup(true);
