@@ -754,7 +754,7 @@ const LANDING_HTML = `
 </footer>
 `;
 
-function LoginSelectorScreen({ onStudent, onTeacher, onBack }) {
+function LoginSelectorScreen({ onStudent, onTeacher }) {
   const cardBase = {
     width: '100%', minHeight: '88px', background: 'white', border: 'none',
     borderRadius: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center',
@@ -774,21 +774,14 @@ function LoginSelectorScreen({ onStudent, onTeacher, onBack }) {
       minHeight: '100vh',
       background: 'linear-gradient(160deg, #2D3D4A 0%, #3D6B8A 50%, #5B8DB8 100%)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', position: 'relative',
+      padding: '24px',
     }}>
-      <button onClick={onBack} style={{
-        position: 'absolute', top: '24px', left: '24px',
-        background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)',
-        fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-        padding: '8px 4px',
-      }}>← Back</button>
-
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <div style={{ fontSize: '42px', fontWeight: 800, letterSpacing: '-1.5px', color: 'white', lineHeight: 1, marginBottom: '10px' }}>
           TechGrowth<span style={{ color: '#7BC4A0' }}> Check</span>
         </div>
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0 }}>
-          How are you logging in today?
+          Welcome! Select your role.
         </p>
       </div>
 
@@ -4275,16 +4268,6 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
               </button>
             </p>
 
-            <button
-              onClick={onBack}
-              style={{
-                width: '100%', padding: '12px', fontSize: '14px',
-                border: '2px solid #e2e8f0', borderRadius: '8px',
-                background: 'white', color: '#64748b', cursor: 'pointer',
-              }}
-            >
-              ← Back to Student Login
-            </button>
           </>
         ) : (
           <>
@@ -4373,16 +4356,6 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
                   </button>
                 </p>
 
-                <button
-                  onClick={onBack}
-                  style={{
-                    width: '100%', padding: '12px', fontSize: '14px',
-                    border: '2px solid #e2e8f0', borderRadius: '8px',
-                    background: 'white', color: '#64748b', cursor: 'pointer',
-                  }}
-                >
-                  ← Back to Student Login
-                </button>
               </>
             )}
           </>
@@ -4824,12 +4797,19 @@ function App() {
       const screen = e.state?.tcScreen;
       if (screen === 'teacher-login') {
         setShowLoginSelector(false);
+        setShowStudentLogin(false);
         setShowTeacherLogin(true);
+      } else if (screen === 'student-login') {
+        setShowTeacherLogin(false);
+        setShowLoginSelector(false);
+        setShowStudentLogin(true);
       } else if (screen === 'login-selector') {
         setShowTeacherLogin(false);
+        setShowStudentLogin(false);
         setShowLoginSelector(true);
       } else {
         setShowTeacherLogin(false);
+        setShowStudentLogin(false);
         setShowLoginSelector(false);
       }
     };
@@ -5275,9 +5255,8 @@ function App() {
   if (showLoginSelector) {
     return (
       <LoginSelectorScreen
-        onStudent={() => { setShowLoginSelector(false); setShowStudentLogin(true); }}
+        onStudent={() => { setShowLoginSelector(false); window.history.pushState({ tcScreen: 'student-login' }, '', '/'); setShowStudentLogin(true); }}
         onTeacher={() => { setShowLoginSelector(false); window.history.pushState({ tcScreen: 'teacher-login' }, '', '/'); setShowTeacherLogin(true); }}
-        onBack={() => { window.history.back(); }}
       />
     );
   }
@@ -5329,14 +5308,6 @@ function App() {
             The only TIA-ready assessment platform built for Technology Applications TEKS
           </p>
         </div>
-
-        {showStudentLogin && (
-          <button onClick={() => { setShowStudentLogin(false); setShowLoginSelector(true); }} style={{
-            background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)',
-            fontSize: '15px', cursor: 'pointer', alignSelf: 'flex-start',
-            marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 0',
-          }}>← Back</button>
-        )}
 
         <div className="tc-login-card" style={{
           background: 'white', borderRadius: '16px', padding: '40px 36px',
@@ -5394,18 +5365,6 @@ function App() {
             {isLoading ? 'Loading…' : 'Begin Assessment →'}
           </button>
 
-          <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #F4F7FA', textAlign: 'center' }}>
-            <button
-              onClick={() => setShowTeacherLogin(true)}
-              style={{
-                background: 'none', border: 'none',
-                color: '#5B8DB8', fontSize: '13px', fontWeight: 500,
-                cursor: 'pointer', padding: 0,
-              }}
-            >
-              Teacher / Admin Login →
-            </button>
-          </div>
         </div>
 
         <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', marginTop: '28px' }}>
