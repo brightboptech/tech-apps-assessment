@@ -878,7 +878,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const updateAdditionalClass = (id, field, value) =>
     setAdditionalClasses(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
 
-  const appUrl = window.location.origin + window.location.pathname;
+  const appUrl = `${window.location.origin}/student`;
   const count = parseInt(studentCount, 10) || 0;
   const price = Math.max(parseFloat(pricePerStudent) || 2, 2);
   const additionalStudentCount = additionalClasses.reduce((sum, c) => sum + (parseInt(c.studentCount) || 0), 0);
@@ -1605,7 +1605,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
                         <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Student {displayNum}</div>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
-                        <QRCodeSVG value={`${appUrl}?token=${token}`} size={56} />
+                        <QRCodeSVG value={`${appUrl}?code=${token}`} size={56} />
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <input
@@ -1630,8 +1630,8 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           {/* Hidden canvases for QR data URLs */}
           <div style={{ position: 'fixed', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
             {passes.flatMap(({ pre, post }) => [
-              <QRCodeCanvas key={`c-pre-${pre}`}  ref={el => { if (el) canvasRefs.current[pre]  = el; }} value={`${appUrl}?token=${pre}`}  size={80} />,
-              <QRCodeCanvas key={`c-post-${post}`} ref={el => { if (el) canvasRefs.current[post] = el; }} value={`${appUrl}?token=${post}`} size={80} />,
+              <QRCodeCanvas key={`c-pre-${pre}`}  ref={el => { if (el) canvasRefs.current[pre]  = el; }} value={`${appUrl}?code=${pre}`}  size={80} />,
+              <QRCodeCanvas key={`c-post-${post}`} ref={el => { if (el) canvasRefs.current[post] = el; }} value={`${appUrl}?code=${post}`} size={80} />,
             ])}
           </div>
 
@@ -1736,7 +1736,7 @@ function CreateAssessment({ profile, onBack }) {
     grades.size > 0 && count >= 1 && count <= 200 &&
     totalQ > 0 && !generating;
 
-  const appUrl = window.location.origin + window.location.pathname;
+  const appUrl = `${window.location.origin}/student`;
 
   const toggleGrade = (g) => setGrades(prev => {
     const next = new Set(prev);
@@ -2206,7 +2206,7 @@ function CreateAssessment({ profile, onBack }) {
                       <td style={{ padding: '12px 16px', color: '#555' }}>Student {studentNum}</td>
                       <td style={{ padding: '12px 16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
-                          <QRCodeSVG value={`${appUrl}?token=${token}`} size={64} />
+                          <QRCodeSVG value={`${appUrl}?code=${token}`} size={64} />
                           <span style={{ fontFamily: 'monospace', fontSize: '14px', fontWeight: 'bold', color, letterSpacing: '2px' }}>{token}</span>
                         </div>
                       </td>
@@ -2220,8 +2220,8 @@ function CreateAssessment({ profile, onBack }) {
           {/* Hidden canvases for QR data URLs */}
           <div style={{ position: 'fixed', left: '-9999px', top: '-9999px', pointerEvents: 'none' }}>
             {passes.flatMap(({ pre, post }) => [
-              <QRCodeCanvas key={`c-pre-${pre}`}  ref={el => { if (el) canvasRefs.current[pre]  = el; }} value={`${appUrl}?token=${pre}`}  size={80} />,
-              <QRCodeCanvas key={`c-post-${post}`} ref={el => { if (el) canvasRefs.current[post] = el; }} value={`${appUrl}?token=${post}`} size={80} />,
+              <QRCodeCanvas key={`c-pre-${pre}`}  ref={el => { if (el) canvasRefs.current[pre]  = el; }} value={`${appUrl}?code=${pre}`}  size={80} />,
+              <QRCodeCanvas key={`c-post-${post}`} ref={el => { if (el) canvasRefs.current[post] = el; }} value={`${appUrl}?code=${post}`} size={80} />,
             ])}
           </div>
         </div>
@@ -4829,7 +4829,7 @@ function App() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const tokenParam = params.get('token');
+    const tokenParam = params.get('code') || params.get('token');
     if (tokenParam) setTokenInput(tokenParam.toUpperCase().slice(0, 8));
   }, []);
 
@@ -5280,7 +5280,7 @@ function App() {
   // ── Landing page for non-student visitors ───────────────────────────────
   if (!isLoggedIn && !showStudentLogin) {
     const p = new URLSearchParams(window.location.search);
-    if (!p.has('token') && !window.location.pathname.startsWith('/student')) {
+    if (!p.has('code') && !p.has('token') && !window.location.pathname.startsWith('/student')) {
       return (
         <LandingPage
           onGetStarted={() => { window.history.pushState({ tcScreen: 'login-selector' }, '', '/'); setShowLoginSelector(true); }}
