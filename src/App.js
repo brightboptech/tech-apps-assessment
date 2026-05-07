@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useEffect, useRef, useMemo } from 'react';
+import jsQR from 'jsqr';
 import { grade3Questions } from './grade3Questions';
 import { grade4Questions } from './grade4Questions';
 import { grade5Questions } from './grade5Questions';
@@ -4747,11 +4748,126 @@ const inspirationalQuotes = [
   { quote: "Without continual growth and progress, such words as improvement, achievement, and success have no meaning.", author: "Benjamin Franklin" },
 ];
 
+function QRScannerView({ onDetected, onCancel }) {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [camError, setCamError] = useState('');
+  const streamRef = useRef(null);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const stopAll = () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    };
+
+    const tick = () => {
+      if (!active) return;
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      if (video && canvas && video.readyState >= video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const result = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+        if (result) {
+          let passcode = result.data.trim();
+          try {
+            const url = new URL(result.data);
+            passcode = url.searchParams.get('code') || url.searchParams.get('token') || passcode;
+          } catch {}
+          passcode = passcode.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+          if (passcode.length === 8) {
+            active = false;
+            stopAll();
+            onDetected(passcode);
+            return;
+          }
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } },
+    }).then(stream => {
+      if (!active) { stream.getTracks().forEach(t => t.stop()); return; }
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().then(() => { rafRef.current = requestAnimationFrame(tick); });
+      }
+    }).catch(() => {
+      if (active) setCamError('Camera access denied. Use "Type Passcode" instead.');
+    });
+
+    return () => { active = false; stopAll(); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const cornerStyle = (pos) => ({ position: 'absolute', width: 36, height: 36, ...pos });
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '420px' }}>
+      {camError ? (
+        <div className="tc-login-card" style={{
+          background: 'white', borderRadius: '16px', padding: '36px',
+          textAlign: 'center', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
+          boxSizing: 'border-box',
+        }}>
+          <div style={{ fontSize: '44px', marginBottom: '16px' }}>📷</div>
+          <p style={{ color: '#ef4444', fontSize: '14px', lineHeight: 1.6, margin: '0 0 24px' }}>{camError}</p>
+          <button onClick={onCancel} style={{
+            width: '100%', padding: '13px', fontSize: '15px', fontWeight: 600,
+            border: 'none', borderRadius: '8px', background: '#5B8DB8', color: 'white', cursor: 'pointer',
+          }}>
+            ← Type Passcode Instead
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          position: 'relative', width: '100%', borderRadius: '16px',
+          overflow: 'hidden', background: '#000', boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+        }}>
+          <video ref={videoRef} style={{ width: '100%', display: 'block', maxHeight: '360px', objectFit: 'cover' }} playsInline muted />
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ position: 'relative', width: 200, height: 200 }}>
+              <div style={cornerStyle({ top: 0, left: 0, borderTop: '3px solid white', borderLeft: '3px solid white', borderRadius: '6px 0 0 0' })} />
+              <div style={cornerStyle({ top: 0, right: 0, borderTop: '3px solid white', borderRight: '3px solid white', borderRadius: '0 6px 0 0' })} />
+              <div style={cornerStyle({ bottom: 0, left: 0, borderBottom: '3px solid white', borderLeft: '3px solid white', borderRadius: '0 0 0 6px' })} />
+              <div style={cornerStyle({ bottom: 0, right: 0, borderBottom: '3px solid white', borderRight: '3px solid white', borderRadius: '0 0 6px 0' })} />
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: '13px', marginTop: '20px', letterSpacing: '0.02em' }}>
+              Point your camera at the QR code
+            </p>
+          </div>
+        </div>
+      )}
+      <button onClick={onCancel} style={{
+        marginTop: '16px', background: 'rgba(255,255,255,0.15)',
+        border: '1px solid rgba(255,255,255,0.35)', color: 'white',
+        padding: '10px 28px', borderRadius: '8px', cursor: 'pointer',
+        fontSize: '14px', fontWeight: 500,
+      }}>
+        Cancel
+      </button>
+    </div>
+  );
+}
+
 function App() {
   // ── Student state (unchanged) ────────────────────────────────────────────
   const [token, setToken] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tokenInput, setTokenInput] = useState('');
+  const [loginMode, setLoginMode] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return (p.has('code') || p.has('token')) ? 'type' : 'select';
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState(null);
@@ -4918,18 +5034,20 @@ function App() {
   const selectedAnswer = answers[currentQuestion];
   const isElementary = selectedGrade !== null && selectedGrade >= 3 && selectedGrade <= 5;
 
-  const handleLogin = async () => {
-    if (tokenInput.length !== 8) {
+  const handleLogin = async (codeOverride = null) => {
+    const code = (codeOverride ?? tokenInput).toUpperCase().trim();
+    if (code.length !== 8) {
       setError('Token must be exactly 8 characters');
       return;
     }
+    if (codeOverride) { setTokenInput(codeOverride); setLoginMode('type'); }
     setIsLoading(true);
     setError('');
     try {
       const { data, error: dbError } = await supabase
         .from('tokens')
         .select('grade_level')
-        .eq('token', tokenInput.trim())
+        .eq('token', code)
         .maybeSingle();
       if (dbError) {
         console.error('Token lookup error:', dbError);
@@ -4942,8 +5060,8 @@ function App() {
       }
 
       const [cfgResult, progressResult] = await Promise.all([
-        supabase.from('token_configs').select('question_ids, assessment_config_id').eq('token', tokenInput.trim()).maybeSingle(),
-        supabase.from('student_progress').select('answers, current_question, submitted').eq('token', tokenInput.trim()).maybeSingle(),
+        supabase.from('token_configs').select('question_ids, assessment_config_id').eq('token', code).maybeSingle(),
+        supabase.from('student_progress').select('answers, current_question, submitted').eq('token', code).maybeSingle(),
       ]);
 
       // ── Access window check ────────────────────────────────────────────────
@@ -4975,7 +5093,7 @@ function App() {
       }
       // ── End access window check ────────────────────────────────────────────
 
-      setToken(tokenInput.trim());
+      setToken(code);
       setSelectedGrade(data.grade_level);
       console.log('[Login] grade_level =', data.grade_level, '| isElementary:', data.grade_level >= 3 && data.grade_level <= 5);
       setCustomQuestionIds(cfgResult.data?.question_ids ?? null);
@@ -5296,6 +5414,12 @@ function App() {
   // ── Student screens ──────────────────────────────────────────────────────
 
   if (!isLoggedIn) {
+    const scanCardBase = {
+      flex: 1, padding: '28px 12px 24px', background: 'white', border: 'none',
+      borderRadius: '16px', cursor: 'pointer', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', gap: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.22)',
+      transition: 'transform 0.15s, box-shadow 0.15s', textAlign: 'center',
+    };
     return (
       <div style={{
         minHeight: '100vh',
@@ -5304,72 +5428,120 @@ function App() {
         alignItems: 'center', justifyContent: 'center',
         padding: '24px',
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+        <div style={{ textAlign: 'center', marginBottom: loginMode === 'select' ? '44px' : '32px' }}>
           <div style={{ fontSize: '52px', fontWeight: 800, letterSpacing: '-2px', color: 'white', lineHeight: 1, marginBottom: '12px' }}>
             TechGrowth<span style={{ color: '#7BC4A0' }}> Check</span>
           </div>
-          <p className="tc-tagline" style={{ maxWidth: '360px', margin: '0 auto' }}>
-            The only TIA-ready assessment platform built for Technology Applications TEKS
-          </p>
-        </div>
-
-        <div className="tc-login-card" style={{
-          background: 'white', borderRadius: '16px', padding: '40px 36px',
-          maxWidth: '420px', width: '100%',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
-        }}>
-          <h2 style={{ color: '#2D3D4A', margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>
-            Student Login
-          </h2>
-          <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>
-            Enter your Student Pass
-          </p>
-
-          <input
-            type="text"
-            inputMode="text"
-            autoCapitalize="characters"
-            autoCorrect="off"
-            autoComplete="off"
-            spellCheck="false"
-            placeholder="Enter Student Pass"
-            value={tokenInput}
-            onChange={(e) => setTokenInput(e.target.value.toUpperCase())}
-            onKeyDown={(e) => e.key === 'Enter' && tokenInput.length === 8 && !isLoading && handleLogin()}
-            maxLength={8}
-            disabled={isLoading}
-            style={{
-              width: '100%', padding: '16px', fontSize: '26px',
-              textAlign: 'center',
-              border: error ? '2px solid #ef4444' : '2px solid #e2e8f0',
-              borderRadius: '10px', marginBottom: '10px',
-              letterSpacing: '5px', fontFamily: 'monospace',
-              boxSizing: 'border-box', outline: 'none',
-            }}
-          />
-          {error && (
-            <p style={{ color: '#ef4444', margin: '0 0 12px', fontSize: '14px' }}>{error}</p>
+          {loginMode === 'select' && (
+            <p className="tc-tagline" style={{ maxWidth: '360px', margin: '0 auto' }}>
+              How would you like to log in?
+            </p>
           )}
-          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 20px', textAlign: 'center' }}>
-            Your teacher will provide your Student Pass
-          </p>
-
-          <button
-            onClick={handleLogin}
-            disabled={tokenInput.length !== 8 || isLoading}
-            style={{
-              width: '100%', padding: '15px', fontSize: '17px', fontWeight: 700,
-              cursor: tokenInput.length === 8 && !isLoading ? 'pointer' : 'not-allowed',
-              border: 'none', borderRadius: '10px',
-              backgroundColor: tokenInput.length === 8 && !isLoading ? '#5B8DB8' : '#e2e8f0',
-              color: tokenInput.length === 8 && !isLoading ? 'white' : '#94a3b8',
-              transition: 'background-color 0.15s',
-            }}
-          >
-            {isLoading ? 'Loading…' : 'Begin Assessment →'}
-          </button>
-
         </div>
+
+        {loginMode === 'select' && (
+          <div style={{ display: 'flex', gap: '14px', width: '100%', maxWidth: '420px' }}>
+            <button
+              style={scanCardBase}
+              onClick={() => setLoginMode('scan')}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 14px 36px rgba(0,0,0,0.3)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.22)'; }}
+            >
+              <div style={{ width: 72, height: 72, borderRadius: '16px', background: '#EAF1F8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3D6B8A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                  <path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                  <rect x="7" y="7" width="3" height="3" rx="0.5"/><rect x="14" y="7" width="3" height="3" rx="0.5"/>
+                  <rect x="7" y="14" width="3" height="3" rx="0.5"/><rect x="14" y="14" width="3" height="3" rx="0.5"/>
+                </svg>
+              </div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b' }}>Scan Badge</div>
+              <div style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>Use your camera to scan your QR code</div>
+            </button>
+
+            <button
+              style={scanCardBase}
+              onClick={() => setLoginMode('type')}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 14px 36px rgba(0,0,0,0.3)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.22)'; }}
+            >
+              <div style={{ width: 72, height: 72, borderRadius: '16px', background: '#D4EEE3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3D7A5E" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="6" width="20" height="12" rx="2"/>
+                  <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/>
+                </svg>
+              </div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b' }}>Type Passcode</div>
+              <div style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>Enter your 8-character student code</div>
+            </button>
+          </div>
+        )}
+
+        {loginMode === 'scan' && (
+          <QRScannerView
+            onDetected={(code) => handleLogin(code)}
+            onCancel={() => setLoginMode('select')}
+          />
+        )}
+
+        {loginMode === 'type' && (
+          <div className="tc-login-card" style={{
+            background: 'white', borderRadius: '16px', padding: '40px 36px',
+            maxWidth: '420px', width: '100%',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
+          }}>
+            <h2 style={{ color: '#2D3D4A', margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>
+              Student Login
+            </h2>
+            <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>
+              Enter your Student Pass
+            </p>
+
+            <input
+              type="text"
+              inputMode="text"
+              autoCapitalize="characters"
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck="false"
+              placeholder="Enter Student Pass"
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && tokenInput.length === 8 && !isLoading && handleLogin()}
+              maxLength={8}
+              disabled={isLoading}
+              style={{
+                width: '100%', padding: '16px', fontSize: '26px',
+                textAlign: 'center',
+                border: error ? '2px solid #ef4444' : '2px solid #e2e8f0',
+                borderRadius: '10px', marginBottom: '10px',
+                letterSpacing: '5px', fontFamily: 'monospace',
+                boxSizing: 'border-box', outline: 'none',
+              }}
+            />
+            {error && (
+              <p style={{ color: '#ef4444', margin: '0 0 12px', fontSize: '14px' }}>{error}</p>
+            )}
+            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 20px', textAlign: 'center' }}>
+              Your teacher will provide your Student Pass
+            </p>
+
+            <button
+              onClick={handleLogin}
+              disabled={tokenInput.length !== 8 || isLoading}
+              style={{
+                width: '100%', padding: '15px', fontSize: '17px', fontWeight: 700,
+                cursor: tokenInput.length === 8 && !isLoading ? 'pointer' : 'not-allowed',
+                border: 'none', borderRadius: '10px',
+                backgroundColor: tokenInput.length === 8 && !isLoading ? '#5B8DB8' : '#e2e8f0',
+                color: tokenInput.length === 8 && !isLoading ? 'white' : '#94a3b8',
+                transition: 'background-color 0.15s',
+              }}
+            >
+              {isLoading ? 'Loading…' : 'Begin Assessment →'}
+            </button>
+          </div>
+        )}
 
         <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', marginTop: '28px' }}>
           © {new Date().getFullYear()} TechGrowth Check
