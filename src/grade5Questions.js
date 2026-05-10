@@ -1,1161 +1,1290 @@
 // Grade 5 Technology Applications Questions
-// Aligned to 2022 Texas TEKS 19 TAC §126.10
-// 87 questions total - 3 per standard (29 sub-standards)
+// Aligned to 2022 Texas TEKS §126.10
+// 107 questions total
 
 export const grade5Questions = [
-
-  // ============================================================
-  // COMPUTATIONAL THINKING - FOUNDATIONS (5.1)
-  // ============================================================
-
-  // 5.1A - Decompose problems into subproblems with multiple solutions (3)
   {
-    id: 'TA-5-CT-001',
-    text: "Your class is planning a school garden project from start to finish. Which approach BEST demonstrates decomposition into subproblems, each of which has multiple possible solutions?",
+    id: "TA-5-CT-001",
+    text: "Your class is planning a school garden. Which way BEST shows decomposition into smaller parts?",
     options: [
-      { letter: 'A', text: 'Start digging immediately and figure out the details along the way' },
-      { letter: 'B', text: 'Have the teacher plan every step and just follow instructions' },
-      { letter: 'C', text: 'Assign one person to handle the entire project alone' },
-      { letter: 'D', text: 'Break the project into parts — research plants, design layout, gather materials, plant seeds, maintain garden — and identify multiple ways to complete each part' }
+      { letter: 'A', text: "Start digging right away and figure it out later" },
+      { letter: 'B', text: "Have the teacher plan every step and just follow along" },
+      { letter: 'C', text: "Give the whole project to one person" },
+      { letter: 'D', text: "Break it into parts — pick plants, plan the layout, get supplies, plant seeds, care for the garden — and think of ways to do each part" }
     ],
-    correctAnswer: 'D',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-002',
-    text: "You are creating a website for your school's science fair. Using decomposition, which approach BEST breaks this into subproblems, each with multiple solutions?",
+    id: "TA-5-CT-002",
+    text: "You are making a website for your school science fair. Using decomposition, which plan works BEST?",
     options: [
-      { letter: 'A', text: 'Build the whole website at once without any planning' },
-      { letter: 'B', text: 'Divide into: choose platform (Google Sites, Wix, or coding), design layout (multiple template options), add content (text, video, or images), test links (peer or teacher review), and publish' },
-      { letter: 'C', text: 'Copy an existing website and change the title' },
-      { letter: 'D', text: 'Have one person write all the code while others watch' }
+      { letter: 'A', text: "Build the whole website at once with no plan" },
+      { letter: 'B', text: "Split it into parts: pick a tool, design the look, add words and pictures, test the links, and publish" },
+      { letter: 'C', text: "Copy another website and change the name" },
+      { letter: 'D', text: "Have one person write all the code while others watch" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-003',
-    text: "A student needs to plan a community awareness campaign about recycling. Which decomposition BEST shows subproblems that each have multiple possible solutions?",
+    id: "TA-5-CT-003",
+    text: "A student wants to plan a recycling campaign. Which decomposition BEST shows parts that each have more than one way to be done?",
     options: [
-      { letter: 'A', text: 'Make one poster and hang it in the hallway' },
-      { letter: 'B', text: 'Write a short paragraph about recycling' },
-      { letter: 'C', text: 'Identify the audience (students, teachers, or families), choose a message type (fact-based, emotional, or call-to-action), select media (video, flyer, or presentation), and plan distribution (announcements, email, or hallway displays)' },
-      { letter: 'D', text: 'Post about it on social media one time and wait for responses' }
+      { letter: 'A', text: "Make one poster and hang it in the hall" },
+      { letter: 'B', text: "Write a short paragraph about recycling" },
+      { letter: 'C', text: "Pick the audience (students, teachers, or families), choose a message type (facts, feelings, or call to action), pick the format (video, flyer, or slides), and plan how to share it" },
+      { letter: 'D', text: "Post about it on social media once and wait" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
-
-  // 5.1B - Identify patterns and make predictions (3)
   {
-    id: 'TA-5-CT-004',
-    text: "A weather station records these daily high temperatures: 55°F, 58°F, 61°F, 64°F, ___. Based on the pattern, what is the MOST LIKELY next temperature?",
+    id: "TA-5-CT-004",
+    text: "A weather station records these highs: 55°F, 58°F, 61°F, 64°F, ___. Based on the pattern, what comes next?",
     options: [
-      { letter: 'A', text: '65°F' },
-      { letter: 'B', text: '66°F' },
-      { letter: 'C', text: '67°F' },
-      { letter: 'D', text: '70°F' }
+      { letter: 'A', text: "65°F" },
+      { letter: 'B', text: "66°F" },
+      { letter: 'C', text: "67°F" },
+      { letter: 'D', text: "70°F" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-005',
-    text: "A programmer tracks app crashes: Monday 0, Tuesday 2, Wednesday 4, Thursday 6, Friday ___. If the pattern continues, how many crashes will occur on Friday?",
+    id: "TA-5-CT-005",
+    text: "A programmer counts app crashes each day: Monday 0, Tuesday 2, Wednesday 4, Thursday 6, Friday ___. If the pattern keeps going, how many crashes happen Friday?",
     options: [
-      { letter: 'A', text: '6' },
-      { letter: 'B', text: '7' },
-      { letter: 'C', text: '8' },
-      { letter: 'D', text: '9' }
+      { letter: 'A', text: "6" },
+      { letter: 'B', text: "7" },
+      { letter: 'C', text: "8" },
+      { letter: 'D', text: "9" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-006',
-    text: "A student notices that every time she reads for 30 minutes before bed, she scores at least 85% on the next day's quiz. This has happened 8 times in a row. What PREDICTION can she MOST reasonably make based on this pattern?",
+    id: "TA-5-CT-006",
+    text: "A student reads for 30 minutes before bed every night. Each time, she scores at least 85% on the next quiz. This happened 8 times in a row. What prediction makes the MOST sense?",
     options: [
-      { letter: 'A', text: 'She will always score 100% on every future quiz no matter what' },
-      { letter: 'B', text: 'Reading time has no real effect on quiz scores' },
-      { letter: 'C', text: 'If she reads for 30 minutes tonight, she will likely score at least 85% tomorrow' },
-      { letter: 'D', text: 'The pattern will never occur again after these 8 times' }
+      { letter: 'A', text: "She will always score 100% on every quiz no matter what" },
+      { letter: 'B', text: "Reading time has no real effect on quiz scores" },
+      { letter: 'C', text: "If she reads 30 minutes tonight, she will likely score at least 85% tomorrow" },
+      { letter: 'D', text: "The pattern will never happen again after these 8 times" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
-
-  // 5.1C - Communicate and document design plans (3)
   {
-    id: 'TA-5-CT-007',
-    text: "You are designing a mobile app to help students track homework assignments. What documentation should you create BEFORE you start building the app?",
+    id: "TA-5-CT-007",
+    text: "You are building an app to help students track homework. What should you write down BEFORE you start building?",
     options: [
-      { letter: 'A', text: 'Write a final report after the app is completely finished' },
-      { letter: 'B', text: 'Create a design plan with the app\'s purpose, features list, user interface sketches, and step-by-step development notes' },
-      { letter: 'C', text: 'Just start coding and figure out the details along the way' },
-      { letter: 'D', text: 'Only write down problems you expect to run into' }
+      { letter: 'A', text: "Write a report after the app is done" },
+      { letter: 'B', text: "Make a plan with the app's purpose, a list of features, sketches of the screens, and step-by-step notes" },
+      { letter: 'C', text: "Just start coding and figure it out later" },
+      { letter: 'D', text: "Only write down problems you think might happen" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-008',
-    text: "A student creates a flowchart and storyboard to document her game design plan before coding. What is the MAIN benefit of this documentation?",
+    id: "TA-5-CT-008",
+    text: "A student makes a flowchart and storyboard for her game plan before coding. What is the MAIN benefit?",
     options: [
-      { letter: 'A', text: 'Documentation replaces the need to actually build the game' },
-      { letter: 'B', text: 'It is only required for large commercial games, not school projects' },
-      { letter: 'C', text: 'It provides a visual guide showing the game\'s structure and logic, allowing her to code more effectively and share her plan with others' },
-      { letter: 'D', text: 'It makes the project look more complex than it really is' }
+      { letter: 'A', text: "It replaces the need to actually build the game" },
+      { letter: 'B', text: "It is only needed for big commercial games, not school projects" },
+      { letter: 'C', text: "It gives a visual guide showing the game's layout and logic, helping her code better and share her plan with others" },
+      { letter: 'D', text: "It makes the project look harder than it is" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-009',
-    text: "A team of 4 students is collaborating on a digital art project. Why is it MOST important to document the design plan using a shared technology tool such as a shared document or slide deck?",
+    id: "TA-5-CT-009",
+    text: "A team of 4 students is working on a digital art project. Why is it MOST important to share the design plan using a tool like a shared document?",
     options: [
-      { letter: 'A', text: 'Documentation is not necessary for creative or art-based projects' },
-      { letter: 'B', text: 'So all team members can access the plan, track progress, see their responsibilities, and stay aligned on shared goals' },
-      { letter: 'C', text: 'Only the team leader needs access to the plan' },
-      { letter: 'D', text: 'To make the project intentionally take more time' }
+      { letter: 'A', text: "Plans are not needed for art projects" },
+      { letter: 'B', text: "So everyone can see the plan, track progress, know their jobs, and stay on the same page" },
+      { letter: 'C', text: "Only the team leader needs to see the plan" },
+      { letter: 'D', text: "To make the project take more time on purpose" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
-
-  // 5.1D - Debug algorithms independently (3)
   {
-    id: 'TA-5-CT-010',
-    text: "A student writes this algorithm: Step 1 — Display 'What is your name?', Step 2 — Display 'Hello, [name]!', Step 3 — Store the typed name in a variable called 'name'. The program outputs 'Hello, !' with nothing where the name should be. What is the bug?",
+    id: "TA-5-CT-010",
+    text: "A student writes these steps: Step 1 — Show 'What is your name?', Step 2 — Show 'Hello, [name]!', Step 3 — Save the typed name in a variable called 'name'. The program shows 'Hello, !' with no name. What is the bug?",
     options: [
-      { letter: 'A', text: 'Step 1 should be removed entirely' },
-      { letter: 'B', text: 'Step 3 must come BEFORE Step 2 — the name variable must be filled with user input before it can be used in the greeting' },
-      { letter: 'C', text: 'The greeting text in Step 2 contains a punctuation error' },
-      { letter: 'D', text: 'There is no bug; this output is expected behavior' }
+      { letter: 'A', text: "Step 1 should be removed" },
+      { letter: 'B', text: "Step 3 must come BEFORE Step 2 — the name has to be saved before it can be used in the greeting" },
+      { letter: 'C', text: "The greeting in Step 2 has a punctuation error" },
+      { letter: 'D', text: "There is no bug — this is what should happen" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-011',
-    text: "A student's quiz game should add 10 points to the score each time the player answers correctly, but the score always stays at 0. Which debugging approach would BEST identify and fix this problem?",
+    id: "TA-5-CT-011",
+    text: "A quiz game should add 10 points each time a player gets a right answer, but the score always stays at 0. What is the BEST way to find and fix this?",
     options: [
-      { letter: 'A', text: 'Delete the entire program and rebuild it from scratch' },
-      { letter: 'B', text: 'Add more variables to the program without investigating the problem' },
-      { letter: 'C', text: 'Assume the problem is caused by the computer\'s display screen' },
-      { letter: 'D', text: 'Test each part separately — verify the correct answer condition triggers, and check that the score variable is actually being updated by 10' }
+      { letter: 'A', text: "Delete the whole program and start over" },
+      { letter: 'B', text: "Add more variables without checking the problem" },
+      { letter: 'C', text: "Blame the computer screen" },
+      { letter: 'D', text: "Test each part — check if the right-answer check works, and see if the score variable is really going up by 10" }
     ],
-    correctAnswer: 'D',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-012',
-    text: "A robot is programmed to navigate a maze: Forward 3 squares, Turn Right, Forward 2 squares, Turn Left, Forward 1 square. The robot crashes into a wall during the 'Forward 2 squares' step. What should you do FIRST to debug this algorithm?",
+    id: "TA-5-CT-012",
+    text: "A robot follows these steps in a maze: Forward 3, Turn Right, Forward 2, Turn Left, Forward 1. It crashes during 'Forward 2.' What should you do FIRST?",
     options: [
-      { letter: 'A', text: 'Reprogram the entire route from the beginning' },
-      { letter: 'B', text: 'Trace through the algorithm step-by-step and verify whether the Turn Right direction and the 2-square distance match the actual maze layout' },
-      { letter: 'C', text: 'Turn the robot around and run the whole program in reverse' },
-      { letter: 'D', text: 'Simply remove the second Forward command from the algorithm' }
+      { letter: 'A', text: "Reprogram the whole route from scratch" },
+      { letter: 'B', text: "Trace through each step and check if the Turn Right and 2 squares match the real maze layout" },
+      { letter: 'C', text: "Run the program backward" },
+      { letter: 'D', text: "Just remove the second Forward command" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
-
-  // ============================================================
-  // COMPUTATIONAL THINKING - APPLICATIONS (5.2)
-  // ============================================================
-
-  // 5.2A - Use variables to modify and track data across a program (3)
   {
-    id: 'TA-5-CT-013',
-    text: "In a quiz game program, a variable called 'score' starts at 0 and increases by 10 for each correct answer. After 4 correct answers, what value does the variable 'score' contain?",
+    id: "TA-5-CT-013",
+    text: "In a quiz game, a variable called 'score' starts at 0 and goes up by 10 for each right answer. After 4 right answers, what is the score?",
     options: [
-      { letter: 'A', text: '4' },
-      { letter: 'B', text: '10' },
-      { letter: 'C', text: '14' },
-      { letter: 'D', text: '40' }
+      { letter: 'A', text: "4" },
+      { letter: 'B', text: "10" },
+      { letter: 'C', text: "14" },
+      { letter: 'D', text: "40" }
     ],
-    correctAnswer: 'D',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-014',
-    text: "A student builds a program where users can change the background color. The current color is stored in a variable called 'bgColor' set to 'Red'. When the user clicks the 'Blue' button, what should happen to the variable?",
+    id: "TA-5-CT-014",
+    text: "A program lets users change the background color. The color is stored in a variable called 'bgColor' set to 'Red'. When the user clicks the 'Blue' button, what should happen?",
     options: [
-      { letter: 'A', text: 'A brand new variable should be created for the new color' },
-      { letter: 'B', text: 'The variable \'bgColor\' should be deleted from the program' },
-      { letter: 'C', text: 'The value of \'bgColor\' should be updated to \'Blue\'' },
-      { letter: 'D', text: 'The variable should stay as \'Red\' and a separate unrelated action should display blue' }
+      { letter: 'A', text: "A brand new variable should be created for the new color" },
+      { letter: 'B', text: "The variable 'bgColor' should be deleted" },
+      { letter: 'C', text: "The value of 'bgColor' should change to 'Blue'" },
+      { letter: 'D', text: "The variable should stay 'Red' and something else should show blue" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-015',
-    text: "Which scenario BEST demonstrates a variable being used to both MODIFY and TRACK changing data across a program?",
+    id: "TA-5-CT-015",
+    text: "Which example BEST shows a variable being used to track and change data in a program?",
     options: [
-      { letter: 'A', text: 'A constant that stores the value of pi (3.14159) and never changes' },
-      { letter: 'B', text: 'A label that always displays "Welcome to the app" on the main screen' },
-      { letter: 'C', text: 'A coin counter that starts at 0 and increases by 1 each time the player collects a coin, then displays the updated total' },
-      { letter: 'D', text: 'A button that stays the same color throughout the entire game' }
+      { letter: 'A', text: "A constant that stores pi (3.14) and never changes" },
+      { letter: 'B', text: "A label that always says 'Welcome to the app'" },
+      { letter: 'C', text: "A coin counter that starts at 0, goes up by 1 each time a player gets a coin, and shows the new total" },
+      { letter: 'D', text: "A button that stays the same color the whole game" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
-
-  // 5.2B - Create programs with sequences, loops, conditionals, and functions (3)
   {
-    id: 'TA-5-CT-016',
-    text: "A student writes a function called 'calculateArea' that multiplies length by width. This calculation is needed in 8 different places in the program. Why is using a function the BEST approach?",
+    id: "TA-5-CT-016",
+    text: "A student makes a block called 'calculateArea' that multiplies length times width. She needs this math in 8 different spots. Why is using a function the BEST idea?",
     options: [
-      { letter: 'A', text: 'Functions make programs longer and harder to follow' },
-      { letter: 'B', text: 'Functions are only used in professional programming, not school projects' },
-      { letter: 'C', text: 'Writing the calculation once as a function and calling it 8 times avoids repeating code, makes the program easier to update, and reduces errors' },
-      { letter: 'D', text: 'Functions completely replace the need for variables in a program' }
+      { letter: 'A', text: "Functions make programs longer and harder to follow" },
+      { letter: 'B', text: "Functions are only for professional programmers" },
+      { letter: 'C', text: "Writing the math once and calling it 8 times avoids repeating code, makes updates easier, and cuts down on mistakes" },
+      { letter: 'D', text: "Functions completely replace the need for variables" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-017',
-    text: "A student's program asks for a user's age, then should display 'You can vote!' if the age is 18 or older, or 'Not yet!' if younger. Which combination of programming structures is needed?",
+    id: "TA-5-CT-017",
+    text: "A program asks for a user's age, then shows 'You can vote!' if the age is 18 or older, or 'Not yet!' if younger. Which programming parts are needed?",
     options: [
-      { letter: 'A', text: 'Only a loop' },
-      { letter: 'B', text: 'A sequence to run steps in order, a conditional (if/else) to check the age, and a variable to store the age' },
-      { letter: 'C', text: 'Only a function with no other structures' },
-      { letter: 'D', text: 'Only variables with no conditional or sequence needed' }
+      { letter: 'A', text: "Only a loop" },
+      { letter: 'B', text: "A sequence to run steps in order, a conditional (if/else) to check the age, and a variable to hold the age" },
+      { letter: 'C', text: "Only a function with nothing else" },
+      { letter: 'D', text: "Only variables with no conditional or sequence" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-5-CT-018',
-    text: "A student creates a program that prints each number from 1 to 1000, along with whether it is odd or even. Which programming structures make this MOST efficient?",
+    id: "TA-5-CT-018",
+    text: "A program prints each number from 1 to 1000 and says if it is odd or even. Which setup is MOST efficient?",
     options: [
-      { letter: 'A', text: '1000 separate print statements, one for each number' },
-      { letter: 'B', text: 'A loop that counts from 1 to 1000, with a conditional inside that checks whether each number is odd or even and prints the result' },
-      { letter: 'C', text: 'A single function that prints all 1000 numbers at once with no loop or conditional' },
-      { letter: 'D', text: 'Only variables, with no loop or conditional logic' }
+      { letter: 'A', text: "1,000 separate print commands, one for each number" },
+      { letter: 'B', text: "A loop that counts from 1 to 1000 with a conditional inside that checks odd or even and prints the answer" },
+      { letter: 'C', text: "One function that prints all 1,000 numbers at once with no loop" },
+      { letter: 'D', text: "Only variables, with no loop or conditional" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
-
-  // ============================================================
-  // CREATIVITY AND INNOVATION - INNOVATIVE DESIGN PROCESS (5.3)
-  // ============================================================
-
-  // 5.3A - Demonstrate personal skills for the design process (3)
   {
-    id: 'TA-5-CI-001',
-    text: "During a design challenge, your team has two very different ideas and can't agree on which to try. Which response BEST demonstrates the personal skills needed for the design process?",
+    id: "TA-5-CI-001",
+    text: "During a design challenge, your team has two very different ideas and can't agree. What response BEST shows the personal skills needed for the design process?",
     options: [
-      { letter: 'A', text: 'One person makes all decisions and dismisses the other ideas' },
-      { letter: 'B', text: 'Have a vote, but only count the votes of people who agree with your idea' },
-      { letter: 'C', text: 'Openly discuss both ideas, listen to all perspectives, evaluate each option using criteria, and test both if time allows' },
-      { letter: 'D', text: 'Quit the project entirely because of the disagreement' }
+      { letter: 'A', text: "One person makes all the decisions" },
+      { letter: 'B', text: "Vote, but only count votes from people who agree with you" },
+      { letter: 'C', text: "Talk about both ideas, listen to everyone, check each idea against the goals, and test both if there's time" },
+      { letter: 'D', text: "Quit the project because of the disagreement" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-002',
-    text: "A 5th grade student has been working on the same app design for three days and keeps hitting dead ends. Which design process skill would help MOST?",
+    id: "TA-5-CI-002",
+    text: "A student has been working on the same app design for three days and keeps hitting dead ends. Which skill would help MOST?",
     options: [
-      { letter: 'A', text: 'Stop working on the project until inspiration naturally arrives' },
-      { letter: 'B', text: 'Keep doing exactly the same things that have not been working' },
-      { letter: 'C', text: 'Ask someone else to complete the project for her' },
-      { letter: 'D', text: 'Show curiosity by researching similar apps, interviewing potential users, and trying a completely new design direction' }
+      { letter: 'A', text: "Stop working until ideas come on their own" },
+      { letter: 'B', text: "Keep doing the same things that haven't worked" },
+      { letter: 'C', text: "Ask someone else to finish the project" },
+      { letter: 'D', text: "Show curiosity by looking at similar apps, talking to users, and trying a whole new direction" }
     ],
-    correctAnswer: 'D',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-003',
-    text: "A design team finishes building their prototype, but testing reveals it only partially solves the original problem. What should they do NEXT?",
+    id: "TA-5-CI-003",
+    text: "A team finishes their prototype, but testing shows it only partly solves the problem. What should they do NEXT?",
     options: [
-      { letter: 'A', text: 'Submit the prototype anyway since the team worked very hard on it' },
-      { letter: 'B', text: 'Use specific feedback from testing to identify weaknesses and revise or redesign the solution' },
-      { letter: 'C', text: 'Declare the entire project a failure and choose a different problem' },
-      { letter: 'D', text: 'Rewrite the problem definition so it matches what their solution already does' }
+      { letter: 'A', text: "Turn it in anyway since they worked hard" },
+      { letter: 'B', text: "Use feedback from testing to find the weak spots and fix or redesign the solution" },
+      { letter: 'C', text: "Call the whole project a failure and pick a new problem" },
+      { letter: 'D', text: "Change the problem to match what the solution already does" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
-
-  // 5.3B - Apply the design process independently to solve authentic local/global problems (3)
   {
-    id: 'TA-5-CI-004',
-    text: "Your school community has identified a problem: students can't easily find out about upcoming school events. You want to design a technology solution. What should you do FIRST in the design process?",
+    id: "TA-5-CI-004",
+    text: "Students can't easily find out about school events. You want to design a tech fix. What should you do FIRST?",
     options: [
-      { letter: 'A', text: 'Build an app immediately and show it to the principal' },
-      { letter: 'B', text: 'Clearly define and understand the problem by researching who needs the information, what formats they use, and what has already been tried' },
-      { letter: 'C', text: 'Search for an app that already exists and copy its design' },
-      { letter: 'D', text: 'Present your solution idea to the class before doing any research' }
+      { letter: 'A', text: "Build an app right away and show the principal" },
+      { letter: 'B', text: "Clearly define the problem by finding out who needs the info, what formats they use, and what has already been tried" },
+      { letter: 'C', text: "Find an existing app and copy its design" },
+      { letter: 'D', text: "Present your idea to the class before doing any research" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-005',
-    text: "After researching the school events problem, you narrow it down to two solutions: a website and a daily text message alert. How should you independently decide which one to develop?",
+    id: "TA-5-CI-005",
+    text: "You narrow down two fixes for the school events problem: a website and daily text alerts. How should you decide which one to build?",
     options: [
-      { letter: 'A', text: 'Choose whichever solution is easiest to build' },
-      { letter: 'B', text: 'Choose the one your teacher prefers' },
-      { letter: 'C', text: 'Flip a coin since both options seem equally good' },
-      { letter: 'D', text: 'Evaluate both solutions using criteria such as cost, accessibility, ease of use, reliability, and how well each meets user needs' }
+      { letter: 'A', text: "Pick whichever is easiest to make" },
+      { letter: 'B', text: "Pick the one your teacher likes" },
+      { letter: 'C', text: "Flip a coin" },
+      { letter: 'D', text: "Compare both using things like cost, who can use it, ease of use, and how well each meets what users need" }
     ],
-    correctAnswer: 'D',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-006',
-    text: "After testing your school events app with students, the most common piece of feedback is: 'I can't find the Add to Calendar button.' What should you do NEXT in the design process?",
+    id: "TA-5-CI-006",
+    text: "After testing your school events app, students say: 'I can't find the Add to Calendar button.' What should you do NEXT?",
     options: [
-      { letter: 'A', text: 'Remove the button entirely to simplify the app' },
-      { letter: 'B', text: 'Tell users the button is there and they need to look more carefully' },
-      { letter: 'C', text: 'Use this feedback to redesign the interface, making the button more visible and prominent, then test again' },
-      { letter: 'D', text: 'Abandon the project because users don\'t understand the design' }
+      { letter: 'A', text: "Remove the button to make the app simpler" },
+      { letter: 'B', text: "Tell users the button is there and they need to look harder" },
+      { letter: 'C', text: "Use this feedback to make the button bigger and easier to see, then test again" },
+      { letter: 'D', text: "Give up because users don't get the design" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
-
-  // ============================================================
-  // CREATIVITY AND INNOVATION - EMERGING TECHNOLOGIES (5.4)
-  // ============================================================
-
-  // 5.4A - Analyze how emerging technologies impact society (3)
   {
-    id: 'TA-5-CI-007',
-    text: "Artificial intelligence (AI) is increasingly being used to analyze medical scans and detect diseases earlier than human doctors in some cases. Which statement BEST analyzes this technology's impact on society?",
+    id: "TA-5-CI-007",
+    text: "AI can now look at medical scans and sometimes spot diseases earlier than doctors. Which statement BEST describes this technology's impact on society?",
     options: [
-      { letter: 'A', text: 'AI has no significant impact on the healthcare industry' },
-      { letter: 'B', text: 'It could help doctors detect diseases earlier and save lives, but raises important questions about job displacement, diagnostic accuracy, and accountability in medical decisions' },
-      { letter: 'C', text: 'AI in medicine only benefits large hospitals in wealthy countries' },
-      { letter: 'D', text: 'AI makes medical scans more expensive with no measurable benefits to patients' }
+      { letter: 'A', text: "AI has no big impact on healthcare" },
+      { letter: 'B', text: "It could help doctors find diseases sooner and save lives, but raises questions about jobs, accuracy, and who is responsible for mistakes" },
+      { letter: 'C', text: "AI in medicine only helps big hospitals in rich countries" },
+      { letter: 'D', text: "AI makes medical scans cost more with no benefits" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-008',
-    text: "Schools are beginning to use virtual reality (VR) to allow students to 'visit' historical events and explore places around the world. Which statement MOST completely analyzes this technology's impact on society?",
+    id: "TA-5-CI-008",
+    text: "Schools are starting to use virtual reality (VR) so students can 'visit' historic events and faraway places. Which statement BEST describes this impact?",
     options: [
-      { letter: 'A', text: 'VR only benefits video game players and has no educational value' },
-      { letter: 'B', text: 'VR in education could increase engagement and broaden access to experiences, but raises concerns about cost, health effects of extended use, and unequal access across schools' },
-      { letter: 'C', text: 'VR will completely replace all traditional teaching methods' },
-      { letter: 'D', text: 'VR has no significant impact on education or learning outcomes' }
+      { letter: 'A', text: "VR only helps gamers and has no value in school" },
+      { letter: 'B', text: "VR could make learning more exciting and give students new experiences, but raises worries about cost, health effects, and unequal access across schools" },
+      { letter: 'C', text: "VR will fully replace all regular teaching" },
+      { letter: 'D', text: "VR has no real effect on education" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-009',
-    text: "Drones are now being used to deliver packages in some cities. Which statement BEST analyzes this emerging technology's impact on society?",
+    id: "TA-5-CI-009",
+    text: "Drones are now being used to deliver packages in some cities. Which answer BEST describes the impact?",
     options: [
-      { letter: 'A', text: 'Drone delivery has no societal impact whatsoever' },
-      { letter: 'B', text: 'Drones are too expensive to ever be widely adopted' },
-      { letter: 'C', text: 'Drones only affect people who live in rural areas' },
-      { letter: 'D', text: 'Drone delivery could reduce delivery times and traffic congestion, but raises concerns about privacy, safety risks, and job losses for delivery workers' }
+      { letter: 'A', text: "Drone delivery has no effect on anyone" },
+      { letter: 'B', text: "Drones cost too much to ever be used widely" },
+      { letter: 'C', text: "Drones only affect people in the country" },
+      { letter: 'D', text: "Drones could speed up deliveries and cut traffic, but raise worries about privacy, safety, and lost jobs for delivery workers" }
     ],
-    correctAnswer: 'D',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Creativity and Innovation"
   },
-
-  // 5.4B - Evaluate benefits and drawbacks of emerging technologies (3)
   {
-    id: 'TA-5-CI-010',
-    text: "Wearable health technology — such as smartwatches that monitor heart rate, sleep, and activity — is becoming increasingly common. What is a key BENEFIT of this technology?",
+    id: "TA-5-CI-010",
+    text: "Smartwatches can now track heart rate, sleep, and exercise. What is a key BENEFIT?",
     options: [
-      { letter: 'A', text: 'Wearable devices are completely free for all consumers' },
-      { letter: 'B', text: 'They allow people to monitor health trends in real time and share useful data with their doctors for better care' },
-      { letter: 'C', text: 'They always provide 100% accurate medical diagnoses without a doctor' },
-      { letter: 'D', text: 'Wearable technology completely eliminates the need for doctor visits' }
+      { letter: 'A', text: "They are free for everyone" },
+      { letter: 'B', text: "People can watch health trends in real time and share useful data with their doctors for better care" },
+      { letter: 'C', text: "They always give perfect medical diagnoses without a doctor" },
+      { letter: 'D', text: "They completely replace the need for doctor visits" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-011',
-    text: "Autonomous self-driving cars are being tested in several cities. Which answer BEST identifies a potential DRAWBACK of this emerging technology?",
+    id: "TA-5-CI-011",
+    text: "Self-driving cars are being tested in several cities. What is a possible DRAWBACK?",
     options: [
-      { letter: 'A', text: 'Self-driving cars can navigate some routes more efficiently than human drivers' },
-      { letter: 'B', text: 'Self-driving cars reduce the need for a driver, saving the driver\'s time' },
-      { letter: 'C', text: 'Self-driving cars could displace millions of professional drivers from their jobs and may be vulnerable to software bugs or cyberattacks' },
-      { letter: 'D', text: 'Self-driving cars tend to use less fuel than traditional human-driven vehicles' }
+      { letter: 'A', text: "They can drive some routes better than people" },
+      { letter: 'B', text: "They save the driver's time" },
+      { letter: 'C', text: "They could put millions of professional drivers out of work and may have software bugs or be hacked" },
+      { letter: 'D', text: "They tend to use less fuel than regular cars" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-5-CI-012',
-    text: "Smart home devices — like voice-activated speakers that control lights, locks, and appliances — have become popular in many households. Which response BEST evaluates BOTH a benefit AND a drawback?",
+    id: "TA-5-CI-012",
+    text: "Smart home speakers can control lights, locks, and appliances by voice. Which answer shows BOTH a benefit AND a drawback?",
     options: [
-      { letter: 'A', text: 'Smart home devices are completely safe, convenient, and have no potential issues' },
-      { letter: 'B', text: 'Benefits include convenience and accessibility for people with disabilities; drawbacks include always-on microphones that raise privacy concerns and the risk of hacking' },
-      { letter: 'C', text: 'Smart home devices are far too complicated for the average person to use' },
-      { letter: 'D', text: 'The only benefit is playing music; these devices provide no other useful function' }
+      { letter: 'A', text: "They are totally safe with no problems at all" },
+      { letter: 'B', text: "They are handy and help people with disabilities, but always-on microphones raise privacy worries and could be hacked" },
+      { letter: 'C', text: "They are too hard for most people to use" },
+      { letter: 'D', text: "The only benefit is playing music" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
-
-  // ============================================================
-  // DATA LITERACY - COLLECT DATA (5.5)
-  // ============================================================
-
-  // 5.5A - Collect numerical and non-numerical data using digital tools (3)
   {
-    id: 'TA-5-DL-001',
-    text: "A 5th grade class wants to track how much water each student drinks per day over two weeks for a science project. Which digital tool would BEST allow them to collect and store this numerical data?",
+    id: "TA-5-DL-001",
+    text: "A class wants to track how much water each student drinks per day for two weeks. Which digital tool is BEST for collecting this number data?",
     options: [
-      { letter: 'A', text: 'A printed paper form kept in a classroom drawer' },
-      { letter: 'B', text: 'Asking students to try to remember the amounts at the end of the two weeks' },
-      { letter: 'C', text: 'An online spreadsheet or survey app where each student enters their daily water intake' },
-      { letter: 'D', text: 'Writing the results on the whiteboard at the end of each day' }
+      { letter: 'A', text: "A paper form kept in a desk drawer" },
+      { letter: 'B', text: "Ask students to remember the amounts after two weeks" },
+      { letter: 'C', text: "An online spreadsheet or survey app where each student types in their daily water amount" },
+      { letter: 'D', text: "Writing results on the whiteboard at the end of each day" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-002',
-    text: "For a social studies project, students need to gather community members' opinions about renewable energy. This is non-numerical data. Which digital tool would BEST collect these responses?",
+    id: "TA-5-DL-002",
+    text: "Students need to gather people's opinions about renewable energy for a project. This is non-numerical data. Which digital tool is BEST?",
     options: [
-      { letter: 'A', text: 'A ruler' },
-      { letter: 'B', text: 'A calculator' },
-      { letter: 'C', text: 'A printed dictionary' },
-      { letter: 'D', text: 'An online survey form with multiple-choice and open-ended questions' }
+      { letter: 'A', text: "A ruler" },
+      { letter: 'B', text: "A calculator" },
+      { letter: 'C', text: "A printed dictionary" },
+      { letter: 'D', text: "An online survey with multiple-choice and open-ended questions" }
     ],
-    correctAnswer: 'D',
-    strand: 'Data Literacy'
+    correctAnswer: "D",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-003',
-    text: "Which example shows a digital tool collecting BOTH numerical and non-numerical data in a single form?",
+    id: "TA-5-DL-003",
+    text: "Which example shows a digital tool collecting BOTH number data and word data in one form?",
     options: [
-      { letter: 'A', text: 'A calculator that only performs math operations' },
-      { letter: 'B', text: 'A spreadsheet that contains only numbers with no labels' },
-      { letter: 'C', text: 'A digital survey that asks "How many hours do you sleep each night? (enter a number)" and "Describe how you feel when you wake up. (short answer)"' },
-      { letter: 'D', text: 'A simple alphabetical list of student names' }
+      { letter: 'A', text: "A calculator that only does math" },
+      { letter: 'B', text: "A spreadsheet with only numbers and no labels" },
+      { letter: 'C', text: "A survey that asks 'How many hours do you sleep?' (number) AND 'How do you feel when you wake up?' (short answer)" },
+      { letter: 'D', text: "A simple list of student names in ABC order" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
-
-  // 5.5B - Use various search strategies including operators and filters (3)
   {
-    id: 'TA-5-DL-004',
-    text: "A student searches for 'pollution' online and gets over 500 million results. Which search strategy would MOST effectively narrow the results to information about air pollution and children's health?",
+    id: "TA-5-DL-004",
+    text: "A student searches 'pollution' and gets 500 million results. Which search trick would BEST narrow results to air pollution and children's health?",
     options: [
-      { letter: 'A', text: 'Search "pollution" again with no changes' },
-      { letter: 'B', text: 'Read through every result listed until finding a useful one' },
-      { letter: 'C', text: 'Use specific terms and quotation marks: "air pollution" "effects on children\'s health"' },
-      { letter: 'D', text: 'Use only one single word at a time for every search' }
+      { letter: 'A', text: "Search 'pollution' again with no changes" },
+      { letter: 'B', text: "Read through every result until finding a good one" },
+      { letter: 'C', text: "Use specific words in quotes: \"air pollution\" \"effects on children's health\"" },
+      { letter: 'D', text: "Use only one single word at a time" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-005',
-    text: "Which search strategy would BEST help a student find ONLY government websites about food safety regulations?",
+    id: "TA-5-DL-005",
+    text: "Which search trick helps a student find ONLY government websites about food safety?",
     options: [
-      { letter: 'A', text: 'Type "food safety" and click whichever result looks most official' },
-      { letter: 'B', text: 'Use the site: operator — search "food safety site:.gov" — to limit results to government domains only' },
-      { letter: 'C', text: 'Search for "the best websites about food"' },
-      { letter: 'D', text: 'Browse any website that mentions the word "food"' }
+      { letter: 'A', text: "Type 'food safety' and click whatever looks official" },
+      { letter: 'B', text: "Use the site: limiter — search 'food safety site:.gov' — to show only government sites" },
+      { letter: 'C', text: "Search 'the best websites about food'" },
+      { letter: 'D', text: "Click on any website that has the word 'food'" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "B",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-006',
-    text: "A student finds two websites with conflicting information about climate change. One is a university research center's page; the other is a personal blog. What is the BEST strategy for evaluating which source is more reliable?",
+    id: "TA-5-DL-006",
+    text: "A student finds two websites with different facts about climate change. One is from a university; the other is a personal blog. How can she tell which is more reliable?",
     options: [
-      { letter: 'A', text: 'Use whichever website ranked first in the search results' },
-      { letter: 'B', text: 'Use whichever website agrees with what she already believes' },
-      { letter: 'C', text: 'Choose the site with the most colorful and professional-looking design' },
-      { letter: 'D', text: 'Evaluate the author\'s credentials, check for citations or peer-reviewed references, review the publication date, and confirm the organization is recognized as trustworthy' }
+      { letter: 'A', text: "Use whichever site came up first in search" },
+      { letter: 'B', text: "Use whichever site agrees with what she already thinks" },
+      { letter: 'C', text: "Pick the site with the nicest design" },
+      { letter: 'D', text: "Check the author's credentials, look for citations, check the date, and see if the organization is trusted" }
     ],
-    correctAnswer: 'D',
-    strand: 'Data Literacy'
+    correctAnswer: "D",
+    strand: "Data Literacy"
   },
-
-  // ============================================================
-  // DATA LITERACY - ANALYZE DATA (5.6)
-  // ============================================================
-
-  // 5.6A - Identify data type and appropriate digital tools (3)
   {
-    id: 'TA-5-DL-007',
-    text: "A student collects monthly rainfall totals for his city over 12 months and wants to identify trends. Which digital tool is MOST appropriate for organizing and analyzing this data?",
+    id: "TA-5-DL-007",
+    text: "A student collects monthly rainfall totals for a year and wants to find trends. Which digital tool is BEST?",
     options: [
-      { letter: 'A', text: 'A word processor used to write a descriptive paragraph about the weather' },
-      { letter: 'B', text: 'A presentation app to create a slide for each month' },
-      { letter: 'C', text: 'A drawing or paint program' },
-      { letter: 'D', text: 'A spreadsheet app with a line graph to display monthly totals and highlight trends over time' }
+      { letter: 'A', text: "A word processor to write about the weather" },
+      { letter: 'B', text: "A slide app to make one slide per month" },
+      { letter: 'C', text: "A drawing or paint program" },
+      { letter: 'D', text: "A spreadsheet with a line graph to show monthly totals and highlight trends" }
     ],
-    correctAnswer: 'D',
-    strand: 'Data Literacy'
+    correctAnswer: "D",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-008',
-    text: "A class wants to compare the average weekly reading scores of two different student groups over an entire school year. What chart type would BEST display this comparison?",
+    id: "TA-5-DL-008",
+    text: "A class wants to compare two groups' weekly reading scores over a whole school year. Which chart type is BEST?",
     options: [
-      { letter: 'A', text: 'A pie chart showing only one group\'s total for the whole year' },
-      { letter: 'B', text: 'A line graph with two lines — one per group — plotted across each week of the year' },
-      { letter: 'C', text: 'A single bar with no labels or groupings' },
-      { letter: 'D', text: 'A word cloud made from test answer choices' }
+      { letter: 'A', text: "A pie chart showing one group's total for the year" },
+      { letter: 'B', text: "A line graph with two lines — one for each group — across each week of the year" },
+      { letter: 'C', text: "A single bar with no labels" },
+      { letter: 'D', text: "A word cloud of test answers" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "B",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-009',
-    text: "A student surveys her school to find students' favorite after-school activities and wants to show what percentage of students chose each option. Which chart type is MOST appropriate?",
+    id: "TA-5-DL-009",
+    text: "A student surveys her school about favorite after-school activities and wants to show what percent of students picked each one. Which chart type is BEST?",
     options: [
-      { letter: 'A', text: 'A timeline of when each student was surveyed' },
-      { letter: 'B', text: 'A flowchart showing the steps of the survey process' },
-      { letter: 'C', text: 'A pie chart or bar chart showing the proportion of students who selected each activity' },
-      { letter: 'D', text: 'A scatter plot comparing two unrelated numeric variables' }
+      { letter: 'A', text: "A timeline of when each student was surveyed" },
+      { letter: 'B', text: "A flowchart of the survey steps" },
+      { letter: 'C', text: "A pie chart or bar chart showing the share of students who chose each activity" },
+      { letter: 'D', text: "A scatter plot comparing two unrelated numbers" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
-
-  // 5.6B - Analyze data to identify trends, draw conclusions, or make predictions (3)
   {
-    id: 'TA-5-DL-010',
-    text: "A student records monthly rainfall data: Jan 2\", Feb 1.5\", Mar 3\", Apr 4\", May 5\", Jun 4\", Jul 1\", Aug 0.5\", Sep 2\", Oct 3\", Nov 3\", Dec 2.5\". What TREND does this data show?",
+    id: "TA-5-DL-010",
+    text: "Monthly rainfall: Jan 2\", Feb 1.5\", Mar 3\", Apr 4\", May 5\", Jun 4\", Jul 1\", Aug 0.5\", Sep 2\", Oct 3\", Nov 3\", Dec 2.5\". What TREND does this show?",
     options: [
-      { letter: 'A', text: 'Rainfall increases steadily every single month throughout the year' },
-      { letter: 'B', text: 'Rainfall is highest in spring and early summer, drops sharply in midsummer, then rises again in fall' },
-      { letter: 'C', text: 'There is no pattern; rainfall amounts are completely random' },
-      { letter: 'D', text: 'Rainfall amounts are exactly equal every month of the year' }
+      { letter: 'A', text: "Rainfall goes up every single month" },
+      { letter: 'B', text: "Rainfall is highest in spring and early summer, drops in midsummer, then rises again in fall" },
+      { letter: 'C', text: "There is no pattern at all" },
+      { letter: 'D', text: "Rainfall is the same every month" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "B",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-011',
-    text: "A student tracks daily reading time and weekly quiz scores for 6 weeks — Week 1: 15 min → 70%, Week 2: 20 min → 76%, Week 3: 25 min → 82%, Week 4: 30 min → 88%, Week 5: 30 min → 90%, Week 6: 35 min → 93%. What conclusion can she MOST accurately draw?",
+    id: "TA-5-DL-011",
+    text: "A student tracks reading time and quiz scores for 6 weeks. As reading time goes up, scores go up too. What can she say?",
     options: [
-      { letter: 'A', text: 'Reading time has no measurable effect on quiz scores' },
-      { letter: 'B', text: 'There is a positive correlation — as daily reading time increases, quiz scores tend to increase as well' },
-      { letter: 'C', text: 'Quiz scores go up and down with no identifiable pattern' },
-      { letter: 'D', text: 'Reading fewer than 20 minutes per day is better for quiz performance' }
+      { letter: 'A', text: "Reading time has no effect on quiz scores" },
+      { letter: 'B', text: "There is a positive connection — as reading time goes up, quiz scores tend to go up too" },
+      { letter: 'C', text: "Scores go up and down with no pattern" },
+      { letter: 'D', text: "Reading less than 20 minutes is better for quiz scores" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "B",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-012',
-    text: "After analyzing a class survey, a student finds that 72% of students feel anxious about standardized testing. What is the MOST appropriate next step after drawing this conclusion from the data?",
+    id: "TA-5-DL-012",
+    text: "A survey shows 72% of students feel worried about standardized testing. What is the BEST next step?",
     options: [
-      { letter: 'A', text: 'Ignore the data and move on to a different project' },
-      { letter: 'B', text: 'Collect the exact same survey data again without acting on the findings' },
-      { letter: 'C', text: 'Assume the data must be incorrect since the percentage seems high' },
-      { letter: 'D', text: 'Share the finding with teachers or counselors, including the supporting data and a recommendation for how to address student anxiety' }
+      { letter: 'A', text: "Ignore the data and move on" },
+      { letter: 'B', text: "Collect the same data again without doing anything" },
+      { letter: 'C', text: "Assume the data is wrong because the number seems high" },
+      { letter: 'D', text: "Share the finding with teachers or counselors, show the data, and suggest a way to help students" }
     ],
-    correctAnswer: 'D',
-    strand: 'Data Literacy'
+    correctAnswer: "D",
+    strand: "Data Literacy"
   },
-
-  // 5.6C - Communicate results of data analysis using digital tools (3)
   {
-    id: 'TA-5-DL-013',
-    text: "A student analyzes data showing that students who eat breakfast score an average of 12% higher on morning assessments. She wants to present this to the school board. Which approach BEST communicates her results?",
+    id: "TA-5-DL-013",
+    text: "A student finds that breakfast eaters score 12% higher on morning tests. She wants to show this to the school board. What is the BEST way?",
     options: [
-      { letter: 'A', text: 'Email a raw spreadsheet to the principal with no explanation or analysis' },
-      { letter: 'B', text: 'Give a verbal report with no charts or supporting visuals' },
-      { letter: 'C', text: 'Create a presentation that includes clearly labeled charts, a summary of the data, the conclusion drawn, and a recommendation based on the findings' },
-      { letter: 'D', text: 'Write a single sentence about the results without any data support' }
+      { letter: 'A', text: "Email a raw spreadsheet with no explanation" },
+      { letter: 'B', text: "Give a talk with no charts or visuals" },
+      { letter: 'C', text: "Make a presentation with labeled charts, a summary, the conclusion, and a recommendation" },
+      { letter: 'D', text: "Write one sentence about the results with no data" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-014',
-    text: "A student creates a digital infographic about water usage trends in her city. Which elements would make this infographic MOST effective at communicating the data?",
+    id: "TA-5-DL-014",
+    text: "A student makes a digital infographic about water use in her city. What would make it MOST effective?",
     options: [
-      { letter: 'A', text: 'Only the title with no actual data or charts' },
-      { letter: 'B', text: 'A clear title, accurately labeled charts, key findings stated in plain language, and the original data source' },
-      { letter: 'C', text: 'Only colorful graphics with no numbers, labels, or explanations' },
-      { letter: 'D', text: 'The complete raw dataset with no summary, visuals, or analysis' }
+      { letter: 'A', text: "Only a title with no data or charts" },
+      { letter: 'B', text: "A clear title, labeled charts, key findings in plain language, and where the data came from" },
+      { letter: 'C', text: "Colorful pictures with no numbers or labels" },
+      { letter: 'D', text: "The full raw dataset with no summary or visuals" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "B",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-5-DL-015',
-    text: "Which is the MOST effective way to communicate data analysis results to a mixed audience of 5th graders and their parents?",
+    id: "TA-5-DL-015",
+    text: "What is the BEST way to share data results with a group of 5th graders AND their parents?",
     options: [
-      { letter: 'A', text: 'Present only advanced technical statistics with no visuals or explanations' },
-      { letter: 'B', text: 'Share only the raw data tables with no interpretation or summary' },
-      { letter: 'C', text: 'Create a visual display — chart or infographic — paired with a brief written explanation of what the data means and why it matters to that audience' },
-      { letter: 'D', text: 'Use complex, unlabeled charts without any titles or explanatory text' }
+      { letter: 'A', text: "Show only advanced statistics with no pictures" },
+      { letter: 'B', text: "Share only raw data tables with no explanation" },
+      { letter: 'C', text: "Make a chart or infographic with a short written note about what the data means and why it matters" },
+      { letter: 'D', text: "Use complex charts with no titles or labels" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
-
-  // ============================================================
-  // DIGITAL CITIZENSHIP - DIGITAL FOOTPRINT AND IDENTITY (5.7)
-  // ============================================================
-
-  // 5.7A - Analyze the impact of one's digital footprint (3)
   {
-    id: 'TA-5-DC-001',
-    text: "A student posts an angry comment about a classmate online and then deletes it an hour later. What should she understand about her digital footprint?",
+    id: "TA-5-DC-001",
+    text: "A student posts a mean comment online and deletes it an hour later. What should she know about her digital footprint?",
     options: [
-      { letter: 'A', text: 'Deleting a post removes it completely and permanently from the entire internet' },
-      { letter: 'B', text: 'Only adults have digital footprints worth worrying about' },
-      { letter: 'C', text: 'Even deleted content may have already been screenshot, cached by a server, or shared — her digital footprint could be permanent' },
-      { letter: 'D', text: 'Digital footprints only matter for people who use social media every single day' }
+      { letter: 'A', text: "Deleting a post removes it from the whole internet forever" },
+      { letter: 'B', text: "Only adults need to worry about digital footprints" },
+      { letter: 'C', text: "Even deleted posts may have been screenshot, saved by a server, or shared — her digital footprint could be permanent" },
+      { letter: 'D', text: "Digital footprints only matter for people on social media every day" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-002',
-    text: "A 5th grader creates accounts on eight different websites, each time entering his real name, school name, and birthday. How does this behavior affect his long-term digital footprint?",
+    id: "TA-5-DC-002",
+    text: "A student creates accounts on eight websites, each time typing his real name, school, and birthday. How does this affect his digital footprint?",
     options: [
-      { letter: 'A', text: 'Creating accounts online has no long-term effect on a digital footprint' },
-      { letter: 'B', text: 'Each account and piece of personal information shared adds to a permanent digital footprint that can be compiled and accessed by others for years' },
-      { letter: 'C', text: 'Only the most recently created account matters for a digital footprint' },
-      { letter: 'D', text: 'Digital footprints automatically disappear when a person turns 18' }
+      { letter: 'A', text: "Making accounts has no long-term effect" },
+      { letter: 'B', text: "Each account and personal detail he shares adds to a permanent digital footprint others can find for years" },
+      { letter: 'C', text: "Only the newest account matters" },
+      { letter: 'D', text: "Digital footprints disappear when you turn 18" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-003',
-    text: "A student wants to manage her digital footprint responsibly. Which set of actions BEST demonstrates this?",
+    id: "TA-5-DC-003",
+    text: "A student wants to manage her digital footprint well. Which set of actions BEST shows this?",
     options: [
-      { letter: 'A', text: 'Share personal details only with close online friends and trust them not to share further' },
-      { letter: 'B', text: 'Use the same username and password on every website so they\'re easy to remember' },
-      { letter: 'C', text: 'Post as much content as possible to build a large and active online presence' },
-      { letter: 'D', text: 'Periodically search her own name to see what information is public, avoid sharing unnecessary personal details, and think carefully before posting anything' }
+      { letter: 'A', text: "Share details only with close online friends and trust them" },
+      { letter: 'B', text: "Use the same username and password everywhere" },
+      { letter: 'C', text: "Post as much as possible to build a big presence" },
+      { letter: 'D', text: "Search her own name sometimes, avoid sharing personal details she doesn't need to, and think before posting" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
-
-  // 5.7B - Protect personal online identity and privacy (3)
   {
-    id: 'TA-5-DC-004',
-    text: "Someone in an online game tells a student he won a special prize and asks for his home address to mail it. What should the student do?",
+    id: "TA-5-DC-004",
+    text: "Someone in an online game tells a student he won a prize and asks for his home address. What should the student do?",
     options: [
-      { letter: 'A', text: 'Provide the address since winning a prize is exciting and trustworthy' },
-      { letter: 'B', text: 'Give a neighbor\'s address instead of his own' },
-      { letter: 'C', text: 'Check with a trusted adult before sharing any personal address — this is a common online scam used to get personal information' },
-      { letter: 'D', text: 'Ask for the stranger\'s address first before giving his own' }
+      { letter: 'A', text: "Give the address since a prize sounds exciting" },
+      { letter: 'B', text: "Give a neighbor's address instead" },
+      { letter: 'C', text: "Check with a trusted adult first — this is a common scam to get personal information" },
+      { letter: 'D', text: "Ask for the stranger's address first" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-005',
-    text: "A student uses the exact same username, profile picture, and personal bio on six different websites. What is a potential risk to her online identity?",
+    id: "TA-5-DC-005",
+    text: "A student uses the same username, photo, and bio on six websites. What is a risk?",
     options: [
-      { letter: 'A', text: 'Having a consistent identity across platforms is always completely safe and risk-free' },
-      { letter: 'B', text: 'Using the same identity across multiple platforms makes it easier for others to track her activity and compile a detailed profile about her' },
-      { letter: 'C', text: 'Profile pictures are always kept private and can never be viewed or shared by others' },
-      { letter: 'D', text: 'Usernames are never visible to the public on any type of website' }
+      { letter: 'A', text: "Having the same identity everywhere is always safe" },
+      { letter: 'B', text: "It makes it easier for others to track her activity and build a detailed picture of who she is" },
+      { letter: 'C', text: "Profile pictures are always private" },
+      { letter: 'D', text: "Usernames are never visible to anyone" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-006',
-    text: "What is the MOST effective way for a 5th grader to protect their personal online identity and privacy?",
+    id: "TA-5-DC-006",
+    text: "What is the BEST way for a 5th grader to protect personal information online?",
     options: [
-      { letter: 'A', text: 'Share real personal information with any website that looks official or uses a secure connection' },
-      { letter: 'B', text: 'It is fine to share personal details with anyone who asks in a friendly, polite way' },
-      { letter: 'C', text: 'Never share passwords, full name, home address, phone number, or school name with strangers online, and regularly review privacy settings on all accounts' },
-      { letter: 'D', text: 'Use the same password for all accounts because it is easier to remember and manage' }
+      { letter: 'A', text: "Share real info with any website that looks official" },
+      { letter: 'B', text: "Share details with anyone who asks nicely" },
+      { letter: 'C', text: "Never share passwords, full name, address, phone number, or school name with strangers, and check privacy settings often" },
+      { letter: 'D', text: "Use the same password for everything since it's easy to remember" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
-
-  // ============================================================
-  // DIGITAL CITIZENSHIP - COMMUNICATION AND COLLABORATION (5.8)
-  // ============================================================
-
-  // 5.8A - Model digital etiquette during online interactions (3)
   {
-    id: 'TA-5-DC-007',
-    text: "A student receives a classmate's email containing no punctuation, all lowercase letters, and informal texting language like 'idk' and 'lol.' How should the student respond to demonstrate proper digital etiquette?",
+    id: "TA-5-DC-007",
+    text: "A classmate sends an email with no punctuation, all lowercase, and texting slang like 'idk' and 'lol.' How should the student reply to show proper digital etiquette?",
     options: [
-      { letter: 'A', text: 'Reply in the exact same informal style since it\'s just a classmate' },
-      { letter: 'B', text: 'Reply with correct grammar, appropriate punctuation, complete sentences, and a respectful tone' },
-      { letter: 'C', text: 'Ignore the email completely without responding' },
-      { letter: 'D', text: 'Forward the email to other classmates to make fun of the informal writing' }
+      { letter: 'A', text: "Reply the same informal way since it's just a classmate" },
+      { letter: 'B', text: "Reply with correct grammar, punctuation, full sentences, and a respectful tone" },
+      { letter: 'C', text: "Don't reply at all" },
+      { letter: 'D', text: "Forward the email to others to make fun of the writing" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-008',
-    text: "During an online class discussion, a student disagrees with another student's opinion about a current event. What response BEST models digital etiquette?",
+    id: "TA-5-DC-008",
+    text: "In an online class discussion, a student disagrees with another student's opinion. What reply BEST shows digital etiquette?",
     options: [
-      { letter: 'A', text: 'Type a response in ALL CAPITAL LETTERS to make his point more emphatically' },
-      { letter: 'B', text: 'Post negative comments challenging the other student\'s intelligence' },
-      { letter: 'C', text: 'Politely state "I respectfully see this differently because..." and support his view with specific evidence' },
-      { letter: 'D', text: 'Ignore the comment and pretend not to have seen it' }
+      { letter: 'A', text: "Type in ALL CAPS to make his point louder" },
+      { letter: 'B', text: "Post mean comments about the other student's intelligence" },
+      { letter: 'C', text: "Politely say 'I see it differently because...' and back up his view with facts" },
+      { letter: 'D', text: "Ignore the comment and pretend not to see it" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-009',
-    text: "Which of the following behaviors does NOT demonstrate good digital etiquette?",
+    id: "TA-5-DC-009",
+    text: "Which behavior does NOT show good digital etiquette?",
     options: [
-      { letter: 'A', text: 'Responding to group messages within a reasonable timeframe' },
-      { letter: 'B', text: 'Using appropriate language in all online communications' },
-      { letter: 'C', text: 'Giving proper credit when sharing or referencing someone else\'s work' },
-      { letter: 'D', text: 'Tagging classmates in embarrassing photos online without asking their permission' }
+      { letter: 'A', text: "Replying to group messages in a reasonable time" },
+      { letter: 'B', text: "Using polite language in all online messages" },
+      { letter: 'C', text: "Giving credit when sharing someone else's work" },
+      { letter: 'D', text: "Tagging classmates in embarrassing photos without asking" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
-
-  // 5.8B - Responsible use of digital communication and collaboration (3)
   {
-    id: 'TA-5-DC-010',
-    text: "A group of students collaborates on a shared online document for a class project. One student repeatedly deletes and overwrites other students' contributions. What is the BEST course of action?",
+    id: "TA-5-DC-010",
+    text: "Students share an online document for a project. One student keeps deleting and overwriting others' work. What is the BEST thing to do?",
     options: [
-      { letter: 'A', text: 'Delete the entire document and switch to working on paper' },
-      { letter: 'B', text: 'Lock the document so only one person can edit it forever' },
-      { letter: 'C', text: 'Have only one student work on the document and ignore the collaborative aspect of the assignment' },
-      { letter: 'D', text: 'Establish clear roles and editing expectations for the shared document and report the ongoing issue to the teacher if the behavior continues' }
+      { letter: 'A', text: "Delete the document and switch to paper" },
+      { letter: 'B', text: "Lock the document so only one person can ever edit" },
+      { letter: 'C', text: "Have one student work alone and skip the teamwork" },
+      { letter: 'D', text: "Set clear roles and editing rules, and tell the teacher if the behavior continues" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-011',
-    text: "A student receives a message from someone she does not know containing an exciting-sounding link. What is the RESPONSIBLE action?",
+    id: "TA-5-DC-011",
+    text: "A student gets a message from someone she doesn't know with an exciting-sounding link. What should she do?",
     options: [
-      { letter: 'A', text: 'Click the link right away to see if it leads somewhere interesting' },
-      { letter: 'B', text: 'Forward the link to friends so they can check it out too' },
-      { letter: 'C', text: 'Reply to the sender asking what the link leads to before clicking' },
-      { letter: 'D', text: 'Do not click the link; tell a trusted adult and delete the message' }
+      { letter: 'A', text: "Click the link right away" },
+      { letter: 'B', text: "Forward the link to friends" },
+      { letter: 'C', text: "Reply and ask what the link is before clicking" },
+      { letter: 'D', text: "Don't click it — tell a trusted adult and delete the message" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-012',
-    text: "Which practice BEST demonstrates responsible use of digital communication tools during group work on a class project?",
+    id: "TA-5-DC-012",
+    text: "Which practice BEST shows responsible use of a group chat during a class project?",
     options: [
-      { letter: 'A', text: 'Using the group chat to discuss personal topics and make jokes about absent team members' },
-      { letter: 'B', text: 'Posting project updates to a public social media account without the whole team\'s knowledge or permission' },
-      { letter: 'C', text: 'Keeping all communication focused on the task, being respectful to all members, and sharing progress updates regularly with the team' },
-      { letter: 'D', text: 'Using informal shorthand and abbreviations for all official team communication, even in submitted work' }
+      { letter: 'A', text: "Use the chat for personal topics and jokes about absent members" },
+      { letter: 'B', text: "Post project updates to public social media without the team knowing" },
+      { letter: 'C', text: "Keep all messages about the task, be respectful, and share updates with the team regularly" },
+      { letter: 'D', text: "Use texting slang in all official team messages, even in work that gets turned in" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
-
-  // ============================================================
-  // DIGITAL CITIZENSHIP - APPROPRIATE USE OF INFORMATION (5.9)
-  // ============================================================
-
-  // 5.9A - Copyright and fair use (3)
   {
-    id: 'TA-5-DC-013',
-    text: "A student copies an entire article from a website and pastes it word-for-word into her research report with no changes and no attribution. What issue does this create?",
+    id: "TA-5-DC-013",
+    text: "A student copies an entire article from a website and pastes it into her report with no changes and no credit. What is the problem?",
     options: [
-      { letter: 'A', text: 'No issue at all, since all content published on the internet is free for everyone to use' },
-      { letter: 'B', text: 'This is plagiarism and copyright infringement — using someone\'s original work without permission or proper credit violates copyright law, even for online content' },
-      { letter: 'C', text: 'It is acceptable as long as the source is a well-known, popular website' },
-      { letter: 'D', text: 'Copyright laws only apply to physical, published books — not websites' }
+      { letter: 'A', text: "No problem — everything on the internet is free to use" },
+      { letter: 'B', text: "This is plagiarism and copyright infringement — using someone's work without credit breaks copyright law, even for online content" },
+      { letter: 'C', text: "It's fine as long as the source is a well-known site" },
+      { letter: 'D', text: "Copyright laws only apply to printed books, not websites" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-014',
-    text: "A student finds a photograph online for his school project. The image is labeled 'All Rights Reserved.' What does this mean for his use of the image?",
+    id: "TA-5-DC-014",
+    text: "A student finds a photo online labeled 'All Rights Reserved.' What does this mean for using it?",
     options: [
-      { letter: 'A', text: 'He can use it freely since the image is publicly visible on the internet' },
-      { letter: 'B', text: 'He must obtain permission from the copyright holder OR find an image with a Creative Commons or open license that allows educational use' },
-      { letter: 'C', text: 'He can use the image as long as he pastes the website URL somewhere in his project' },
-      { letter: 'D', text: '"All Rights Reserved" is a label that only applies to professional graphic designers' }
+      { letter: 'A', text: "He can use it freely since it's on the internet" },
+      { letter: 'B', text: "He must get permission from the owner OR find an image with a Creative Commons or open license that allows school use" },
+      { letter: 'C', text: "He can use it if he pastes the website URL somewhere in his project" },
+      { letter: 'D', text: "'All Rights Reserved' only applies to professional designers" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-015',
-    text: "Which scenario is the BEST example of fair use of copyrighted material?",
+    id: "TA-5-DC-015",
+    text: "Which is the BEST example of fair use of copyrighted material?",
     options: [
-      { letter: 'A', text: 'Printing an entire copyrighted textbook to avoid purchasing it' },
-      { letter: 'B', text: 'Reproducing a full copyrighted song in your own music album for sale' },
-      { letter: 'C', text: 'Using a brief, properly attributed quote from a published book to support an argument in a school essay' },
-      { letter: 'D', text: 'Republishing an entire copyrighted news article on a personal blog without permission' }
+      { letter: 'A', text: "Printing a whole copyrighted textbook to avoid buying it" },
+      { letter: 'B', text: "Copying a full copyrighted song for your own album to sell" },
+      { letter: 'C', text: "Using a short, properly credited quote from a book to support a point in a school essay" },
+      { letter: 'D', text: "Posting an entire copyrighted news article on a personal blog without permission" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
-
-  // 5.9B - Properly cite sources (3)
   {
-    id: 'TA-5-DC-016',
-    text: "Why is it important to properly cite sources in a digital research project?",
+    id: "TA-5-DC-016",
+    text: "Why is it important to cite sources in a digital research project?",
     options: [
-      { letter: 'A', text: 'Citations are only required at the college level and are not expected in 5th grade' },
-      { letter: 'B', text: 'Citations give credit to original creators, allow readers to locate your sources, and demonstrate academic honesty' },
-      { letter: 'C', text: 'Citations only serve to make a project look longer and more complex' },
-      { letter: 'D', text: 'You only need to cite printed sources, not websites or videos' }
+      { letter: 'A', text: "Citations are only needed in college, not 5th grade" },
+      { letter: 'B', text: "Citations give credit to creators, let readers find the sources, and show honesty" },
+      { letter: 'C', text: "Citations only make a project look longer" },
+      { letter: 'D', text: "You only need to cite printed sources, not websites or videos" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-017',
-    text: "A student uses information from three websites, two library books, and one YouTube video in her report. What should she include at the end of her project?",
+    id: "TA-5-DC-017",
+    text: "A student uses info from three websites, two books, and one YouTube video. What should she put at the end of her project?",
     options: [
-      { letter: 'A', text: 'Only the website names listed at the bottom of one page' },
-      { letter: 'B', text: 'Only the sources she personally agrees with' },
-      { letter: 'C', text: 'A complete bibliography or works cited page that includes author names, titles, publication dates, and URLs or locations for all six sources' },
-      { letter: 'D', text: 'Just the titles of the two books, since printed books are considered the only official sources' }
+      { letter: 'A', text: "Only the website names at the bottom of one page" },
+      { letter: 'B', text: "Only the sources she agrees with" },
+      { letter: 'C', text: "A bibliography or works cited page with author names, titles, dates, and links for all six sources" },
+      { letter: 'D', text: "Just the book titles, since printed books are the only real sources" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-018',
-    text: "Which is the MOST complete citation for a website source used in a 5th grade research project?",
+    id: "TA-5-DC-018",
+    text: "Which is the MOST complete citation for a website used in a 5th grade project?",
     options: [
-      { letter: 'A', text: '"I found this information on the internet"' },
-      { letter: 'B', text: 'Just the URL address of the website page' },
-      { letter: 'C', text: 'Only the name of the website (for example, "Wikipedia")' },
-      { letter: 'D', text: 'Author or organization name, title of the specific page, website name, date published or last updated, and the full URL' }
+      { letter: 'A', text: "'I found this on the internet'" },
+      { letter: 'B', text: "Just the URL" },
+      { letter: 'C', text: "Only the website name (like 'Wikipedia')" },
+      { letter: 'D', text: "Author or group name, page title, website name, date published or updated, and the full URL" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
-
-  // ============================================================
-  // DIGITAL CITIZENSHIP - CYBERSECURITY AND SAFETY (5.10)
-  // ============================================================
-
-  // 5.10A - Strategies to protect accounts and personal information (3)
   {
-    id: 'TA-5-DC-019',
-    text: "A student receives an email saying: 'Your school account has been locked. Click here immediately and enter your password to restore access.' What should she do?",
+    id: "TA-5-DC-019",
+    text: "A student gets an email: 'Your school account is locked. Click here and enter your password right now.' What should she do?",
     options: [
-      { letter: 'A', text: 'Click the link and type her password right away so she doesn\'t lose account access' },
-      { letter: 'B', text: 'Forward the email to classmates to warn them about the lock' },
-      { letter: 'C', text: 'Reply to the email directly with her password so it can be verified' },
-      { letter: 'D', text: 'Recognize this as a phishing attempt — real organizations never ask for passwords by email — and report it to a trusted adult without clicking anything' }
+      { letter: 'A', text: "Click the link and type her password so she doesn't lose access" },
+      { letter: 'B', text: "Forward the email to classmates to warn them" },
+      { letter: 'C', text: "Reply with her password so it can be checked" },
+      { letter: 'D', text: "See this as a phishing attempt — real groups never ask for passwords by email — and tell a trusted adult without clicking" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-020',
-    text: "Which password is MOST secure for protecting a student's online school account?",
+    id: "TA-5-DC-020",
+    text: "Which password is MOST secure for a student's school account?",
     options: [
-      { letter: 'A', text: 'The student\'s first name followed by their birthday (e.g., alex2014)' },
-      { letter: 'B', text: 'The word "password" followed by "123"' },
-      { letter: 'C', text: 'A random mix of uppercase letters, lowercase letters, numbers, and symbols (e.g., Tr@il$42Hk!)' },
-      { letter: 'D', text: 'The school name written twice (e.g., ridgeschoolridgeschool)' }
+      { letter: 'A', text: "Her first name and birthday (like alex2014)" },
+      { letter: 'B', text: "The word 'password123'" },
+      { letter: 'C', text: "A random mix of uppercase, lowercase, numbers, and symbols (like Tr@il$42Hk!)" },
+      { letter: 'D', text: "The school name written twice (like ridgeschoolridgeschool)" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-021',
-    text: "What is two-factor authentication (2FA) and why is it an important account security measure?",
+    id: "TA-5-DC-021",
+    text: "What is two-factor authentication (2FA) and why does it matter?",
     options: [
-      { letter: 'A', text: 'Having two different people share one account for extra backup protection' },
-      { letter: 'B', text: 'Using two completely different passwords for the same account' },
-      { letter: 'C', text: 'An extra security layer requiring both a password AND a second form of verification (such as a code texted to a phone), making unauthorized access much harder even if the password is stolen' },
-      { letter: 'D', text: 'Logging into the same account from two different devices at the same time' }
+      { letter: 'A', text: "Two people sharing one account for backup" },
+      { letter: 'B', text: "Two different passwords for the same account" },
+      { letter: 'C', text: "An extra security step that needs both a password AND a second check (like a code texted to a phone), making it much harder for someone else to get in" },
+      { letter: 'D', text: "Logging into the same account from two devices at once" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
-
-  // 5.10B - Cyberbullying — identify, respond, and report (3)
   {
-    id: 'TA-5-DC-022',
-    text: "A student receives repeated, intentional, hurtful messages from classmates through a gaming app over the course of several weeks. This is an example of:",
+    id: "TA-5-DC-022",
+    text: "A student gets repeated, hurtful messages from classmates through a game app over several weeks. This is an example of:",
     options: [
-      { letter: 'A', text: 'Normal teasing that doesn\'t really matter because it happens online rather than in person' },
-      { letter: 'B', text: 'Normal online communication between peers' },
-      { letter: 'C', text: 'A simple misunderstanding that does not need to be reported to any adult' },
-      { letter: 'D', text: 'Cyberbullying — the deliberate and repeated use of digital technology to harm or harass another person' }
+      { letter: 'A', text: "Normal teasing that doesn't count because it's online" },
+      { letter: 'B', text: "Normal peer communication" },
+      { letter: 'C', text: "A simple mix-up that doesn't need to be reported" },
+      { letter: 'D', text: "Cyberbullying — using technology on purpose and over and over to hurt or harass someone" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-023',
-    text: "A student witnesses a classmate being publicly mocked and humiliated in an online school forum. What is the BEST course of action?",
+    id: "TA-5-DC-023",
+    text: "A student sees a classmate being mocked in an online school forum. What is the BEST thing to do?",
     options: [
-      { letter: 'A', text: 'Join in with additional comments because other students are already doing it' },
-      { letter: 'B', text: 'Ignore the situation entirely since it is happening online and not at school' },
-      { letter: 'C', text: 'Do not add hurtful comments; save evidence by taking a screenshot; offer private support to the victim; and report the situation to a trusted adult' },
-      { letter: 'D', text: 'Tell the victim they are overreacting because it is just the internet and not real life' }
+      { letter: 'A', text: "Join in since others are already doing it" },
+      { letter: 'B', text: "Ignore it since it's online and not at school" },
+      { letter: 'C', text: "Don't add hurtful words; take a screenshot; privately support the victim; and tell a trusted adult" },
+      { letter: 'D', text: "Tell the victim they are overreacting because it's just the internet" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-5-DC-024',
-    text: "Why is cyberbullying sometimes considered MORE harmful than in-person bullying?",
+    id: "TA-5-DC-024",
+    text: "Why is cyberbullying sometimes thought to be MORE harmful than in-person bullying?",
     options: [
-      { letter: 'A', text: 'Cyberbullying is always considered less serious than bullying that happens face-to-face' },
-      { letter: 'B', text: 'Cyberbullying only affects students who are on social media constantly' },
-      { letter: 'C', text: 'Cyberbullying has no significant long-term effects on its victims' },
-      { letter: 'D', text: 'Cyberbullying can reach a much larger audience, happen 24 hours a day, be anonymous, and leave a permanent digital record that is very difficult to remove' }
+      { letter: 'A', text: "Cyberbullying is always less serious than face-to-face bullying" },
+      { letter: 'B', text: "It only affects students who are on social media all the time" },
+      { letter: 'C', text: "It has no long-term effects" },
+      { letter: 'D', text: "It can reach a huge audience, happen 24/7, be anonymous, and leave a permanent digital record that's hard to remove" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
-
-  // ============================================================
-  // PRACTICAL TECHNOLOGY - APPLICATIONS (5.11)
-  // ============================================================
-
-  // 5.11A - Compare software applications and select the appropriate tool (3)
   {
-    id: 'TA-5-PT-001',
-    text: "A student needs to write a 5-page research report with formatted headings, embedded images, numbered pages, and a table of contents. Which type of software is MOST appropriate?",
+    id: "TA-5-PT-001",
+    text: "A student needs to write a 5-page report with headings, pictures, page numbers, and a table of contents. Which software is BEST?",
     options: [
-      { letter: 'A', text: 'A spreadsheet application' },
-      { letter: 'B', text: 'A word processing application' },
-      { letter: 'C', text: 'A digital painting or drawing application' },
-      { letter: 'D', text: 'A music creation application' }
+      { letter: 'A', text: "A spreadsheet app" },
+      { letter: 'B', text: "A word processing app" },
+      { letter: 'C', text: "A drawing app" },
+      { letter: 'D', text: "A music app" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-002',
-    text: "A student needs to track class fundraising totals, build formulas that calculate running percentages, and automatically update a progress chart as data is entered. Which software is MOST appropriate?",
+    id: "TA-5-PT-002",
+    text: "A student needs to track fundraising totals, build formulas for percentages, and auto-update a chart. Which software is BEST?",
     options: [
-      { letter: 'A', text: 'A word processor' },
-      { letter: 'B', text: 'A music creation app' },
-      { letter: 'C', text: 'A spreadsheet application' },
-      { letter: 'D', text: 'A photo editing application' }
+      { letter: 'A', text: "A word processor" },
+      { letter: 'B', text: "A music app" },
+      { letter: 'C', text: "A spreadsheet app" },
+      { letter: 'D', text: "A photo editor" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-003',
-    text: "A 5th grade team needs to present their research to the class using a sequence of slides with bullet points, images, and transitions between sections. Which software is MOST appropriate?",
+    id: "TA-5-PT-003",
+    text: "A team needs to show their research using slides with bullet points, images, and transitions. Which software is BEST?",
     options: [
-      { letter: 'A', text: 'A spreadsheet application' },
-      { letter: 'B', text: 'A word processing document' },
-      { letter: 'C', text: 'A calendar application' },
-      { letter: 'D', text: 'A presentation application' }
+      { letter: 'A', text: "A spreadsheet app" },
+      { letter: 'B', text: "A word processor" },
+      { letter: 'C', text: "A calendar app" },
+      { letter: 'D', text: "A presentation app" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
-
-  // 5.11B - Apply software functions to complete authentic tasks (3)
   {
-    id: 'TA-5-PT-004',
-    text: "A student is formatting a 12-page research report in a word processor. She wants all major headings to look identical throughout the entire document. What is the MOST efficient method?",
+    id: "TA-5-PT-004",
+    text: "A student is formatting a 12-page report and wants all headings to look the same. What is the FASTEST way?",
     options: [
-      { letter: 'A', text: 'Select and manually format each heading individually throughout the 12 pages' },
-      { letter: 'B', text: 'Use a consistent heading style from the Styles menu and apply it to every major heading throughout the document' },
-      { letter: 'C', text: 'Use a different font and size for each heading to give each section a unique look' },
-      { letter: 'D', text: 'Copy the formatting settings character by character from the first heading to every other heading' }
+      { letter: 'A', text: "Format each heading one at a time through all 12 pages" },
+      { letter: 'B', text: "Use a heading style from the Styles menu and apply it to every heading" },
+      { letter: 'C', text: "Use a different font for each heading to make each section unique" },
+      { letter: 'D', text: "Copy the formatting letter by letter from the first heading to every other one" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-005',
-    text: "A student is working in a spreadsheet and needs to find the average test score for 30 students whose scores are listed in cells A1 through A30. What is the MOST efficient approach?",
+    id: "TA-5-PT-005",
+    text: "A student needs the average of 30 test scores in cells A1 through A30. What is the FASTEST way?",
     options: [
-      { letter: 'A', text: 'Add all 30 numbers together by hand on paper and then divide by 30' },
-      { letter: 'B', text: 'Count the cells and estimate an approximate average' },
-      { letter: 'C', text: 'Use a word processor to calculate the average manually' },
-      { letter: 'D', text: 'Enter the formula =AVERAGE(A1:A30) into an empty cell' }
+      { letter: 'A', text: "Add all 30 numbers by hand and divide by 30" },
+      { letter: 'B', text: "Count the cells and estimate" },
+      { letter: 'C', text: "Use a word processor to figure it out" },
+      { letter: 'D', text: "Type the formula =AVERAGE(A1:A30) into an empty cell" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-006',
-    text: "A student is working on a document and accidentally deletes an entire paragraph she spent 20 minutes writing. Which keyboard shortcut will immediately restore the deleted text?",
+    id: "TA-5-PT-006",
+    text: "A student accidentally deletes a paragraph she spent 20 minutes writing. Which shortcut brings it back right away?",
     options: [
-      { letter: 'A', text: 'Ctrl+S (Save)' },
-      { letter: 'B', text: 'Ctrl+C (Copy)' },
-      { letter: 'C', text: 'Ctrl+Z (Undo)' },
-      { letter: 'D', text: 'Ctrl+P (Print)' }
+      { letter: 'A', text: "Ctrl+S (Save)" },
+      { letter: 'B', text: "Ctrl+C (Copy)" },
+      { letter: 'C', text: "Ctrl+Z (Undo)" },
+      { letter: 'D', text: "Ctrl+P (Print)" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Practical Technology"
   },
-
-  // ============================================================
-  // PRACTICAL TECHNOLOGY - NETWORKS (5.12)
-  // ============================================================
-
-  // 5.12A - Identify and describe network components (3)
   {
-    id: 'TA-5-PT-007',
-    text: "What is the PRIMARY purpose of a ROUTER in a home or school network?",
+    id: "TA-5-PT-007",
+    text: "What is the MAIN job of a ROUTER in a home or school network?",
     options: [
-      { letter: 'A', text: 'To permanently store files and documents on the network' },
-      { letter: 'B', text: 'To print documents wirelessly to connected printers' },
-      { letter: 'C', text: 'To display web pages on a connected screen' },
-      { letter: 'D', text: 'To direct data traffic between devices on the local network and connect that network to the internet' }
+      { letter: 'A', text: "To store files on the network permanently" },
+      { letter: 'B', text: "To print documents wirelessly" },
+      { letter: 'C', text: "To display web pages on a screen" },
+      { letter: 'D', text: "To move data between devices on the local network and connect that network to the internet" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-008',
-    text: "A school has 500 computers, tablets, and printers all connected to each other and to the internet within the school building. What type of network is this?",
+    id: "TA-5-PT-008",
+    text: "A school has 500 computers, tablets, and printers all connected inside the building. What type of network is this?",
     options: [
-      { letter: 'A', text: 'A personal area network (PAN)' },
-      { letter: 'B', text: 'A local area network (LAN)' },
-      { letter: 'C', text: 'A wide area network (WAN)' },
-      { letter: 'D', text: 'A satellite network' }
+      { letter: 'A', text: "A personal area network (PAN)" },
+      { letter: 'B', text: "A local area network (LAN)" },
+      { letter: 'C', text: "A wide area network (WAN)" },
+      { letter: 'D', text: "A satellite network" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-009',
-    text: "What device or service in a school network automatically assigns a unique IP address to each computer or tablet that connects?",
+    id: "TA-5-PT-009",
+    text: "What device in a school network gives each computer or tablet its own unique IP address when it connects?",
     options: [
-      { letter: 'A', text: 'A computer monitor' },
-      { letter: 'B', text: 'A keyboard' },
-      { letter: 'C', text: 'A printer' },
-      { letter: 'D', text: 'A DHCP server, which is typically built into the router' }
+      { letter: 'A', text: "A monitor" },
+      { letter: 'B', text: "A keyboard" },
+      { letter: 'C', text: "A printer" },
+      { letter: 'D', text: "A DHCP server, which is usually built into the router" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
-
-  // 5.12B - Explain how data is transmitted across a network (3)
   {
-    id: 'TA-5-PT-010',
-    text: "When you open a website, your browser sends a request and receives data from a web server. What protocol is used to transfer this web page data securely?",
+    id: "TA-5-PT-010",
+    text: "When you open a website, your browser sends a request to a web server. What protocol sends the web page data securely?",
     options: [
-      { letter: 'A', text: 'USB' },
-      { letter: 'B', text: 'Bluetooth' },
-      { letter: 'C', text: 'HDMI' },
-      { letter: 'D', text: 'HTTPS (HyperText Transfer Protocol Secure)' }
+      { letter: 'A', text: "USB" },
+      { letter: 'B', text: "Bluetooth" },
+      { letter: 'C', text: "HDMI" },
+      { letter: 'D', text: "HTTPS (HyperText Transfer Protocol Secure)" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-011',
-    text: "Which BEST describes how data travels across the internet from one computer to another?",
+    id: "TA-5-PT-011",
+    text: "How does data travel across the internet from one computer to another?",
     options: [
-      { letter: 'A', text: 'Data travels as one large, complete file sent directly and instantly from one computer to the other' },
-      { letter: 'B', text: 'Data travels only through underground telephone cables and cannot use any other path' },
-      { letter: 'C', text: 'Data is always routed through a single central government server before reaching its destination' },
-      { letter: 'D', text: 'Data is broken into small packets, each packet may travel a different path across the network, and all packets are reassembled in the correct order at the destination' }
+      { letter: 'A', text: "As one big file sent all at once" },
+      { letter: 'B', text: "Only through underground phone cables" },
+      { letter: 'C', text: "Always through one central government server first" },
+      { letter: 'D', text: "Data is split into small packets that may each take a different path, then put back together in order at the destination" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-012',
-    text: "What is BANDWIDTH, and why does it matter for a school where hundreds of students are streaming video on a digital learning day?",
+    id: "TA-5-PT-012",
+    text: "What is BANDWIDTH, and why does it matter when hundreds of students stream video at school?",
     options: [
-      { letter: 'A', text: 'Bandwidth refers to the physical thickness of network cables — thicker cables always mean a faster connection' },
-      { letter: 'B', text: 'Bandwidth is simply the number of computers connected in the school building' },
-      { letter: 'C', text: 'Bandwidth is only relevant for home networks and has no impact on school internet performance' },
-      { letter: 'D', text: 'Bandwidth is the maximum amount of data that can be transmitted over a network in a given time; higher bandwidth allows more users to stream or download simultaneously without slowdowns' }
+      { letter: 'A', text: "It means the thickness of cables — thicker means faster" },
+      { letter: 'B', text: "It's just the number of computers in the building" },
+      { letter: 'C', text: "It only matters for home networks, not schools" },
+      { letter: 'D', text: "Bandwidth is the max amount of data a network can send at once — more bandwidth lets more users stream without slowdowns" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
-
-  // ============================================================
-  // PRACTICAL TECHNOLOGY - FILE MANAGEMENT AND PRODUCTIVITY (5.13)
-  // ============================================================
-
-  // 5.13A - Demonstrate effective file management strategies (3)
   {
-    id: 'TA-5-PT-013',
-    text: "A student has 60 school files all saved on her desktop with names like 'doc1,' 'doc2,' and 'final.' What file management strategy would MOST improve her ability to find and organize her work?",
+    id: "TA-5-PT-013",
+    text: "A student has 60 files on her desktop named 'doc1,' 'doc2,' and 'final.' What plan would help her find and organize her work?",
     options: [
-      { letter: 'A', text: 'Delete all files and start each assignment completely from scratch' },
-      { letter: 'B', text: 'Save every file into one single shared folder online without renaming them' },
-      { letter: 'C', text: 'Leave everything on the desktop but change all the names to numbers in sequential order' },
-      { letter: 'D', text: 'Create subject-specific folders (Math, Science, ELA, Social Studies), rename each file with a descriptive title and date, and move files into the correct folders' }
+      { letter: 'A', text: "Delete all files and start every project over" },
+      { letter: 'B', text: "Save everything in one shared folder online without renaming" },
+      { letter: 'C', text: "Leave everything on the desktop but change names to numbers in order" },
+      { letter: 'D', text: "Make subject folders (Math, Science, ELA), rename each file with a clear title and date, and move them into the right folders" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-014',
-    text: "What is the PRIMARY advantage of saving school project files to a cloud storage service (such as Google Drive or OneDrive) rather than only on the local computer's hard drive?",
+    id: "TA-5-PT-014",
+    text: "What is the MAIN benefit of saving school files to cloud storage (like Google Drive) instead of only the computer's hard drive?",
     options: [
-      { letter: 'A', text: 'Files saved in the cloud are automatically larger and take up more space' },
-      { letter: 'B', text: 'Cloud storage is always completely free with no storage limits whatsoever' },
-      { letter: 'C', text: 'Local storage is always more reliable and secure than cloud-based storage' },
-      { letter: 'D', text: 'Files in the cloud can be accessed from any internet-connected device and are backed up if the local device is ever lost, damaged, or stolen' }
+      { letter: 'A', text: "Cloud files are bigger and take more space" },
+      { letter: 'B', text: "Cloud storage is always free with no limits" },
+      { letter: 'C', text: "Local storage is always safer than the cloud" },
+      { letter: 'D', text: "Cloud files can be opened from any device with internet and are backed up if the local device is lost or broken" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-015',
-    text: "A student needs to share a large 4 GB video file with her project team, but the file is too large to attach to an email. What is the MOST practical solution?",
+    id: "TA-5-PT-015",
+    text: "A student's 4 GB video is too big to email. What is the BEST way to share it with her team?",
     options: [
-      { letter: 'A', text: 'Split the video into dozens of tiny clips and email each separate clip to the team' },
-      { letter: 'B', text: 'Copy the video to a USB drive and hand-deliver a copy to every team member' },
-      { letter: 'C', text: 'Delete the original video and recreate it at a much lower resolution to shrink the file size' },
-      { letter: 'D', text: 'Upload the video to a shared cloud storage folder and send the team a sharing link to access it' }
+      { letter: 'A', text: "Split it into many tiny clips and email each one" },
+      { letter: 'B', text: "Copy it to a USB drive and hand it to every teammate" },
+      { letter: 'C', text: "Delete it and re-record at much lower quality" },
+      { letter: 'D', text: "Upload it to a shared cloud folder and send the team a link" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
-
-  // 5.13B - Use keyboard shortcuts to increase productivity (3)
   {
-    id: 'TA-5-PT-016',
-    text: "A student wants to move a paragraph from one part of a document to another location several pages away. What is the MOST efficient sequence of keyboard shortcuts?",
+    id: "TA-5-PT-016",
+    text: "A student wants to move a paragraph to a new spot several pages away. What is the FASTEST shortcut sequence?",
     options: [
-      { letter: 'A', text: 'Retype the paragraph in the new location, then go back and delete the original version' },
-      { letter: 'B', text: 'Use the mouse to slowly drag the selected text across the entire document' },
-      { letter: 'C', text: 'Click Edit → Copy, then click Edit → Paste through the menu bar at each step' },
-      { letter: 'D', text: 'Select the text, press Ctrl+X (Cut), click the destination location, and press Ctrl+V (Paste)' }
+      { letter: 'A', text: "Retype it in the new spot, then go back and delete the original" },
+      { letter: 'B', text: "Use the mouse to slowly drag the text across the whole document" },
+      { letter: 'C', text: "Click Edit → Copy, then Edit → Paste through the menu" },
+      { letter: 'D', text: "Select the text, press Ctrl+X (Cut), click the new spot, press Ctrl+V (Paste)" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-017',
-    text: "A student is working on a class presentation and wants to quickly select all the text in her document to change the font to a consistent style throughout. Which keyboard shortcut should she use?",
+    id: "TA-5-PT-017",
+    text: "A student wants to select all the text in her document to change the font. Which shortcut should she use?",
     options: [
-      { letter: 'A', text: 'Ctrl+S (Save)' },
-      { letter: 'B', text: 'Ctrl+Z (Undo)' },
-      { letter: 'C', text: 'Ctrl+A (Select All)' },
-      { letter: 'D', text: 'Ctrl+F (Find)' }
+      { letter: 'A', text: "Ctrl+S (Save)" },
+      { letter: 'B', text: "Ctrl+Z (Undo)" },
+      { letter: 'C', text: "Ctrl+A (Select All)" },
+      { letter: 'D', text: "Ctrl+F (Find)" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-5-PT-018',
-    text: "A student is researching a topic in her browser while simultaneously writing notes in a document. Which set of keyboard shortcuts would MOST improve her overall efficiency?",
+    id: "TA-5-PT-018",
+    text: "A student is reading in a browser and writing notes in a document at the same time. Which shortcuts would make her FASTEST?",
     options: [
-      { letter: 'A', text: 'Only use the mouse for all actions, including clicking, dragging, and selecting text' },
-      { letter: 'B', text: 'Press Ctrl+S (Save) repeatedly and constantly so nothing is ever accidentally lost' },
-      { letter: 'C', text: 'Press Ctrl+A (Select All) to erase everything before starting fresh on each new note' },
-      { letter: 'D', text: 'Use Ctrl+C (Copy) to copy text from the browser, Ctrl+V (Paste) to paste it into the document, and Ctrl+Z (Undo) to immediately fix any accidental mistakes' }
+      { letter: 'A', text: "Only use the mouse for everything" },
+      { letter: 'B', text: "Press Ctrl+S over and over so nothing gets lost" },
+      { letter: 'C', text: "Press Ctrl+A to erase everything before starting fresh each time" },
+      { letter: 'D', text: "Use Ctrl+C to copy from the browser, Ctrl+V to paste into the doc, and Ctrl+Z to undo any mistakes" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-CT-019",
+    text: "Two students each write an algorithm to sort a list of names. Algorithm A checks every name against every other name. Algorithm B puts names in groups by first letter, then sorts each group. Which is MOST efficient for a long list?",
+    options: [
+      { letter: 'A', text: "Algorithm A — checking everything is always best" },
+      { letter: 'B', text: "Algorithm B — grouping first means fewer comparisons are needed" },
+      { letter: 'C', text: "Both are exactly the same" },
+      { letter: 'D', text: "Neither works for sorting" }
+    ],
+    correctAnswer: "B",
+    strand: "Computational Thinking"
+  },
+  {
+    id: "TA-5-CT-020",
+    text: "Why is it useful to compare different algorithms for the same task?",
+    options: [
+      { letter: 'A', text: "There is only one way to solve any problem" },
+      { letter: 'B', text: "Comparing helps you find which algorithm is fastest, simplest, or best for the situation" },
+      { letter: 'C', text: "All algorithms give the same result at the same speed" },
+      { letter: 'D', text: "Comparing algorithms is a waste of time" }
+    ],
+    correctAnswer: "B",
+    strand: "Computational Thinking"
+  },
+  {
+    id: "TA-5-CT-021",
+    text: "A student wrote code that checks if a number is even or odd. Her friend needs the same check in a different program. What should the friend do?",
+    options: [
+      { letter: 'A', text: "Write the code from scratch with no reference" },
+      { letter: 'B', text: "Reuse the working code by copying and adapting it to the new program" },
+      { letter: 'C', text: "Delete both programs" },
+      { letter: 'D', text: "Avoid using code that someone else wrote" }
+    ],
+    correctAnswer: "B",
+    strand: "Computational Thinking"
+  },
+  {
+    id: "TA-5-CI-013",
+    text: "A student has failed to fix a bug in her program after 5 tries. She takes a break, talks through the problem with a classmate, and tries a new approach. Which skills is she showing?",
+    options: [
+      { letter: 'A', text: "Giving up" },
+      { letter: 'B', text: "Persistence and effective communication — she keeps trying and uses teamwork to find a new angle" },
+      { letter: 'C', text: "Cheating by asking for help" },
+      { letter: 'D', text: "Avoiding the problem" }
+    ],
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
+  },
+  {
+    id: "TA-5-DC-025",
+    text: "A student writes an email to her principal and an email to her friend about the same event. How should the TWO emails be different?",
+    options: [
+      { letter: 'A', text: "They should be exactly the same" },
+      { letter: 'B', text: "The principal's email should be formal with a greeting and respectful tone; the friend's can be casual" },
+      { letter: 'C', text: "The friend's email should be more formal than the principal's" },
+      { letter: 'D', text: "Neither email needs any greeting or closing" }
+    ],
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-5-DC-026",
+    text: "Which is the BEST way to address a teacher in a school email?",
+    options: [
+      { letter: 'A', text: "'Hey dude'" },
+      { letter: 'B', text: "No greeting — just start with your question" },
+      { letter: 'C', text: "'Dear Mr. Garcia,' followed by a polite message" },
+      { letter: 'D', text: "'YO TEACH'" }
+    ],
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-5-DC-027",
+    text: "What is an Acceptable Use Policy (AUP)?",
+    options: [
+      { letter: 'A', text: "A set of rules about how students should use school technology responsibly" },
+      { letter: 'B', text: "A list of games you can play on school devices" },
+      { letter: 'C', text: "A test you take before using a computer" },
+      { letter: 'D', text: "A password for the school Wi-Fi" }
+    ],
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-5-DC-028",
+    text: "Which behavior follows a typical school AUP?",
+    options: [
+      { letter: 'A', text: "Using school devices only for assigned work and approved activities" },
+      { letter: 'B', text: "Downloading personal apps on school tablets without permission" },
+      { letter: 'C', text: "Sharing your login with friends so they can access your files" },
+      { letter: 'D', text: "Visiting any website you want during class time" }
+    ],
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-5-DC-029",
+    text: "A student sees a classmate breaking the AUP by accessing blocked websites. What should she do?",
+    options: [
+      { letter: 'A', text: "Join in since no one is watching" },
+      { letter: 'B', text: "Ignore it — it's not her responsibility" },
+      { letter: 'C', text: "Quietly remind the classmate about the rules, or tell the teacher if it continues" },
+      { letter: 'D', text: "Screenshot it and post it on social media" }
+    ],
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-5-PT-019",
+    text: "A file ending in .jpg or .png is what type of file?",
+    options: [
+      { letter: 'A', text: "A text file" },
+      { letter: 'B', text: "A music file" },
+      { letter: 'C', text: "A graphics (image) file" },
+      { letter: 'D', text: "A spreadsheet file" }
+    ],
+    correctAnswer: "C",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-020",
+    text: "Which file type would you use to store a video project?",
+    options: [
+      { letter: 'A', text: ".docx (a text document)" },
+      { letter: 'B', text: ".mp4 (a multimedia/video file)" },
+      { letter: 'C', text: ".xlsx (a spreadsheet)" },
+      { letter: 'D', text: ".jpg (an image)" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-021",
+    text: "Match each file type to its category: .docx = ___, .mp3 = ___, .png = ___",
+    options: [
+      { letter: 'A', text: "Text, audio/multimedia, graphics" },
+      { letter: 'B', text: "Graphics, text, multimedia" },
+      { letter: 'C', text: "Multimedia, graphics, text" },
+      { letter: 'D', text: "All three are text files" }
+    ],
+    correctAnswer: "A",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-022",
+    text: "A student has 50 school files all saved on her desktop with names like 'Untitled1' and 'doc_final_v2.' What should she do?",
+    options: [
+      { letter: 'A', text: "Leave them — file names don't matter" },
+      { letter: 'B', text: "Delete them all and start over" },
+      { letter: 'C', text: "Create subject folders, rename each file clearly, and move them into the right folders" },
+      { letter: 'D', text: "Save them all in one folder called 'Stuff'" }
+    ],
+    correctAnswer: "C",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-023",
+    text: "Which file name follows a good naming convention for a 5th grade science report on volcanoes?",
+    options: [
+      { letter: 'A', text: "stuff123" },
+      { letter: 'B', text: "Science_Volcanoes_Report_2026" },
+      { letter: 'C', text: "final_FINAL_real_final" },
+      { letter: 'D', text: "aaaaaa" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-024",
+    text: "What does 'touch keyboarding' mean?",
+    options: [
+      { letter: 'A', text: "Typing by looking at the keys and pressing them one at a time" },
+      { letter: 'B', text: "Typing without looking at the keyboard by knowing where each key is by feel" },
+      { letter: 'C', text: "Only using the touchscreen" },
+      { letter: 'D', text: "Typing with one finger" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-025",
+    text: "A student's typing goal is 25 WPM with 95% accuracy. She currently types 20 WPM with 90% accuracy. What should she focus on FIRST?",
+    options: [
+      { letter: 'A', text: "Only speed — accuracy doesn't matter" },
+      { letter: 'B', text: "Accuracy first — get to 95%, then work on speed" },
+      { letter: 'C', text: "Give up because she hasn't met the goal yet" },
+      { letter: 'D', text: "Switch to voice dictation permanently" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-026",
+    text: "Which describes proper home row hand position?",
+    options: [
+      { letter: 'A', text: "Left hand on ASDF, right hand on JKL;, fingers gently curved" },
+      { letter: 'B', text: "Both hands on the space bar" },
+      { letter: 'C', text: "One hand on the mouse, one on the keyboard" },
+      { letter: 'D', text: "Fingers flat and stiff on any keys" }
+    ],
+    correctAnswer: "A",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-027",
+    text: "You can't figure out how to add a chart in Google Sheets. What should you try?",
+    options: [
+      { letter: 'A', text: "Give up and use a different program" },
+      { letter: 'B', text: "Click the Help menu or search 'how to add a chart in Google Sheets' online" },
+      { letter: 'C', text: "Ask a friend to do it for you every time" },
+      { letter: 'D', text: "Charts can't be made in Google Sheets" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-028",
+    text: "A spreadsheet formula shows '#ERROR!' What is the BEST first step?",
+    options: [
+      { letter: 'A', text: "Delete the entire spreadsheet" },
+      { letter: 'B', text: "Search the error message in the app's Help section to understand what went wrong" },
+      { letter: 'C', text: "Ignore it and keep working" },
+      { letter: 'D', text: "Restart the computer" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-5-PT-029",
+    text: "Which is a good 'help source' when learning a new software feature?",
+    options: [
+      { letter: 'A', text: "The app's built-in Help menu, tutorial videos, or official support website" },
+      { letter: 'B', text: "Guessing buttons randomly until something works" },
+      { letter: 'C', text: "Only asking friends — never look anything up" },
+      { letter: 'D', text: "There are no help sources for software" }
+    ],
+    correctAnswer: "A",
+    strand: "Practical Technology"
   }
-
 ];

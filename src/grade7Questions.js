@@ -1,1118 +1,1338 @@
 // Grade 7 Technology Applications Questions
 // Aligned to 2022 Texas TEKS §126.16
-// 87 questions total — 3 per standard, 29 standards
+// 111 questions total
 
 export const grade7Questions = [
-
-  // ── Computational Thinking ──────────────────────────────────────────────────
-
-  // 7.1A · Decompose Problems
   {
-    id: 'TA-7-CT-001',
-    text: "A development team is building a social media app. To manage the complexity, they split the work into authentication, messaging, profile pages, and notifications — each handled by a separate sub-team. This strategy is an example of:",
+    id: "TA-7-CT-001",
+    text: "Your team is building a school event registration system. Which tool BEST helps you decompose this into structured parts?",
     options: [
-      { letter: 'A', text: 'Debugging' },
-      { letter: 'B', text: 'Pattern recognition' },
-      { letter: 'C', text: 'Decomposition — breaking a complex problem into smaller, independently solvable parts' },
-      { letter: 'D', text: 'Abstraction' }
+      { letter: 'A', text: "A flowchart showing steps like: collect student info → check availability → confirm registration → send email" },
+      { letter: 'B', text: "A paragraph describing the event" },
+      { letter: 'C', text: "A drawing of the event poster" },
+      { letter: 'D', text: "A list of student names" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "A",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-002',
-    text: "When decomposing a problem into sub-problems, what is the MOST important quality each sub-problem should have?",
+    id: "TA-7-CT-002",
+    text: "Why are flowcharts better than a written paragraph for decomposing a complex problem?",
     options: [
-      { letter: 'A', text: 'It should be as large as possible' },
-      { letter: 'B', text: 'It should be solvable on its own without depending on every other sub-problem being solved first' },
-      { letter: 'C', text: 'It should require the most advanced technology' },
-      { letter: 'D', text: 'It should be assigned to the best student' }
+      { letter: 'A', text: "Flowcharts use prettier colors" },
+      { letter: 'B', text: "Written paragraphs are always more detailed" },
+      { letter: 'C', text: "Flowcharts show the order of steps, decision points, and how parts connect — making the structure easy to see" },
+      { letter: 'D', text: "Flowcharts can only show two steps at a time" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-003',
-    text: "A student is creating a video game and identifies these components: character movement, collision detection, scoring, and sound effects. Which computational thinking skill is demonstrated by identifying these components?",
+    id: "TA-7-CT-003",
+    text: "A student draws a flowchart for an online ordering system. It has boxes for 'Browse menu,' 'Add to cart,' 'Enter payment,' and 'Confirm order' connected by arrows. What skill is she using?",
     options: [
-      { letter: 'A', text: 'Looping' },
-      { letter: 'B', text: 'Sorting' },
-      { letter: 'C', text: 'Compiling' },
-      { letter: 'D', text: 'Decomposition — breaking the game into distinct, manageable subsystems' }
+      { letter: 'A', text: "Iteration" },
+      { letter: 'B', text: "Decomposition — breaking the ordering process into clear, connected steps shown in a flowchart" },
+      { letter: 'C', text: "Debugging" },
+      { letter: 'D', text: "Abstraction" }
     ],
-    correctAnswer: 'D',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
-
-  // 7.1B · Identify Patterns & Abstraction
   {
-    id: 'TA-7-CT-004',
-    text: "A programmer realizes that three different parts of her app all need to validate email addresses. Instead of writing the same validation code three times, she writes it once as a reusable function. Which computational thinking concept is this?",
+    id: "TA-7-CT-004",
+    text: "A flowchart shows that every time data is entered, the program checks for errors, displays a message, and asks for re-entry if needed. This check-display-retry cycle repeats at three different input screens. What pattern exists?",
     options: [
-      { letter: 'A', text: 'Abstraction — hiding repeated complexity behind a single reusable interface' },
-      { letter: 'B', text: 'Decomposition' },
-      { letter: 'C', text: 'Debugging' },
-      { letter: 'D', text: 'Pattern recognition only' }
+      { letter: 'A', text: "Each screen uses completely different logic" },
+      { letter: 'B', text: "Patterns only exist in math, not flowcharts" },
+      { letter: 'C', text: "The flowchart has no patterns" },
+      { letter: 'D', text: "The same validation pattern repeats across all input screens" }
     ],
-    correctAnswer: 'A',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-005',
-    text: "A student analyzes login failures across 500 user accounts and notices 80% happen between 3–5 AM, all from one geographic region. This observation is an example of:",
+    id: "TA-7-CT-005",
+    text: "In a flowchart, a decision diamond asks 'Is the password correct?' with YES going to the homepage and NO going back to the login screen. If the sequence put the homepage BEFORE the password check, what would happen?",
     options: [
-      { letter: 'A', text: 'Data entry' },
-      { letter: 'B', text: 'Abstraction' },
-      { letter: 'C', text: 'Pattern recognition used to identify a potential security threat' },
-      { letter: 'D', text: 'Decomposition' }
+      { letter: 'A', text: "The program would work fine" },
+      { letter: 'B', text: "Everyone would reach the homepage without entering a password, creating a security problem" },
+      { letter: 'C', text: "The password would check itself" },
+      { letter: 'D', text: "Nothing — order doesn't matter in flowcharts" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-006',
-    text: "Abstraction in programming means:",
+    id: "TA-7-CT-006",
+    text: "A student writes an algorithm that calculates the average of math test scores. She realizes the same algorithm could calculate the average of science scores, reading scores, or any set of numbers. What is she doing?",
     options: [
-      { letter: 'A', text: 'Making code as complex as possible' },
-      { letter: 'B', text: 'Removing all comments from code' },
-      { letter: 'C', text: 'Focusing only on essential information while hiding unnecessary implementation details, making systems easier to understand and reuse' },
-      { letter: 'D', text: 'Converting code to machine language' }
+      { letter: 'A', text: "Debugging the algorithm" },
+      { letter: 'B', text: "Deleting the algorithm" },
+      { letter: 'C', text: "Generalizing — recognizing that the same algorithm can solve similar problems with different data" },
+      { letter: 'D', text: "Making the algorithm only work for math" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
-
-  // 7.1C · Design & Document Algorithms
   {
-    id: 'TA-7-CT-007',
-    text: "A flowchart uses a diamond shape to represent:",
+    id: "TA-7-CT-007",
+    text: "A student builds a search feature for a library app. Instead of coding a separate search for books, DVDs, and magazines, she writes one search algorithm that works for any media type. What concept is she using?",
     options: [
-      { letter: 'A', text: 'The start or end of a process' },
-      { letter: 'B', text: 'A decision point where the flow splits based on a yes/no or true/false condition' },
-      { letter: 'C', text: 'A data input or output step' },
-      { letter: 'D', text: 'A connection to another page' }
+      { letter: 'A', text: "Decomposition" },
+      { letter: 'B', text: "Debugging" },
+      { letter: 'C', text: "Pattern recognition" },
+      { letter: 'D', text: "Abstraction — creating a general solution that ignores unnecessary differences between media types" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-008',
-    text: "Pseudocode is useful for designing algorithms because it:",
+    id: "TA-7-CT-008",
+    text: "A sorting algorithm puts names in alphabetical order. How could this algorithm be generalized?",
     options: [
-      { letter: 'A', text: 'Can be run directly on any computer without modification' },
-      { letter: 'B', text: 'Requires knowing a specific programming language to write' },
-      { letter: 'C', text: 'Uses informal, human-readable language to describe logic steps without worrying about syntax, making it easy to plan before coding' },
-      { letter: 'D', text: 'Is only used by professional software engineers' }
+      { letter: 'A', text: "It can only sort names and nothing else" },
+      { letter: 'B', text: "It could sort any list — numbers, dates, cities — by changing what gets compared" },
+      { letter: 'C', text: "Generalized algorithms always run slower" },
+      { letter: 'D', text: "Sorting can only be done by hand" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-009',
-    text: "An algorithm must be both correct AND efficient. What does efficiency mean in this context?",
+    id: "TA-7-CT-009",
+    text: "A team uses a shared flowchart to plan their coding project. The flowchart shows the problem at the top, two possible solutions branching out, and a timeline along the bottom. Why is this approach effective?",
     options: [
-      { letter: 'A', text: 'The algorithm uses the fewest possible keyboard shortcuts' },
-      { letter: 'B', text: 'The algorithm accomplishes the task using a reasonable number of steps and resources without unnecessary repetition' },
-      { letter: 'C', text: 'The algorithm is written in the fewest lines of code regardless of clarity' },
-      { letter: 'D', text: 'The algorithm was written quickly' }
+      { letter: 'A', text: "Flowcharts slow teams down" },
+      { letter: 'B', text: "Everyone can see the full plan, compare solutions, and know deadlines — all in one visual" },
+      { letter: 'C', text: "Only one person needs to understand the flowchart" },
+      { letter: 'D', text: "Timelines are not important for coding projects" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
-
-  // 7.1D · Debug & Test Programs
   {
-    id: 'TA-7-CT-010',
-    text: "A student's sorting program works correctly for lists of 10 items but produces wrong output for lists of 1,000 items. What type of testing revealed this bug?",
+    id: "TA-7-CT-010",
+    text: "A team's flowchart shows Solution A costing $50 and taking 3 weeks, and Solution B costing $10 but taking 6 weeks. What is the MAIN value of documenting both?",
     options: [
-      { letter: 'A', text: 'Unit testing with small inputs only' },
-      { letter: 'B', text: 'Edge case / boundary testing with large inputs' },
-      { letter: 'C', text: 'Syntax checking' },
-      { letter: 'D', text: 'Compilation' }
+      { letter: 'A', text: "It proves the team can't decide" },
+      { letter: 'B', text: "It wastes time since they should just pick one immediately" },
+      { letter: 'C', text: "It lets the team weigh trade-offs like cost vs. time before committing to a solution" },
+      { letter: 'D', text: "Flowcharts can only show one solution" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-011',
-    text: "What is the difference between a syntax error and a logic error?",
+    id: "TA-7-CT-011",
+    text: "A student's program calculates quiz scores but sometimes gives negative numbers. Which debugging technique should she use?",
     options: [
-      { letter: 'A', text: 'A syntax error means the code runs but produces wrong results; a logic error prevents the code from running at all' },
-      { letter: 'B', text: 'Syntax errors are more serious than logic errors' },
-      { letter: 'C', text: 'A syntax error violates the rules of the programming language (so the code won\'t run); a logic error means the code runs but produces incorrect results' },
-      { letter: 'D', text: 'They are the same type of error' }
+      { letter: 'A', text: "Delete the whole program" },
+      { letter: 'B', text: "Ignore the negatives since they rarely happen" },
+      { letter: 'C', text: "Switch to a different programming language" },
+      { letter: 'D', text: "Add test cases with different inputs and trace the algorithm step by step to find where the calculation goes wrong" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-012',
-    text: "A student uses a debugger tool to pause program execution at line 15 and inspect the value of a variable. The variable holds -5 when it should hold a positive number. What should the student do next?",
+    id: "TA-7-CT-012",
+    text: "A program should print numbers 1 through 10 but prints 1 through 11. The student checks the loop condition and finds it says 'while counter <= 11' instead of 'while counter <= 10.' Which type of error is this?",
     options: [
-      { letter: 'A', text: 'Delete lines 1–14 and rewrite from scratch' },
-      { letter: 'B', text: 'Submit the program — the bug is probably harmless' },
-      { letter: 'C', text: 'Trace the code backward from line 15 to find where the variable was assigned the wrong value' },
-      { letter: 'D', text: 'Change the variable name' }
+      { letter: 'A', text: "A logic error — the code runs but produces the wrong result because of incorrect logic" },
+      { letter: 'B', text: "A syntax error — the code won't run at all" },
+      { letter: 'C', text: "A hardware error" },
+      { letter: 'D', text: "A network error" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "A",
+    strand: "Computational Thinking"
   },
-
-  // 7.2A · Variables, Functions & Parameters
   {
-    id: 'TA-7-CT-013',
-    text: "A function called calculateTax(price, rate) takes two inputs and returns the tax amount. In this example, price and rate are called:",
+    id: "TA-7-CT-013",
+    text: "Which debugging technique involves running a program with known inputs and checking if the outputs match what you expect?",
     options: [
-      { letter: 'A', text: 'Return values' },
-      { letter: 'B', text: 'Loops' },
-      { letter: 'C', text: 'Comments' },
-      { letter: 'D', text: 'Parameters — values passed into the function to customize its behavior' }
+      { letter: 'A', text: "Random guessing" },
+      { letter: 'B', text: "Deleting code until the error disappears" },
+      { letter: 'C', text: "Rewriting the program in a different language" },
+      { letter: 'D', text: "Test-case debugging — comparing actual outputs to expected outputs for specific inputs" }
     ],
-    correctAnswer: 'D',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-014',
-    text: "Why is it better to use a named constant (like PI = 3.14159) instead of typing 3.14159 every time it appears in a program?",
+    id: "TA-7-CT-014",
+    text: "A teacher's grading program needs to calculate the final grade for each of 150 students. Without iteration, how many times would the grading code need to be written?",
     options: [
-      { letter: 'A', text: 'Constants run faster than typed numbers' },
-      { letter: 'B', text: 'Constants make the code longer, which is always better' },
-      { letter: 'C', text: 'If the value ever needs updating, you only change it in one place; the name also makes the code\'s meaning clearer' },
-      { letter: 'D', text: 'You are required to use constants by law' }
+      { letter: 'A', text: "Once — iteration isn't needed" },
+      { letter: 'B', text: "150 times — once for each student" },
+      { letter: 'C', text: "10 times" },
+      { letter: 'D', text: "Iteration would let the code be written once and repeated 150 times automatically" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-015',
-    text: "A student writes a function greet(name) that returns \"Hello, \" + name. When called as greet(\"Marisol\"), what does the function return?",
+    id: "TA-7-CT-015",
+    text: "How does iteration make programs easier to maintain and update?",
     options: [
-      { letter: 'A', text: '"Hello, name"' },
-      { letter: 'B', text: '"Marisol"' },
-      { letter: 'C', text: '"Hello, Marisol"' },
-      { letter: 'D', text: 'Nothing — functions cannot return text' }
+      { letter: 'A', text: "It doesn't — iteration makes code harder to change" },
+      { letter: 'B', text: "Changes only need to be made once inside the loop, and they apply to every repetition automatically" },
+      { letter: 'C', text: "Iteration removes the need for testing" },
+      { letter: 'D', text: "Iteration only works for programs with fewer than 10 steps" }
     ],
-    correctAnswer: 'C',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
-
-  // 7.2B · Create Programs with Loops, Conditionals & Events
   {
-    id: 'TA-7-CT-016',
-    text: "A student wants a program to keep asking a user for a valid password until the correct one is entered. Which loop type is MOST appropriate?",
+    id: "TA-7-CT-016",
+    text: "A program stores a student's age as 13. Which data type is MOST appropriate?",
     options: [
-      { letter: 'A', text: 'A for loop that runs exactly 3 times' },
-      { letter: 'B', text: 'A while loop that continues until the correct password is entered' },
-      { letter: 'C', text: 'No loop — just ask once' },
-      { letter: 'D', text: 'A loop that runs exactly 100 times' }
+      { letter: 'A', text: "String (text)" },
+      { letter: 'B', text: "Boolean (true/false)" },
+      { letter: 'C', text: "Integer (whole number)" },
+      { letter: 'D', text: "Float (decimal number)" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "C",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-017',
-    text: "In event-driven programming, code runs in response to user actions like clicks or key presses rather than executing line by line from top to bottom. Which type of application MOST relies on event-driven programming?",
+    id: "TA-7-CT-017",
+    text: "A student's program has a variable called 'x' that stores a player's health points. Why should she rename it?",
     options: [
-      { letter: 'A', text: 'A script that automatically sorts a text file at midnight' },
-      { letter: 'B', text: 'An interactive website or mobile app where users click buttons, fill forms, and navigate menus' },
-      { letter: 'C', text: 'A program that prints "Hello" five times and exits' },
-      { letter: 'D', text: 'A calculation that runs once with no user input' }
+      { letter: 'A', text: "Short names always cause errors" },
+      { letter: 'B', text: "'x' doesn't describe what the variable holds — 'playerHealth' is clearer and makes the code easier to read and debug" },
+      { letter: 'C', text: "Variables can only have long names" },
+      { letter: 'D', text: "Renaming variables deletes their data" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "B",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CT-018',
-    text: "A program checks: if score >= 90: grade = 'A', elif score >= 80: grade = 'B', else: grade = 'C'. A student scores 85. What grade does the program assign?",
+    id: "TA-7-CT-018",
+    text: "Match each value to its correct data type: 'Hello' = ___, 3.14 = ___, TRUE = ___, 42 = ___",
     options: [
-      { letter: 'A', text: 'A' },
-      { letter: 'B', text: 'B' },
-      { letter: 'C', text: 'C' },
-      { letter: 'D', text: 'No grade — the program crashes' }
+      { letter: 'A', text: "String, Float, Boolean, Integer" },
+      { letter: 'B', text: "Integer, Boolean, String, Float" },
+      { letter: 'C', text: "Boolean, String, Integer, Float" },
+      { letter: 'D', text: "Float, Integer, String, Boolean" }
     ],
-    correctAnswer: 'B',
-    strand: 'Computational Thinking'
+    correctAnswer: "A",
+    strand: "Computational Thinking"
   },
-
-  // ── Creativity and Innovation ───────────────────────────────────────────────
-
-  // 7.3A · Design Process
   {
-    id: 'TA-7-CI-001',
-    text: "A student team is designing an app to help middle schoolers manage homework. After researching users, they write this problem statement: \"Middle school students struggle to track assignments across multiple classes, leading to missed deadlines.\" Which design thinking phase does this represent?",
+    id: "TA-7-CT-019",
+    text: "A program needs to print a multiplication table: for each number 1-10, it prints that number multiplied by 1 through 10. Which structure is needed?",
     options: [
-      { letter: 'A', text: 'Prototype' },
-      { letter: 'B', text: 'Test' },
-      { letter: 'C', text: 'Ideate' },
-      { letter: 'D', text: 'Define — turning research findings into a clear, actionable problem statement' }
+      { letter: 'A', text: "A nested loop — an outer loop for each row (1-10) and an inner loop for each column (1-10)" },
+      { letter: 'B', text: "A conditional with no loops" },
+      { letter: 'C', text: "A single loop" },
+      { letter: 'D', text: "Only variables with no loops" }
     ],
-    correctAnswer: 'D',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "A",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CI-002',
-    text: "During the Ideate phase of design thinking, the team should:",
+    id: "TA-7-CT-020",
+    text: "What is a nested loop?",
     options: [
-      { letter: 'A', text: 'Build the final product immediately' },
-      { letter: 'B', text: 'Generate a wide variety of possible solutions without immediately judging or eliminating ideas' },
-      { letter: 'C', text: 'Write only one solution and defend it' },
-      { letter: 'D', text: 'Test the solution with real users' }
+      { letter: 'A', text: "A loop that never ends" },
+      { letter: 'B', text: "Two loops that run at the exact same time" },
+      { letter: 'C', text: "A loop that only runs once" },
+      { letter: 'D', text: "A loop placed inside another loop — the inner loop runs completely for each cycle of the outer loop" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
   {
-    id: 'TA-7-CI-003',
-    text: "A prototype in the design thinking process is:",
+    id: "TA-7-CT-021",
+    text: "A student builds a text-based seating chart program. The outer loop goes through each row of desks, and the inner loop goes through each seat in that row. If there are 5 rows with 6 seats each, how many times does the inner loop run total?",
     options: [
-      { letter: 'A', text: 'The final, fully polished version of the product' },
-      { letter: 'B', text: 'A legal document protecting the design' },
-      { letter: 'C', text: 'A quick, low-cost model or representation of the solution used to gather feedback before investing in full development' },
-      { letter: 'D', text: 'A copy of an existing product' }
+      { letter: 'A', text: "5 times" },
+      { letter: 'B', text: "6 times" },
+      { letter: 'C', text: "11 times" },
+      { letter: 'D', text: "30 times — the inner loop runs 6 times for each of the 5 outer loop cycles" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Computational Thinking"
   },
-
-  // 7.3B · Evaluate, Collaborate & Iterate
   {
-    id: 'TA-7-CI-004',
-    text: "After testing their prototype, a team receives conflicting feedback: some users love the color scheme while others find it difficult to read. How should the team handle this disagreement?",
+    id: "TA-7-CI-001",
+    text: "A student realizes she needs more time to finish her prototype. Instead of turning in incomplete work or giving up, she explains the situation to her teacher and requests an extension with a plan to finish. Which trait is she showing?",
     options: [
-      { letter: 'A', text: 'Go with the majority opinion without further testing' },
-      { letter: 'B', text: 'Ignore all feedback and keep the original design' },
-      { letter: 'C', text: 'Analyze which users represent the target audience most closely, consider accessibility standards, and test a revised version' },
-      { letter: 'D', text: 'Dissolve the team due to disagreement' }
+      { letter: 'A', text: "Avoiding responsibility" },
+      { letter: 'B', text: "Self-advocacy — speaking up for her needs appropriately and taking responsibility for her work" },
+      { letter: 'C', text: "Giving up on the project" },
+      { letter: 'D', text: "Blaming others for the delay" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-CI-005',
-    text: "A student evaluates a peer's digital solution and notices it solves the problem but is confusing to navigate. Which feedback is MOST useful?",
+    id: "TA-7-CI-002",
+    text: "A student's code keeps crashing and he doesn't know why. He sets a goal to test one section at a time and takes responsibility for finding the error himself. What is he demonstrating?",
     options: [
-      { letter: 'A', text: '"This is bad."' },
-      { letter: 'B', text: '"I love everything about it!"' },
-      { letter: 'C', text: '"The solution works, but the navigation menu could be reorganized — grouping related items together would make it easier to find features."' },
-      { letter: 'D', text: '"The colors are nice."' }
+      { letter: 'A', text: "Goal setting and personal responsibility — key traits for resolving design challenges independently" },
+      { letter: 'B', text: "He is wasting time by being independent" },
+      { letter: 'C', text: "He should wait for help instead of trying on his own" },
+      { letter: 'D', text: "He should give up and start a new project" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "A",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-CI-006',
-    text: "Which metric would BEST measure whether a student-designed study-app is effective for its intended users?",
+    id: "TA-7-CI-003",
+    text: "A student builds version 1 of her app, tests it, finds problems, fixes them in version 2, tests again, and keeps improving. What design approach is this?",
     options: [
-      { letter: 'A', text: 'How many lines of code it contains' },
-      { letter: 'B', text: 'Whether users report improved study habits and test scores after using the app consistently for four weeks' },
-      { letter: 'C', text: 'The file size of the app' },
-      { letter: 'D', text: 'How long it took to build' }
+      { letter: 'A', text: "Building the final product on the first try" },
+      { letter: 'B', text: "Trial and error — building, testing, and refining the prototype through repeated cycles" },
+      { letter: 'C', text: "Skipping the testing phase" },
+      { letter: 'D', text: "Copying another student's finished app" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
   },
-
-  // 7.4A · Emerging Tech & Societal Impact
   {
-    id: 'TA-7-CI-007',
-    text: "Generative AI tools can write essays, compose music, and create images. Which concern about this technology relates MOST directly to academic integrity?",
+    id: "TA-7-CI-004",
+    text: "A team needs to build a prototype for a school announcements app. Which set of digital tools would BEST support this?",
     options: [
-      { letter: 'A', text: 'AI-generated content is always copyrighted by the AI company' },
-      { letter: 'B', text: 'AI tools use too much electricity' },
-      { letter: 'C', text: 'Students may submit AI-generated work as their own, misrepresenting their learning and undermining the purpose of education' },
-      { letter: 'D', text: 'AI tools only work on expensive computers' }
+      { letter: 'A', text: "A wireframing tool for the layout, a code editor for building it, and a survey tool for collecting feedback" },
+      { letter: 'B', text: "Only a printed textbook" },
+      { letter: 'C', text: "Only a calculator" },
+      { letter: 'D', text: "Only a word processor" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "A",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-CI-008',
-    text: "Autonomous vehicles (self-driving cars) could reduce traffic accidents caused by human error. What is a significant ETHICAL challenge this technology introduces?",
+    id: "TA-7-CI-005",
+    text: "After testing her prototype, a student finds that users can't figure out how to navigate to page 2. What should she do?",
     options: [
-      { letter: 'A', text: 'Self-driving cars are too slow' },
-      { letter: 'B', text: 'They require gasoline, increasing pollution' },
-      { letter: 'C', text: 'They cannot operate in sunlight' },
-      { letter: 'D', text: 'Programming decisions about unavoidable accidents raises questions of moral responsibility: who is liable when the car\'s algorithm causes harm?' }
+      { letter: 'A', text: "Remove page 2 entirely" },
+      { letter: 'B', text: "Tell users they need to try harder" },
+      { letter: 'C', text: "Redesign the navigation to make it more obvious, then test again to see if the change works" },
+      { letter: 'D', text: "Submit the prototype without changes" }
     ],
-    correctAnswer: 'D',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-CI-009',
-    text: "The \"digital divide\" refers to:",
+    id: "TA-7-CI-006",
+    text: "A car company designs a new vehicle by sketching concepts, building a clay model, running crash simulations, and revising the design. How is this similar to software development?",
     options: [
-      { letter: 'A', text: 'The difference in screen sizes between phones and computers' },
-      { letter: 'B', text: 'The gap between people who have reliable access to technology and the internet and those who do not, often correlating with socioeconomic inequality' },
-      { letter: 'C', text: 'The time zone difference between technology companies' },
-      { letter: 'D', text: 'The division between old and new devices' }
+      { letter: 'A', text: "Both follow the same design cycle: plan, prototype, test, and refine based on results" },
+      { letter: 'B', text: "Both only use the testing step" },
+      { letter: 'C', text: "Car design and software development have nothing in common" },
+      { letter: 'D', text: "Only software uses a design process" }
     ],
-    correctAnswer: 'B',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "A",
+    strand: "Creativity and Innovation"
   },
-
-  // 7.4B · Tech Impact on Society, Economy & Culture
   {
-    id: 'TA-7-CI-010',
-    text: "E-commerce platforms allow small businesses to sell products worldwide without a physical storefront. What is the MOST significant economic impact of this technology?",
+    id: "TA-7-CI-007",
+    text: "A fashion designer sketches ideas, makes sample garments, gets feedback from focus groups, and revises designs before production. Which design process step is 'getting feedback from focus groups'?",
     options: [
-      { letter: 'A', text: 'It eliminates the need for any business skills' },
-      { letter: 'B', text: 'It increases shipping costs for all consumers' },
-      { letter: 'C', text: 'It lowers barriers to entry for entrepreneurs, enabling global market access that was previously only available to large companies' },
-      { letter: 'D', text: 'It only benefits large corporations' }
+      { letter: 'A', text: "Planning" },
+      { letter: 'B', text: "Marketing" },
+      { letter: 'C', text: "Final production" },
+      { letter: 'D', text: "Testing and evaluation — gathering real user feedback to guide improvements" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-CI-011',
-    text: "Social media has changed how political movements organize and spread information. Which is a potential NEGATIVE consequence of this change?",
+    id: "TA-7-CI-008",
+    text: "The telegraph was invented in the 1830s and allowed messages to be sent over long distances in minutes. How did this change business?",
     options: [
-      { letter: 'A', text: 'People can share information faster' },
-      { letter: 'B', text: 'Movements can organize across geographic boundaries' },
-      { letter: 'C', text: 'Misinformation and propaganda can spread virally before being fact-checked, influencing public opinion based on false claims' },
-      { letter: 'D', text: 'Governments can communicate directly with citizens' }
+      { letter: 'A', text: "It had no effect on business" },
+      { letter: 'B', text: "Businesses could only communicate in person" },
+      { letter: 'C', text: "It slowed down decision-making because messages were unreliable" },
+      { letter: 'D', text: "Companies could coordinate across cities and countries almost instantly, speeding up trade and decision-making" }
     ],
-    correctAnswer: 'C',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-CI-012',
-    text: "A student evaluates two emerging technologies: one that improves cancer detection accuracy and one that enables mass surveillance of citizens. What framework helps evaluate whether a technology should be developed?",
+    id: "TA-7-CI-009",
+    text: "How did the development of GPS technology impact geography and transportation?",
     options: [
-      { letter: 'A', text: 'Asking only whether it is profitable' },
-      { letter: 'B', text: 'Asking only whether it is technically possible' },
-      { letter: 'C', text: 'Asking only whether it is popular' },
-      { letter: 'D', text: 'An ethical framework that weighs benefits, harms, privacy, equity, and who controls the technology' }
+      { letter: 'A', text: "GPS made paper maps more popular" },
+      { letter: 'B', text: "GPS replaced the need to study geography entirely" },
+      { letter: 'C', text: "GPS only works inside buildings" },
+      { letter: 'D', text: "GPS gave people precise location data anywhere on Earth, transforming navigation, mapping, delivery services, and emergency response" }
     ],
-    correctAnswer: 'D',
-    strand: 'Creativity and Innovation'
+    correctAnswer: "D",
+    strand: "Creativity and Innovation"
   },
-
-  // ── Data Literacy ───────────────────────────────────────────────────────────
-
-  // 7.5A · Collect & Organize Data
   {
-    id: 'TA-7-DL-001',
-    text: "A student wants to determine whether students who sleep more than 8 hours score higher on tests. What type of data collection is MOST appropriate?",
+    id: "TA-7-CI-010",
+    text: "The global trend toward remote work has grown rapidly. How has this impacted technology development?",
     options: [
-      { letter: 'A', text: 'Ask one friend who sleeps a lot' },
-      { letter: 'B', text: 'Search for a single study online and accept it as fact' },
-      { letter: 'C', text: 'Conduct a structured survey collecting both sleep hours and test scores from a large, representative sample of students' },
-      { letter: 'D', text: 'Guess based on personal experience' }
+      { letter: 'A', text: "Companies stopped making collaboration tools" },
+      { letter: 'B', text: "Remote work has no connection to technology" },
+      { letter: 'C', text: "It led to rapid growth in video conferencing, cloud storage, and project management tools" },
+      { letter: 'D', text: "Only one country was affected by remote work" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-DL-002',
-    text: "In a research study, the \"control group\" receives no treatment while the \"experimental group\" receives the treatment being tested. Why is a control group necessary?",
+    id: "TA-7-CI-011",
+    text: "The global demand for faster internet has pushed development of 5G networks. What does this trend show?",
     options: [
-      { letter: 'A', text: 'To save money on the study' },
-      { letter: 'B', text: 'To provide a baseline for comparison so researchers can determine whether changes in the experimental group are actually caused by the treatment' },
-      { letter: 'C', text: 'To give the treatment to as many people as possible' },
-      { letter: 'D', text: 'Control groups are not actually important' }
+      { letter: 'A', text: "Consumer demand has no effect on technology" },
+      { letter: 'B', text: "5G was developed without any market demand" },
+      { letter: 'C', text: "5G is slower than previous networks" },
+      { letter: 'D', text: "Global user needs drive companies to invest in new technologies like faster wireless networks" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "D",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-DL-003',
-    text: "A researcher collects data by observing students in their natural classroom environment without interfering. This method is called:",
+    id: "TA-7-CI-012",
+    text: "A student who edits videos in iMovie starts learning Adobe Premiere. Which knowledge transfers?",
     options: [
-      { letter: 'A', text: 'An experiment' },
-      { letter: 'B', text: 'A survey' },
-      { letter: 'C', text: 'Naturalistic observation' },
-      { letter: 'D', text: 'A simulation' }
+      { letter: 'A', text: "Nothing — every video editor is completely different" },
+      { letter: 'B', text: "Only the keyboard shortcuts transfer" },
+      { letter: 'C', text: "Core concepts like timelines, cutting clips, adding transitions, and exporting files work similarly in both tools" },
+      { letter: 'D', text: "She must forget everything about iMovie first" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
-
-  // 7.5B · Evaluate Source Credibility & Bias
   {
-    id: 'TA-7-DL-004',
-    text: "A news article about the health effects of energy drinks is funded by an energy drink company. Why is this funding source relevant when evaluating the article?",
+    id: "TA-7-CI-013",
+    text: "A student is comfortable using Google Sheets and is now learning Microsoft Excel. What is the BEST approach?",
     options: [
-      { letter: 'A', text: 'It is not relevant; all research is equally trustworthy' },
-      { letter: 'B', text: 'It confirms the research is accurate' },
-      { letter: 'C', text: 'It indicates a potential conflict of interest that could have influenced the research design, analysis, or conclusions' },
-      { letter: 'D', text: 'It means the article must be rejected entirely' }
+      { letter: 'A', text: "Start from scratch as if spreadsheets are brand new" },
+      { letter: 'B', text: "Refuse to use Excel because Google Sheets works fine" },
+      { letter: 'C', text: "Apply what she already knows about formulas, cells, and charts — the core concepts are the same even though the interface is different" },
+      { letter: 'D', text: "Only use one spreadsheet tool forever" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-DL-005',
-    text: "Confirmation bias in research means a researcher:",
+    id: "TA-7-DL-001",
+    text: "Computers store all data using binary — a system that uses only two digits. What are those digits?",
     options: [
-      { letter: 'A', text: 'Confirms findings with multiple sources' },
-      { letter: 'B', text: 'Favors evidence that supports their pre-existing beliefs and dismisses evidence that contradicts them' },
-      { letter: 'C', text: 'Uses only confirmed facts' },
-      { letter: 'D', text: 'Checks sources twice for accuracy' }
+      { letter: 'A', text: "1 and 2" },
+      { letter: 'B', text: "A and B" },
+      { letter: 'C', text: "0 and 1" },
+      { letter: 'D', text: "True and False" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DL-006',
-    text: "A student finds two conflicting studies about screen time effects on sleep. What is the BEST approach?",
+    id: "TA-7-DL-002",
+    text: "The decimal number 5 is written as 101 in binary. What does each position in binary represent?",
     options: [
-      { letter: 'A', text: 'Believe the more recent one automatically' },
-      { letter: 'B', text: 'Believe the one with more colorful charts' },
-      { letter: 'C', text: 'Ignore both and form a personal opinion' },
-      { letter: 'D', text: 'Evaluate both studies\' methodology, sample size, funding sources, and whether findings have been replicated before drawing a conclusion' }
+      { letter: 'A', text: "Ones, tens, and hundreds — just like decimal" },
+      { letter: 'B', text: "Random values" },
+      { letter: 'C', text: "Powers of 2: from right to left, the positions represent 1, 2, 4, 8, 16, and so on" },
+      { letter: 'D', text: "Letters of the alphabet" }
     ],
-    correctAnswer: 'D',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
-
-  // 7.6A · Organize & Structure Data
   {
-    id: 'TA-7-DL-007',
-    text: "A student is analyzing data from 500 survey responses. Which tool would BEST help identify trends and create visualizations from this dataset?",
+    id: "TA-7-DL-003",
+    text: "In binary, 1010 = (1×8) + (0×4) + (1×2) + (0×1). What is this in decimal?",
     options: [
-      { letter: 'A', text: 'A word processing document' },
-      { letter: 'B', text: 'A drawing application' },
-      { letter: 'C', text: 'A spreadsheet with sorting, filtering, and charting functions such as Google Sheets or Excel' },
-      { letter: 'D', text: 'A presentation app with text only' }
+      { letter: 'A', text: "10" },
+      { letter: 'B', text: "5" },
+      { letter: 'C', text: "12" },
+      { letter: 'D', text: "20" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "A",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DL-008',
-    text: "A dataset has a column for \"Age\" that contains entries like \"12\", \"twelve\", \"12 years old\", and \"Twelve\". Why is this a problem?",
+    id: "TA-7-DL-004",
+    text: "A student searches 'animals AND endangered NOT birds' and gets results about endangered mammals and reptiles but not birds. Why did this search work well?",
     options: [
-      { letter: 'A', text: 'It is not a problem — variety is good in data' },
-      { letter: 'B', text: 'Inconsistent data formatting prevents accurate sorting, filtering, and analysis because the computer treats each variation as different' },
-      { letter: 'C', text: 'Spreadsheets automatically convert all formats' },
-      { letter: 'D', text: 'The data needs to be deleted' }
+      { letter: 'A', text: "The Boolean operators AND and NOT helped her include what she wanted and exclude what she didn't" },
+      { letter: 'B', text: "The search engine got lucky" },
+      { letter: 'C', text: "Boolean operators don't affect search results" },
+      { letter: 'D', text: "She should have searched without any operators" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "A",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DL-009',
-    text: "A line graph is the MOST appropriate choice when displaying:",
+    id: "TA-7-DL-005",
+    text: "A student needs to find only peer-reviewed articles about climate change published in 2025. Which combination of search strategies is BEST?",
     options: [
-      { letter: 'A', text: 'The proportion of students who prefer each lunch option' },
-      { letter: 'B', text: 'A comparison of total sales by product category' },
-      { letter: 'C', text: 'Change in average temperature measured every month over a full year' },
-      { letter: 'D', text: 'A single student\'s test score' }
+      { letter: 'A', text: "Search 'climate change' with no filters" },
+      { letter: 'B', text: "Use keywords 'climate change,' set the date filter to 2025, and filter by 'peer-reviewed' source type" },
+      { letter: 'C', text: "Search 'weather 2020'" },
+      { letter: 'D', text: "Type the entire research question as one long sentence" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "B",
+    strand: "Data Literacy"
   },
-
-  // 7.6B · Manage & Secure Data
   {
-    id: 'TA-7-DL-010',
-    text: "A school database stores students' names, grades, and home addresses. What security measure is MOST important for protecting this data?",
+    id: "TA-7-DL-006",
+    text: "A student charts her school's attendance data over 3 years and sees a dip every February. Based on this trend, what prediction can she make?",
     options: [
-      { letter: 'A', text: 'Printing all records and locking them in a cabinet' },
-      { letter: 'B', text: 'Sharing the data openly so everyone can check for errors' },
-      { letter: 'C', text: 'Restricting access so only authorized staff can view records, using encrypted connections, and logging who accesses the database' },
-      { letter: 'D', text: 'Keeping the database on a single unconnected computer with no backup' }
+      { letter: 'A', text: "Attendance will likely dip again next February — the pattern suggests a seasonal factor" },
+      { letter: 'B', text: "Attendance will be perfect next February" },
+      { letter: 'C', text: "The data must be wrong since patterns don't repeat" },
+      { letter: 'D', text: "February attendance is random every year" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "A",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DL-011',
-    text: "What is data integrity, and why does it matter?",
+    id: "TA-7-DL-007",
+    text: "A student's data shows that school store sales increase 20% the week before each school dance. The next dance is in 3 weeks. What prediction can she make?",
     options: [
-      { letter: 'A', text: 'Data integrity means data is large in size; larger datasets are more reliable' },
-      { letter: 'B', text: 'Data integrity refers to the accuracy, consistency, and reliability of data over its entire lifecycle — corrupt or altered data leads to wrong decisions' },
-      { letter: 'C', text: 'Data integrity means deleting old data regularly' },
-      { letter: 'D', text: 'Data integrity applies only to financial data' }
+      { letter: 'A', text: "Sales will drop before the dance" },
+      { letter: 'B', text: "Sales are unpredictable" },
+      { letter: 'C', text: "Store sales will likely increase about 20% in the week before the next dance" },
+      { letter: 'D', text: "The store should close before dances" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DL-012',
-    text: "The 3-2-1 backup strategy recommends keeping 3 copies of data, on 2 different media types, with 1 copy offsite. Why is the offsite copy particularly important?",
+    id: "TA-7-DL-008",
+    text: "A student creates a scatter plot of study hours vs. test scores. The dots trend upward from left to right. What does this mean?",
     options: [
-      { letter: 'A', text: 'Offsite copies load faster' },
-      { letter: 'B', text: 'It fulfills a legal requirement' },
-      { letter: 'C', text: 'It protects against disasters (fire, flood, theft) that could destroy both on-site copies simultaneously' },
-      { letter: 'D', text: 'Offsite copies do not need passwords' }
+      { letter: 'A', text: "Study hours and scores have no connection" },
+      { letter: 'B', text: "Scores go down as study hours increase" },
+      { letter: 'C', text: "Students who study more tend to score higher — a positive trend" },
+      { letter: 'D', text: "The scatter plot is broken" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
-
-  // 7.6C · Analyze Data & Communicate Findings
   {
-    id: 'TA-7-DL-013',
-    text: "A student creates a graph showing a strong correlation between ice cream sales and drowning rates — both peak in summer. What is the CORRECT interpretation?",
+    id: "TA-7-DL-009",
+    text: "Data shows that 85% of students who joined a tutoring program improved their grades. What inference can you make?",
     options: [
-      { letter: 'A', text: 'Eating ice cream causes drowning' },
-      { letter: 'B', text: 'Reducing ice cream sales would prevent drownings' },
-      { letter: 'C', text: 'Correlation does not imply causation — both are independently caused by a third factor (summer heat bringing people outside and to water)' },
-      { letter: 'D', text: 'The data must be wrong because the connection is impossible' }
+      { letter: 'A', text: "The data suggests tutoring is connected to grade improvement, but other factors may also play a role" },
+      { letter: 'B', text: "Tutoring definitely causes higher grades for everyone" },
+      { letter: 'C', text: "The other 15% prove tutoring doesn't work" },
+      { letter: 'D', text: "You can't make any inference from this data" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "A",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DL-014',
-    text: "When presenting data findings to an audience, a student should:",
+    id: "TA-7-DL-010",
+    text: "A student wants to convince the school board to add more recess time. She creates a chart showing that schools with longer recess have higher test scores. Is she trying to inform or persuade?",
     options: [
-      { letter: 'A', text: 'Include every data point collected so the audience can verify everything' },
-      { letter: 'B', text: 'Use jargon and technical terms to appear knowledgeable' },
-      { letter: 'C', text: 'Summarize key findings with clear visualizations, explain what the data means in plain language, and acknowledge any limitations' },
-      { letter: 'D', text: 'Only present data that supports the desired conclusion' }
+      { letter: 'A', text: "Inform — she is just sharing facts with no goal" },
+      { letter: 'B', text: "Persuade — she is using data to make a case for a specific action" },
+      { letter: 'C', text: "Neither — charts can't be used to persuade" },
+      { letter: 'D', text: "She should only use words, not data" }
     ],
-    correctAnswer: 'C',
-    strand: 'Data Literacy'
+    correctAnswer: "B",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DL-015',
-    text: "A student presents survey data using a y-axis that starts at 95% instead of 0% to make a 2% difference look dramatic. This technique is an example of:",
+    id: "TA-7-DL-011",
+    text: "A student creates a dashboard showing the school's energy use by month for the principal. Her goal is to help the principal understand usage patterns, not push for any specific change. This is an example of:",
     options: [
-      { letter: 'A', text: 'Effective data visualization' },
-      { letter: 'B', text: 'Misleading data visualization that exaggerates differences and misrepresents the actual magnitude of change' },
-      { letter: 'C', text: 'Standard scientific practice' },
-      { letter: 'D', text: 'Appropriate scaling for the data range' }
+      { letter: 'A', text: "Persuading with biased data" },
+      { letter: 'B', text: "Making the data look worse than it is" },
+      { letter: 'C', text: "Hiding data from the audience" },
+      { letter: 'D', text: "Informing — presenting data clearly so the audience can draw their own conclusions" }
     ],
-    correctAnswer: 'B',
-    strand: 'Data Literacy'
+    correctAnswer: "D",
+    strand: "Data Literacy"
   },
-
-  // ── Digital Citizenship ─────────────────────────────────────────────────────
-
-  // 7.7A · Digital Footprint & Reputation
   {
-    id: 'TA-7-DC-001',
-    text: "A student deletes an embarrassing post from their social media account. A friend had already screenshot and reshared it. What does this scenario illustrate about digital footprints?",
+    id: "TA-7-DL-012",
+    text: "What is the key difference between using data to INFORM vs. to PERSUADE?",
     options: [
-      { letter: 'A', text: 'Deleting content always fully removes it from the internet' },
-      { letter: 'B', text: 'Once content is shared online, you lose control — it can be copied and spread beyond your ability to delete it' },
-      { letter: 'C', text: 'Only the person who originally posted content can share it' },
-      { letter: 'D', text: 'Social media companies always restore deleted posts' }
+      { letter: 'A', text: "They are exactly the same thing" },
+      { letter: 'B', text: "Informing is only for teachers; persuading is only for students" },
+      { letter: 'C', text: "Persuading never uses real data" },
+      { letter: 'D', text: "Informing presents facts neutrally; persuading uses data strategically to support a position or call to action" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Data Literacy"
   },
   {
-    id: 'TA-7-DC-002',
-    text: "An athlete posts offensive comments about a rival school online. A college coach sees the posts and withdraws their scholarship offer. This is an example of:",
+    id: "TA-7-DC-001",
+    text: "Which action would have a POSITIVE effect on a student's digital footprint?",
     options: [
-      { letter: 'A', text: 'The coach acting unfairly — online behavior should have no real-world consequences' },
-      { letter: 'B', text: 'Digital footprints being used to assess a person\'s character and values, with long-term consequences for real opportunities' },
-      { letter: 'C', text: 'The coach using technology incorrectly' },
-      { letter: 'D', text: 'Normal social media activity that all coaches ignore' }
+      { letter: 'A', text: "Posting angry rants about teachers on social media" },
+      { letter: 'B', text: "Sharing a classmate's private photo without permission" },
+      { letter: 'C', text: "Creating a fake account to troll other students" },
+      { letter: 'D', text: "Publishing a well-written blog about a volunteer project she participated in" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-003',
-    text: "Which proactive step BEST helps a student build and maintain a positive digital reputation over time?",
+    id: "TA-7-DC-002",
+    text: "A student tags herself at a party with inappropriate behavior visible in the background. She deletes the post an hour later. How does this affect her digital footprint?",
     options: [
-      { letter: 'A', text: 'Never using the internet' },
-      { letter: 'B', text: 'Using only anonymous accounts for everything' },
-      { letter: 'C', text: 'Regularly sharing work, achievements, and thoughtful contributions that reflect your genuine values and interests' },
-      { letter: 'D', text: 'Deleting all social media accounts monthly' }
+      { letter: 'A', text: "It creates a negative effect because the content may have already been screenshot, cached, or shared before she deleted it" },
+      { letter: 'B', text: "Deleting removes it completely — no impact" },
+      { letter: 'C', text: "Only photos affect digital footprints, not tags" },
+      { letter: 'D', text: "Digital footprints reset every week" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
   },
-
-  // 7.7B · Privacy, Consent & Personal Data
   {
-    id: 'TA-7-DC-004',
-    text: "Many free apps collect and sell users' personal data to advertisers. When you agree to an app's Terms of Service without reading it, you are:",
+    id: "TA-7-DC-003",
+    text: "A student writes a formal email to a community partner. Her teacher suggests adding a clearer subject line and a professional closing. The student revises and sends the updated version. What process did she follow?",
     options: [
-      { letter: 'A', text: 'Automatically protected from all data collection' },
-      { letter: 'B', text: 'Legally consenting to the data practices described in those terms, even if you are unaware of them' },
-      { letter: 'C', text: 'Choosing to pay with money instead' },
-      { letter: 'D', text: 'Exempt from data collection because you are a student' }
+      { letter: 'A', text: "She skipped the feedback step" },
+      { letter: 'B', text: "A feedback process — getting input, revising, and improving the communication before sending" },
+      { letter: 'C', text: "She wrote the email perfectly the first time" },
+      { letter: 'D', text: "Feedback is only useful for informal messages" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-005',
-    text: "COPPA (Children's Online Privacy Protection Act) requires websites to:",
+    id: "TA-7-DC-004",
+    text: "A student needs to email a guest speaker to confirm a visit. Which email shows the BEST digital etiquette?",
     options: [
-      { letter: 'A', text: 'Allow children under 13 to use any website freely' },
-      { letter: 'B', text: 'Collect detailed data on all children for safety tracking' },
-      { letter: 'C', text: 'Obtain verifiable parental consent before collecting personal information from children under 13 in the United States' },
-      { letter: 'D', text: 'Block all users under 18' }
+      { letter: 'A', text: "'yo can u come talk to us next tuesday thx'" },
+      { letter: 'B', text: "'COME TO OUR CLASS TUESDAY!!!'" },
+      { letter: 'C', text: "'Dear Dr. Martinez, Thank you for agreeing to speak to our class. We'd like to confirm your visit for Tuesday, March 4 at 10 AM. Please let us know if you need anything. Sincerely, Room 204'" },
+      { letter: 'D', text: "No greeting, just 'tuesday 10am room 204'" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-006',
-    text: "A friend shares a photo of you at a party without asking. You are uncomfortable with it being public. What right do you have?",
+    id: "TA-7-DC-005",
+    text: "A student drafts a group chat message for her project team: 'do ur parts asap or we fail.' A teammate says the tone feels harsh. What should she do?",
     options: [
-      { letter: 'A', text: 'No rights — anyone can share photos of you in public' },
-      { letter: 'B', text: 'The right to ask them to remove it; depending on context and platform, you may be able to report it for removal' },
-      { letter: 'C', text: 'The right to sue them immediately' },
-      { letter: 'D', text: 'No recourse — once online, it cannot be removed' }
+      { letter: 'A', text: "Revise it to something like: 'Hey team, our deadline is Friday — can everyone try to finish their parts by Thursday so we have time to review?'" },
+      { letter: 'B', text: "Delete the entire message and say nothing" },
+      { letter: 'C', text: "Send it anyway since the deadline is soon" },
+      { letter: 'D', text: "Leave the group chat" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
   },
-
-  // 7.8A · Professional Digital Communication
   {
-    id: 'TA-7-DC-007',
-    text: "A student needs to email a potential internship mentor they have never met. Which email is MOST appropriate?",
+    id: "TA-7-DC-006",
+    text: "During a recorded video conference presentation, one teammate keeps interrupting others and another has their camera off while scrolling on their phone. What digital etiquette rules are being broken?",
     options: [
-      { letter: 'A', text: 'Hey! I want to shadow you. When r u free? Thx' },
-      { letter: 'B', text: 'Dear Ms. Rivera, My name is Jordan Smith and I am a 7th grader interested in environmental science. I would greatly appreciate the opportunity to learn from you. I have attached a brief summary of my interests. Thank you for your consideration.' },
-      { letter: 'C', text: 'To Whom: I need a mentor. Please reply ASAP.' },
-      { letter: 'D', text: 'Hi, I found your email. Can we meet tomorrow?' }
+      { letter: 'A', text: "No rules are broken since it's just a video call" },
+      { letter: 'B', text: "Only the person with the camera off is being rude" },
+      { letter: 'C', text: "Both are breaking etiquette — speakers should take turns without interrupting, and all participants should be attentive and present" },
+      { letter: 'D', text: "Interrupting is fine in virtual meetings" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-008',
-    text: "When is it appropriate to use Reply All instead of Reply in an email?",
+    id: "TA-7-DC-007",
+    text: "What does it mean to MODEL safe online behavior?",
     options: [
-      { letter: 'A', text: 'Always — everyone on the original email should see every response' },
-      { letter: 'B', text: 'Only when your response is relevant and useful to all recipients on the original email, not just the sender' },
-      { letter: 'C', text: 'Never — Reply All should be avoided entirely' },
-      { letter: 'D', text: 'Only when the original email had exactly two recipients' }
+      { letter: 'A', text: "Only follow rules when a teacher is watching" },
+      { letter: 'B', text: "Set a good example for others by consistently showing responsible, ethical, and positive behavior online" },
+      { letter: 'C', text: "Tell other students what to do but don't follow the rules yourself" },
+      { letter: 'D', text: "Modeling only matters for adults, not students" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-009',
-    text: "A student receives critical feedback on their project in a class discussion forum and wants to respond. Which response demonstrates professional digital communication?",
+    id: "TA-7-DC-008",
+    text: "A classmate asks you to help him find a way around the school's content filter to access blocked sites. What should you do?",
     options: [
-      { letter: 'A', text: '"You are wrong and clearly did not read my project."' },
-      { letter: 'B', text: 'Saying nothing and sulking privately' },
-      { letter: 'C', text: '"Thank you for the feedback. I see your point about the data section and will revise the methodology. Could you clarify what specifically felt unclear?"' },
-      { letter: 'D', text: '"Whatever."' }
+      { letter: 'A', text: "Help him since he's your friend" },
+      { letter: 'B', text: "Try it yourself first to see if it works" },
+      { letter: 'C', text: "Report him immediately without talking to him first" },
+      { letter: 'D', text: "Explain that bypassing the filter violates the AUP and could have consequences for both of you" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
-
-  // 7.8B · Online Collaboration & Community
   {
-    id: 'TA-7-DC-010',
-    text: "A student contributes to an open-source project by improving documentation so others can understand the code better. This is an example of:",
+    id: "TA-7-DC-009",
+    text: "Why are intellectual property laws important for content creators?",
     options: [
-      { letter: 'A', text: 'A violation of copyright' },
-      { letter: 'B', text: 'Hacking the project' },
-      { letter: 'C', text: 'A positive digital citizenship contribution to a global collaborative community' },
-      { letter: 'D', text: 'Stealing intellectual property' }
+      { letter: 'A', text: "They protect creators' rights to control and profit from their work, encouraging more innovation" },
+      { letter: 'B', text: "They make it harder for creators to share their work" },
+      { letter: 'C', text: "They only protect large companies, not individual creators" },
+      { letter: 'D', text: "They have no real benefit" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-011',
-    text: "When working on a group document, a student notices a teammate has made a major structural change that broke the formatting. The BEST action is:",
+    id: "TA-7-DC-010",
+    text: "A student downloads a movie illegally and shares it with friends online. What could happen?",
     options: [
-      { letter: 'A', text: 'Delete the teammate\'s entire contribution' },
-      { letter: 'B', text: 'Use version history to restore the previous version, then message the teammate to discuss the change before reapplying it' },
-      { letter: 'C', text: 'Remove the teammate from the document' },
-      { letter: 'D', text: 'Ignore it and submit anyway' }
+      { letter: 'A', text: "Nothing — sharing digital content is always free and legal" },
+      { letter: 'B', text: "The student could face legal penalties, account suspension, and school disciplinary action for violating copyright law" },
+      { letter: 'C', text: "Only the friends who received it can get in trouble" },
+      { letter: 'D', text: "Copyright laws don't apply to students" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-012',
-    text: "Why might a school choose an asynchronous collaboration tool (like a shared document or discussion board) over a synchronous tool (like a video call) for long-term group projects?",
+    id: "TA-7-DC-011",
+    text: "A student uses data from a government website, a quote from a podcast, and an image from Flickr in her report. How many citations does she need?",
     options: [
-      { letter: 'A', text: 'Asynchronous tools never work for collaboration' },
-      { letter: 'B', text: 'Video calls are always better for any task' },
-      { letter: 'C', text: 'Asynchronous tools allow team members with different schedules and time zones to contribute at their own pace while maintaining a clear record of contributions' },
-      { letter: 'D', text: 'Asynchronous tools are only for professional adults' }
+      { letter: 'A', text: "One — just cite the most important source" },
+      { letter: 'B', text: "None — digital sources don't need citations" },
+      { letter: 'C', text: "Three — every source used must be cited, regardless of format" },
+      { letter: 'D', text: "Only the image needs a citation" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
-
-  // 7.9A · Copyright, Fair Use & Intellectual Property
   {
-    id: 'TA-7-DC-013',
-    text: "A student creates a 10-minute YouTube video essay about a book, including 30-second clips from the official movie adaptation. The student receives a copyright claim. Which factor MOST undermines a fair use argument?",
+    id: "TA-7-DC-012",
+    text: "What should a citation for a podcast episode include?",
     options: [
-      { letter: 'A', text: 'The video is educational' },
-      { letter: 'B', text: 'The student is not making money from the video' },
-      { letter: 'C', text: 'The student used 30 seconds of a 10-minute clip rather than the whole film' },
-      { letter: 'D', text: 'The 30-second clips are a significant portion of key scenes that could substitute for viewing the original, potentially affecting the market for the copyrighted work' }
+      { letter: 'A', text: "Just the word 'podcast'" },
+      { letter: 'B', text: "Only the episode title" },
+      { letter: 'C', text: "Only the date you listened to it" },
+      { letter: 'D', text: "Host name, episode title, podcast name, date published, and where to find it (URL or platform)" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-014',
-    text: "Which of the following is an example of work in the public domain?",
+    id: "TA-7-DC-013",
+    text: "A social media post shows a photo of an empty grocery store with the caption 'NATIONWIDE FOOD SHORTAGE!' but the photo is actually from a single store that was temporarily closed for renovations. What technique is being used?",
     options: [
-      { letter: 'A', text: 'A novel published last year' },
-      { letter: 'B', text: 'A song released in 1985' },
-      { letter: 'C', text: 'A photograph posted on Instagram this week' },
-      { letter: 'D', text: 'A Shakespearean play from the 1600s whose copyright has long expired — anyone can use, modify, or republish it freely' }
+      { letter: 'A', text: "Accurate reporting" },
+      { letter: 'B', text: "Misrepresentation — using a real but misleading image to exaggerate a claim" },
+      { letter: 'C', text: "Satire — humor that everyone recognizes as fake" },
+      { letter: 'D', text: "The caption accurately describes the photo" }
     ],
-    correctAnswer: 'D',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-015',
-    text: "A student remixes a song using a sample and publishes it online. They credit the original artist in the video description. Is crediting the artist enough?",
+    id: "TA-7-DC-014",
+    text: "A website uses a clickbait headline, cherry-picks one statistic out of context, and hides the author's identity. What should a student do before trusting this source?",
     options: [
-      { letter: 'A', text: 'Yes — crediting the artist always grants permission to use their work' },
-      { letter: 'B', text: 'No — credit acknowledges the original work but does not replace the need for permission (a license) to use copyrighted material, especially for public distribution' },
-      { letter: 'C', text: 'Yes — online music is always free to use' },
-      { letter: 'D', text: 'Yes — as long as the student does not profit from it' }
+      { letter: 'A', text: "Check for the author's credentials, look for the full context of the statistic, find corroborating sources, and be suspicious of hidden authorship" },
+      { letter: 'B', text: "Trust it since it has a statistic" },
+      { letter: 'C', text: "Share it immediately because it confirms what she already believes" },
+      { letter: 'D', text: "Clickbait headlines are always accurate" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
   },
-
-  // 7.9B · Citations & Research Ethics
   {
-    id: 'TA-7-DC-016',
-    text: "A student paraphrases a paragraph from a research paper and does not cite it, because the student used their own words. Is this acceptable?",
+    id: "TA-7-DC-015",
+    text: "Which set of practices BEST protects a student from cybersecurity attacks?",
     options: [
-      { letter: 'A', text: 'Yes — paraphrasing means the words are now original' },
-      { letter: 'B', text: 'Yes — citations are only needed for direct quotes' },
-      { letter: 'C', text: 'No — even paraphrased ideas from another source require a citation because the original idea is not the student\'s' },
-      { letter: 'D', text: 'Yes — paraphrasing is encouraged to avoid plagiarism entirely' }
+      { letter: 'A', text: "Using the same simple password everywhere and clicking all email links" },
+      { letter: 'B', text: "Using strong unique passwords, enabling two-factor authentication, avoiding suspicious links, and keeping software updated" },
+      { letter: 'C', text: "Sharing passwords with trusted friends for backup" },
+      { letter: 'D', text: "Only using the internet on weekends" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-017',
-    text: "Which citation style is commonly used in science and technology research?",
+    id: "TA-7-DC-016",
+    text: "A student notices a classmate is about to click a suspicious link in an email. How can she MODEL good cybersecurity behavior?",
     options: [
-      { letter: 'A', text: 'MLA (Modern Language Association) — used primarily in humanities' },
-      { letter: 'B', text: 'No citation style is needed in science' },
-      { letter: 'C', text: 'APA (American Psychological Association) — widely used in social sciences and increasingly in STEM fields' },
-      { letter: 'D', text: 'Fonts are the only citation requirement' }
+      { letter: 'A', text: "Say nothing — it's not her problem" },
+      { letter: 'B', text: "Click the link first to check if it's safe" },
+      { letter: 'C', text: "Warn the classmate that the email looks like phishing, explain the signs, and suggest they report it" },
+      { letter: 'D', text: "Forward the email to other classmates to check" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-018',
-    text: "A student interviews a local engineer for a research project and wants to include the engineer's quote. How should this source be cited?",
+    id: "TA-7-DC-017",
+    text: "Why should you keep your operating system and apps updated?",
     options: [
-      { letter: 'A', text: 'Personal interviews do not need to be cited' },
-      { letter: 'B', text: "Include the interviewee's full name, title/affiliation, the phrase \"personal interview,\" and the date of the interview in the citation" },
-      { letter: 'C', text: 'Only cite published sources; interviews are not valid' },
-      { letter: 'D', text: 'Use the engineer\'s company website as the citation instead' }
+      { letter: 'A', text: "Updates often fix security vulnerabilities that hackers can exploit to access your device or data" },
+      { letter: 'B', text: "Updates are optional and never important" },
+      { letter: 'C', text: "Updates only change the appearance of apps" },
+      { letter: 'D', text: "Updates always slow down your device" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
   },
-
-  // 7.10A · Account Security & Cybersecurity
   {
-    id: 'TA-7-DC-019',
-    text: "A student receives a text message claiming to be from their school IT department asking for their login password to \"fix an account issue.\" This is MOST likely a:",
+    id: "TA-7-DC-018",
+    text: "Cyberbullying doesn't just hurt the victim. What negative impacts can it have on the BULLY?",
     options: [
-      { letter: 'A', text: 'Legitimate request — IT departments routinely ask for passwords' },
-      { letter: 'B', text: 'Social engineering attack (phishing/smishing) — legitimate IT staff never ask for passwords' },
-      { letter: 'C', text: 'Helpful security upgrade process' },
-      { letter: 'D', text: 'Required step to access new school features' }
+      { letter: 'A', text: "The bully can face school discipline, legal consequences, loss of friendships, and a damaged reputation — their digital footprint carries the evidence" },
+      { letter: 'B', text: "There are no consequences for bullies" },
+      { letter: 'C', text: "Only the victim is affected" },
+      { letter: 'D', text: "Bullying helps the bully become more popular" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "A",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-020',
-    text: "Which combination of practices BEST protects an online account from unauthorized access?",
+    id: "TA-7-DC-019",
+    text: "How can cyberbullying affect a victim differently than in-person bullying?",
     options: [
-      { letter: 'A', text: 'Using the same strong password across all accounts' },
-      { letter: 'B', text: 'A unique, complex password combined with two-factor authentication and logging out on shared devices' },
-      { letter: 'C', text: 'Writing passwords in a notebook stored at school' },
-      { letter: 'D', text: 'Using your full name and school ID as the password' }
+      { letter: 'A', text: "Cyberbullying is always less harmful than in-person bullying" },
+      { letter: 'B', text: "They have the same exact effects" },
+      { letter: 'C', text: "Online bullying can follow the victim home 24/7, reach a large audience, be anonymous, and create a permanent record — making it harder to escape" },
+      { letter: 'D', text: "Victims of cyberbullying are never affected emotionally" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-DC-021',
-    text: "What is ransomware?",
+    id: "TA-7-PT-001",
+    text: "A student needs to create a video tutorial, share it with classmates, and collect their feedback. Which combination of tools fits BEST?",
     options: [
-      { letter: 'A', text: 'Software that speeds up a computer' },
-      { letter: 'B', text: 'A type of antivirus program' },
-      { letter: 'C', text: 'Malicious software that encrypts a victim\'s files and demands payment (ransom) for the decryption key' },
-      { letter: 'D', text: 'A program that monitors internet usage for parents' }
+      { letter: 'A', text: "A calculator and a printer" },
+      { letter: 'B', text: "A video editor to create, Google Drive to share, and a Google Form to collect feedback" },
+      { letter: 'C', text: "Only a word processor" },
+      { letter: 'D', text: "Only an email account" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
-
-  // 7.10B · Cyberbullying & Online Safety
   {
-    id: 'TA-7-DC-022',
-    text: "A student creates a fake social media profile using a classmate's photo and posts embarrassing content. This behavior is called:",
+    id: "TA-7-PT-002",
+    text: "A student creates a digital portfolio with written reflections, photos of projects, and a short video introduction. Why is using MULTIPLE digital tools important here?",
     options: [
-      { letter: 'A', text: 'Cyberbullying through impersonation — a serious form of online harassment that may also be illegal' },
-      { letter: 'B', text: 'A harmless prank with no real consequences' },
-      { letter: 'C', text: 'Normal competitive social media behavior' },
-      { letter: 'D', text: 'An acceptable way to get attention online' }
+      { letter: 'A', text: "Using multiple tools always makes projects worse" },
+      { letter: 'B', text: "Portfolios should only contain text" },
+      { letter: 'C', text: "Only one tool is ever needed" },
+      { letter: 'D', text: "Each format (text, image, video) requires the right tool, and combining them makes the portfolio richer and more engaging" }
     ],
-    correctAnswer: 'A',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-DC-023',
-    text: "A student is experiencing cyberbullying. After blocking the bully, what is the MOST important additional step?",
+    id: "TA-7-PT-003",
+    text: "During a team project, a student says: 'I'll push my changes to the shared repository so you can pull the latest version and merge your branch.' Why is using correct terminology important?",
     options: [
-      { letter: 'A', text: 'Respond with equally mean messages to stand up for yourself' },
-      { letter: 'B', text: 'Delete all evidence so no one knows it happened' },
-      { letter: 'C', text: 'Document the bullying (screenshot with date/time), report it to the platform, and tell a trusted adult so it can be addressed appropriately' },
-      { letter: 'D', text: 'Change schools to escape the situation' }
+      { letter: 'A', text: "Technical terms make the speaker sound smart but don't help communication" },
+      { letter: 'B', text: "It ensures all team members understand exactly what actions are being taken, reducing confusion and errors" },
+      { letter: 'C', text: "Terminology is only for professional developers" },
+      { letter: 'D', text: "Teams should avoid technical terms to keep things simple" }
     ],
-    correctAnswer: 'C',
-    strand: 'Digital Citizenship'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-DC-024',
-    text: "Which statement about online predators is TRUE?",
+    id: "TA-7-PT-004",
+    text: "A student's teacher helps her set up a folder structure: School → 7th Grade → [Subject folders] → [Project folders]. Why is this hierarchy helpful?",
     options: [
-      { letter: 'A', text: 'Online predators always identify themselves honestly' },
-      { letter: 'B', text: 'Predators typically pose as peers or trusted adults, build trust gradually, and target young people who share personal information online' },
-      { letter: 'C', text: 'Online predators only operate on platforms designed for adults' },
-      { letter: 'D', text: 'Online predators cannot contact someone who has a private account' }
+      { letter: 'A', text: "It makes files harder to find" },
+      { letter: 'B', text: "Hierarchy doesn't matter as long as files are saved somewhere" },
+      { letter: 'C', text: "Folders should never be nested inside each other" },
+      { letter: 'D', text: "It organizes files logically so any file can be found by following the folder path from general to specific" }
     ],
-    correctAnswer: 'B',
-    strand: 'Digital Citizenship'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
-
-  // ── Practical Technology ────────────────────────────────────────────────────
-
-  // 7.11A · Evaluate & Select Applications
   {
-    id: 'TA-7-PT-001',
-    text: "A student needs to analyze a dataset of 500 student survey responses, calculate averages, and create a chart. Which application is MOST appropriate?",
+    id: "TA-7-PT-005",
+    text: "A student saves her report as a .docx but needs to submit it as a .pdf. What file management skill is she using?",
     options: [
-      { letter: 'A', text: 'A word processor' },
-      { letter: 'B', text: 'A photo editing application' },
-      { letter: 'C', text: 'A spreadsheet application with built-in functions and charting tools' },
-      { letter: 'D', text: 'A video editing application' }
+      { letter: 'A', text: "File deletion" },
+      { letter: 'B', text: "File conversion — changing a file from one format to another while keeping the content" },
+      { letter: 'C', text: "File compression" },
+      { letter: 'D', text: "File encryption" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-002',
-    text: "When evaluating whether to use a new app for a school project, which security consideration is MOST important?",
+    id: "TA-7-PT-006",
+    text: "A student needs to record a podcast interview with a guest who lives in another city. Which hardware and software combination fits BEST?",
     options: [
-      { letter: 'A', text: 'How many stars it has in the app store' },
-      { letter: 'B', text: 'Whether it is free or paid' },
-      { letter: 'C', text: 'What personal data it collects, how it uses that data, and whether it complies with student privacy laws such as FERPA' },
-      { letter: 'D', text: 'The color of the app icon' }
+      { letter: 'A', text: "A microphone (hardware) and an audio recording/editing app like Audacity (software), plus a video call tool for the remote guest" },
+      { letter: 'B', text: "Only a word processor" },
+      { letter: 'C', text: "Only a camera with no audio equipment" },
+      { letter: 'D', text: "A spreadsheet and a printer" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "A",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-003',
-    text: "A student compares two video editing apps. App A is free but exports with a watermark. App B costs $5 but exports clean files. For a film festival submission, which is the better choice and why?",
+    id: "TA-7-PT-007",
+    text: "A student needs to measure classroom temperatures hourly for a science project. Which tool combination is MOST appropriate?",
     options: [
-      { letter: 'A', text: 'App A — free is always better for students' },
-      { letter: 'B', text: 'Neither — students should not use video editing apps' },
-      { letter: 'C', text: 'App B — the clean export meets the project\'s professional presentation requirement, making the $5 cost appropriate for the specific use case' },
-      { letter: 'D', text: 'App A — watermarks add credibility to student work' }
+      { letter: 'A', text: "A word processor and a drawing app" },
+      { letter: 'B', text: "A presentation app with no data collection tool" },
+      { letter: 'C', text: "Only a printed chart" },
+      { letter: 'D', text: "A digital thermometer (hardware) to measure and a spreadsheet (software) to record and graph the data" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
-
-  // 7.11B · Advanced Productivity Software Features
   {
-    id: 'TA-7-PT-004',
-    text: "A student wants a spreadsheet formula that returns \"Pass\" if a score is 70 or above, and \"Fail\" otherwise. Which formula is CORRECT?",
+    id: "TA-7-PT-008",
+    text: "A student's typing speed increased from 30 WPM to 40 WPM, but her accuracy dropped from 95% to 80%. Is this good progress?",
     options: [
-      { letter: 'A', text: '=AVERAGE(score >= 70)' },
-      { letter: 'B', text: '=PASS(A1, 70)' },
-      { letter: 'C', text: '=SUM(A1, "Pass", "Fail")' },
-      { letter: 'D', text: '=IF(A1>=70, "Pass", "Fail")' }
+      { letter: 'A', text: "Yes — speed is all that matters" },
+      { letter: 'B', text: "No — she is faster but making many more errors, so she should slow down and focus on accuracy before building speed again" },
+      { letter: 'C', text: "Accuracy doesn't matter for typing" },
+      { letter: 'D', text: "80% accuracy is excellent" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-005',
-    text: "In a word processor, using \"Styles\" (Heading 1, Heading 2, Body Text) rather than manually formatting each section provides which advantage?",
+    id: "TA-7-PT-009",
+    text: "A student wants to quickly bold a section title, save her document, and then undo an accidental deletion. What is the correct shortcut sequence?",
     options: [
-      { letter: 'A', text: 'It automatically translates the document' },
-      { letter: 'B', text: 'Consistent formatting throughout, easy document-wide updates when the style changes, and automatic generation of a table of contents' },
-      { letter: 'C', text: 'It makes the file uneditable by others' },
-      { letter: 'D', text: 'It prevents the document from being printed' }
+      { letter: 'A', text: "Ctrl+B (Bold), Ctrl+S (Save), Ctrl+Z (Undo)" },
+      { letter: 'B', text: "Ctrl+P (Print), Ctrl+F (Find), Ctrl+A (Select All)" },
+      { letter: 'C', text: "Ctrl+C (Copy), Ctrl+V (Paste), Ctrl+X (Cut)" },
+      { letter: 'D', text: "Ctrl+Z (Undo), Ctrl+S (Save), Ctrl+B (Bold)" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "A",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-006',
-    text: "A student uses the VLOOKUP function in a spreadsheet. What does this function do?",
+    id: "TA-7-PT-010",
+    text: "In a spreadsheet, a student needs to select an entire row of data quickly. Which shortcut should she use?",
     options: [
-      { letter: 'A', text: 'Calculates the sum of a column' },
-      { letter: 'B', text: 'Searches for a value in the first column of a range and returns a corresponding value from another column in the same row' },
-      { letter: 'C', text: 'Creates a chart from selected data' },
-      { letter: 'D', text: 'Checks the spelling in a spreadsheet' }
+      { letter: 'A', text: "Click the row number on the left side to select the entire row" },
+      { letter: 'B', text: "Ctrl+A (Select All — this selects everything, not just one row)" },
+      { letter: 'C', text: "Ctrl+Z (Undo)" },
+      { letter: 'D', text: "Ctrl+P (Print)" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "A",
+    strand: "Practical Technology"
   },
-
-  // 7.12A · Networks & Internet Security
   {
-    id: 'TA-7-PT-007',
-    text: "What is a firewall and what does it protect against?",
+    id: "TA-7-PT-011",
+    text: "A student's laptop won't connect to Wi-Fi. She searches online for the error message, finds three possible fixes, tries the first one, and it works. What troubleshooting process did she follow?",
     options: [
-      { letter: 'A', text: 'A physical barrier that protects computer hardware from heat damage' },
-      { letter: 'B', text: 'A network security system that monitors and controls incoming and outgoing traffic based on rules, blocking unauthorized access and malicious traffic' },
-      { letter: 'C', text: 'A program that speeds up internet connections' },
-      { letter: 'D', text: 'A type of backup system for files' }
+      { letter: 'A', text: "Random guessing" },
+      { letter: 'B', text: "Research the problem, identify potential solutions, and test them one at a time until the issue is resolved" },
+      { letter: 'C', text: "She should have bought a new laptop immediately" },
+      { letter: 'D', text: "She should have ignored the problem" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-008',
-    text: "Why is it risky to use public Wi-Fi (at a coffee shop or airport) for activities like online banking or accessing school accounts?",
+    id: "TA-7-PT-012",
+    text: "A student's presentation software crashes every time she adds a video. After researching, she finds the video file format may not be compatible. What should she try?",
     options: [
-      { letter: 'A', text: 'Public Wi-Fi is always slower than home networks' },
-      { letter: 'B', text: 'Public Wi-Fi costs money to use' },
-      { letter: 'C', text: 'Public Wi-Fi networks are typically unencrypted, allowing others on the same network to potentially intercept your data through attacks like packet sniffing' },
-      { letter: 'D', text: 'Public Wi-Fi only works for social media, not banking' }
+      { letter: 'A', text: "Convert the video to a supported format, test it in a new slide, and see if the crash stops" },
+      { letter: 'B', text: "Give up on adding video" },
+      { letter: 'C', text: "Delete the entire presentation and start over" },
+      { letter: 'D', text: "Use a completely different computer" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "A",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-009',
-    text: "An IP address serves as:",
+    id: "TA-7-PT-013",
+    text: "A student saves her project to both a USB drive and Google Drive. Why is using both local AND remote storage a smart strategy?",
     options: [
-      { letter: 'A', text: 'A device\'s unique numerical identifier on a network, used to route data to the correct destination' },
-      { letter: 'B', text: 'A type of virus' },
-      { letter: 'C', text: 'The password for a Wi-Fi network' },
-      { letter: 'D', text: 'The amount of RAM a device has' }
+      { letter: 'A', text: "It wastes storage space" },
+      { letter: 'B', text: "If the USB drive is lost or damaged, the cloud backup keeps her work safe — and she can access the cloud version from any device" },
+      { letter: 'C', text: "One storage type is always enough" },
+      { letter: 'D', text: "Cloud storage is less reliable than local storage" }
     ],
-    correctAnswer: 'A',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
-
-  // 7.12B · Cloud Computing
   {
-    id: 'TA-7-PT-010',
-    text: "Which scenario BEST describes cloud computing?",
+    id: "TA-7-PT-014",
+    text: "A team needs to share a large project folder with members in three different schools. Which storage approach is BEST?",
     options: [
-      { letter: 'A', text: 'Running software stored only on your local hard drive' },
-      { letter: 'B', text: 'Using a USB drive to transfer files between computers' },
-      { letter: 'C', text: 'Accessing applications, storage, and computing power delivered over the internet from remote servers rather than local hardware' },
-      { letter: 'D', text: 'Printing documents wirelessly' }
+      { letter: 'A', text: "Mail USB drives to each school" },
+      { letter: 'B', text: "Print all files and distribute paper copies" },
+      { letter: 'C', text: "Use a shared cloud storage folder like Google Drive or OneDrive where all team members can access and edit files remotely" },
+      { letter: 'D', text: "Only one person should have the files" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-011',
-    text: "What is a potential DISADVANTAGE of relying entirely on cloud storage for school work?",
+    id: "TA-7-PT-015",
+    text: "A student uses a spreadsheet with formulas, conditional formatting, and pivot tables to analyze survey data, then creates a report with charts embedded in a word processor. What does 'increasing complexity' mean here?",
     options: [
-      { letter: 'A', text: 'Cloud storage is always more expensive than local storage' },
-      { letter: 'B', text: 'Files stored in the cloud cannot be shared with others' },
-      { letter: 'C', text: 'If the internet connection is unavailable, you may be unable to access your files, and you depend on the cloud provider\'s security practices to protect your data' },
-      { letter: 'D', text: 'Cloud files take too long to open' }
+      { letter: 'A', text: "Using only basic features like typing and saving" },
+      { letter: 'B', text: "Only using one tool for every task" },
+      { letter: 'C', text: "Making the project as confusing as possible" },
+      { letter: 'D', text: "Building on basic skills by combining advanced features across multiple productivity tools to produce a more detailed, polished artifact" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-012',
-    text: "SaaS (Software as a Service) means users:",
+    id: "TA-7-PT-016",
+    text: "A student creates a class newsletter that includes a mail-merged header, embedded charts from a spreadsheet, and styled columns in a publishing app. Which statement BEST describes this?",
     options: [
-      { letter: 'A', text: 'Purchase and install software permanently on their local device' },
-      { letter: 'B', text: 'Write their own software from scratch' },
-      { letter: 'C', text: 'Access software applications over the internet on a subscription basis without installing them locally — Google Workspace and Microsoft 365 are examples' },
-      { letter: 'D', text: 'Use software only on school-owned computers' }
+      { letter: 'A', text: "She is only using basic formatting" },
+      { letter: 'B', text: "She is using simple tools that haven't changed since elementary school" },
+      { letter: 'C', text: "She is combining productivity tools across spreadsheet, word processing, and publication applications at an advanced level" },
+      { letter: 'D', text: "Newsletters don't require any digital tools" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Practical Technology"
   },
-
-  // 7.13A · Advanced File Management
   {
-    id: 'TA-7-PT-013',
-    text: "A student needs to submit a research paper that will be viewed on different computers. Which file format BEST preserves formatting across all devices?",
+    id: "TA-7-PT-017",
+    text: "A team member says 'I'll export the data as a CSV and upload it to our cloud repo.' Which terms show proficiency in technology terminology?",
     options: [
-      { letter: 'A', text: '.docx — because Microsoft Word is the most common' },
-      { letter: 'B', text: '.txt — because plain text is universal' },
-      { letter: 'C', text: '.pdf — because PDFs preserve formatting, fonts, and layout regardless of the software or operating system used to open them' },
-      { letter: 'D', text: '.jpg — because images are universal' }
+      { letter: 'A', text: "'Export,' 'CSV,' 'upload,' and 'cloud repo' are all correct technology terms used in context" },
+      { letter: 'B', text: "None of these terms are real technology vocabulary" },
+      { letter: 'C', text: "Only 'upload' is a real term" },
+      { letter: 'D', text: "Technology terminology is only needed in professional jobs, not school projects" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "A",
+    strand: "Practical Technology"
   },
   {
-    id: 'TA-7-PT-014',
-    text: "A student downloads and installs many applications over a school year. Some are no longer used. Why is it good practice to uninstall unused applications?",
+    id: "TA-7-DC-020",
+    text: "A student notices a younger classmate is about to share personal information in a public online forum. How should she model safe behavior?",
     options: [
-      { letter: 'A', text: 'Installed apps do not take up any space' },
-      { letter: 'B', text: 'Unused apps free up storage, reduce security vulnerabilities (outdated apps may have unpatched flaws), and improve system performance' },
-      { letter: 'C', text: 'Uninstalling apps damages the operating system' },
-      { letter: 'D', text: 'Apps cannot be uninstalled once installed' }
+      { letter: 'A', text: "Ignore it — it's not her account" },
+      { letter: 'B', text: "Post her own personal information to show it's fine" },
+      { letter: 'C', text: "Report the younger student to the principal immediately without explanation" },
+      { letter: 'D', text: "Privately and kindly explain why sharing personal info publicly is risky and suggest removing it" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "D",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-PT-015',
-    text: "What is the purpose of compressing (zipping) a folder of files before sending it via email?",
+    id: "TA-7-DL-013",
+    text: "A student tracks the school garden's tomato harvest each week for two months. Yields have increased steadily by about 5 pounds per week. What prediction is MOST reasonable for next week?",
     options: [
-      { letter: 'A', text: 'To encrypt the files so no one else can open them' },
-      { letter: 'B', text: 'To permanently delete files after sending' },
-      { letter: 'C', text: 'To reduce the total file size and bundle multiple files into one attachment, making transfer faster and easier' },
-      { letter: 'D', text: 'Zipping files increases their size for safety' }
+      { letter: 'A', text: "The yield will drop to zero" },
+      { letter: 'B', text: "The yield will double overnight" },
+      { letter: 'C', text: "The yield will likely increase by about 5 pounds, following the established trend" },
+      { letter: 'D', text: "No prediction can be made from this data" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Data Literacy"
   },
-
-  // 7.13B · Advanced Keyboarding & Productivity Shortcuts
   {
-    id: 'TA-7-PT-016',
-    text: "A student is editing a long document and wants to move an entire paragraph to a new location. Which keyboard shortcut sequence is MOST efficient?",
+    id: "TA-7-DC-021",
+    text: "Classify each action as POSITIVE or NEGATIVE for a digital footprint: (1) sharing a coding project on GitHub, (2) posting mean comments on a classmate's video, (3) writing a thoughtful review of a book online.",
     options: [
-      { letter: 'A', text: 'Select the text → Ctrl+C → click new location → Ctrl+V (this copies but leaves the original)' },
-      { letter: 'B', text: 'Select the text → Ctrl+X → click new location → Ctrl+V (cut and paste moves the text without leaving a copy)' },
-      { letter: 'C', text: 'Select the text → Delete → retype it at the new location' },
-      { letter: 'D', text: 'Drag the text with the mouse (only option for moving text)' }
+      { letter: 'A', text: "All three are negative" },
+      { letter: 'B', text: "All three are positive" },
+      { letter: 'C', text: "(1) Positive, (2) Negative, (3) Positive" },
+      { letter: 'D', text: "(1) Negative, (2) Positive, (3) Negative" }
     ],
-    correctAnswer: 'B',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Digital Citizenship"
   },
   {
-    id: 'TA-7-PT-017',
-    text: "What does the keyboard shortcut Ctrl+Shift+V (or Ctrl+Shift+V in many apps) do differently from regular Ctrl+V?",
+    id: "TA-7-CI-019",
+    text: "A student's first prototype of a weather tracker app crashes when the user enters letters instead of numbers for temperature. What should she add through trial and error?",
     options: [
-      { letter: 'A', text: 'It pastes text with its original source formatting' },
-      { letter: 'B', text: 'It pastes only images, not text' },
-      { letter: 'C', text: 'It pastes text without formatting (plain text paste), matching the destination document\'s style — useful when copying from websites' },
-      { letter: 'D', text: 'It permanently deletes the clipboard contents' }
+      { letter: 'A', text: "Delete the temperature input entirely" },
+      { letter: 'B', text: "Tell users to never make mistakes" },
+      { letter: 'C', text: "Input validation that checks for numbers before processing, preventing the crash" },
+      { letter: 'D', text: "A warning that the app doesn't work" }
     ],
-    correctAnswer: 'C',
-    strand: 'Practical Technology'
+    correctAnswer: "C",
+    strand: "Creativity and Innovation"
   },
   {
-    id: 'TA-7-PT-018',
-    text: "A student working on a research document presses Ctrl+F. What happens?",
+    id: "TA-7-PT-018",
+    text: "A student wants to create an interactive timeline of inventions, share it on the class website, and let classmates add comments. Which tools should she choose?",
     options: [
-      { letter: 'A', text: 'The document is saved' },
-      { letter: 'B', text: 'The font dialog opens' },
-      { letter: 'C', text: 'The document is printed' },
-      { letter: 'D', text: 'A Find (search) panel opens, allowing the student to locate any word or phrase within the document instantly' }
+      { letter: 'A', text: "Only a printed poster" },
+      { letter: 'B', text: "A timeline tool like TimelineJS, a website builder to share it, and a commenting feature for feedback" },
+      { letter: 'C', text: "Only a calculator" },
+      { letter: 'D', text: "Only a pencil and paper" }
     ],
-    correctAnswer: 'D',
-    strand: 'Practical Technology'
+    correctAnswer: "B",
+    strand: "Practical Technology"
   },
+  {
+    id: "TA-7-CT-022",
+    text: "A flowchart shows that every customer interaction follows: greet → ask question → find answer → confirm satisfaction. What pattern does this reveal?",
+    options: [
+      { letter: 'A', text: "Every interaction follows the same sequence of 4 steps" },
+      { letter: 'B', text: "There is no pattern" },
+      { letter: 'C', text: "Only the first step matters" },
+      { letter: 'D', text: "Patterns don't exist in flowcharts" }
+    ],
+    correctAnswer: "A",
+    strand: "Computational Thinking"
+  },
+  {
+    id: "TA-7-CT-023",
+    text: "A team's collaborative flowchart for a science project shows: research question → hypothesis → experiment → collect data → analyze → conclusion. Why should every team member be able to read this flowchart?",
+    options: [
+      { letter: 'A', text: "Flowcharts are only for the team leader" },
+      { letter: 'B', text: "So everyone understands the full plan, knows their responsibilities, and can identify where they are in the process" },
+      { letter: 'C', text: "Flowcharts are decorative and don't help with planning" },
+      { letter: 'D', text: "Only the teacher needs to read it" }
+    ],
+    correctAnswer: "B",
+    strand: "Computational Thinking"
+  },
+  {
+    id: "TA-7-CT-024",
+    text: "A program checks each item in a shopping list to see if it's on sale. Without iteration, the check would need to be written once per item. With 50 items, how does iteration help?",
+    options: [
+      { letter: 'A', text: "It doesn't help at all" },
+      { letter: 'B', text: "The price-check code is written once and the loop repeats it for all 50 items automatically" },
+      { letter: 'C', text: "Iteration deletes items from the list" },
+      { letter: 'D', text: "You still need to write the check 50 times" }
+    ],
+    correctAnswer: "B",
+    strand: "Computational Thinking"
+  },
+  {
+    id: "TA-7-DC-022",
+    text: "A student who cyberbullied a classmate faces school suspension and loses several friendships when others find out. What does this show?",
+    options: [
+      { letter: 'A', text: "Cyberbullying has no consequences for the bully" },
+      { letter: 'B', text: "Cyberbullying carries real consequences for the bully too — including discipline, damaged reputation, and lost relationships" },
+      { letter: 'C', text: "Only the victim is ever affected" },
+      { letter: 'D', text: "Suspension is too harsh for online behavior" }
+    ],
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-7-PT-019",
+    text: "A student tells her team: 'I'll compress the file to reduce its size before uploading it to the cloud.' Which terms show proficiency?",
+    options: [
+      { letter: 'A', text: "'Compress,' 'file size,' 'uploading,' and 'cloud' are all used correctly" },
+      { letter: 'B', text: "None of these are real tech terms" },
+      { letter: 'C', text: "Only 'file' is a real term" },
+      { letter: 'D', text: "Technology terminology is only for IT professionals" }
+    ],
+    correctAnswer: "A",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-020",
+    text: "A student converts her Word document to PDF before submitting it. Why is this a good file management practice?",
+    options: [
+      { letter: 'A', text: "PDFs are always smaller than Word files" },
+      { letter: 'B', text: "PDF format preserves the formatting so it looks the same on any device, and prevents accidental edits" },
+      { letter: 'C', text: "Word documents can't be shared" },
+      { letter: 'D', text: "PDFs can only be opened on one type of computer" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-021",
+    text: "A student needs to create an interactive quiz for classmates to take online. Which tool type is BEST?",
+    options: [
+      { letter: 'A', text: "A spreadsheet" },
+      { letter: 'B', text: "An online form or quiz builder like Google Forms or Kahoot" },
+      { letter: 'C', text: "A word processor" },
+      { letter: 'D', text: "A calculator" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-022",
+    text: "A student's typing test shows 35 WPM with 92% accuracy in September, and 42 WPM with 96% accuracy in December. What does this show?",
+    options: [
+      { letter: 'A', text: "Her skills got worse" },
+      { letter: 'B', text: "Consistent practice improved both speed AND accuracy over the semester" },
+      { letter: 'C', text: "Speed and accuracy can't both improve at the same time" },
+      { letter: 'D', text: "September results are always lower" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-023",
+    text: "What is the benefit of learning proper keyboarding technique instead of 'hunt and peck' (looking at keys and using only 2 fingers)?",
+    options: [
+      { letter: 'A', text: "Hunt and peck is faster than proper technique" },
+      { letter: 'B', text: "Proper technique lets you type without looking at the keys, which is faster and lets you focus on your writing" },
+      { letter: 'C', text: "There is no difference between the two methods" },
+      { letter: 'D', text: "Proper technique only matters for coding" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-024",
+    text: "A student wants to quickly print her document. Which shortcut should she use?",
+    options: [
+      { letter: 'A', text: "Ctrl+P (Print)" },
+      { letter: 'B', text: "Ctrl+Z (Undo)" },
+      { letter: 'C', text: "Ctrl+C (Copy)" },
+      { letter: 'D', text: "Ctrl+B (Bold)" }
+    ],
+    correctAnswer: "A",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-025",
+    text: "A student's Bluetooth headphones won't connect to the school computer. She searches 'Bluetooth not connecting' and finds 3 possible fixes. What should she do?",
+    options: [
+      { letter: 'A', text: "Try all 3 fixes at the same time" },
+      { letter: 'B', text: "Try each fix one at a time, testing after each one to see if it solved the problem" },
+      { letter: 'C', text: "Buy new headphones immediately" },
+      { letter: 'D', text: "Give up and use speakers" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-026",
+    text: "A student stores her project on her laptop's hard drive (local) and also on Google Drive (remote). Her laptop gets stolen. What happens to her project?",
+    options: [
+      { letter: 'A', text: "The project is completely lost" },
+      { letter: 'B', text: "She can still access the Google Drive copy from any other device — the remote backup saved her work" },
+      { letter: 'C', text: "Google Drive files are deleted when a laptop is stolen" },
+      { letter: 'D', text: "Local and remote copies are always identical and both get deleted" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-PT-027",
+    text: "A student uses VLOOKUP in a spreadsheet to match student IDs to names from a different sheet, then creates a pivot table to summarize grades by subject. What does 'increasing complexity' mean here?",
+    options: [
+      { letter: 'A', text: "Using only basic formatting" },
+      { letter: 'B', text: "Combining advanced functions (VLOOKUP, pivot tables) across features to handle more sophisticated data tasks" },
+      { letter: 'C', text: "Making everything as confusing as possible" },
+      { letter: 'D', text: "Only using one feature at a time" }
+    ],
+    correctAnswer: "B",
+    strand: "Practical Technology"
+  },
+  {
+    id: "TA-7-CI-014",
+    text: "A student realizes her code project won't be done by the deadline because she ran into unexpected bugs. What shows responsibility AND self-advocacy?",
+    options: [
+      { letter: 'A', text: "Turn in incomplete work without saying anything" },
+      { letter: 'B', text: "Email the teacher explaining the situation, showing what she's done, and requesting help or extra time with a plan to finish" },
+      { letter: 'C', text: "Copy a classmate's finished project" },
+      { letter: 'D', text: "Skip the assignment entirely" }
+    ],
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
+  },
+  {
+    id: "TA-7-CI-015",
+    text: "A pharmaceutical company develops a new medicine by: researching the disease → creating a formula → testing in labs → testing with patients → getting government approval → manufacturing. Which design process step is 'testing with patients'?",
+    options: [
+      { letter: 'A', text: "Research" },
+      { letter: 'B', text: "User testing — trying the product with real people to check safety and effectiveness" },
+      { letter: 'C', text: "Manufacturing" },
+      { letter: 'D', text: "Marketing" }
+    ],
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
+  },
+  {
+    id: "TA-7-CI-016",
+    text: "How did the invention of the microscope impact the field of biology?",
+    options: [
+      { letter: 'A', text: "It had no effect on biology" },
+      { letter: 'B', text: "Scientists could see cells, bacteria, and organisms invisible to the naked eye, opening up entirely new fields of study" },
+      { letter: 'C', text: "Microscopes are only used in chemistry" },
+      { letter: 'D', text: "Microscopes replaced all other scientific tools" }
+    ],
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
+  },
+  {
+    id: "TA-7-CI-017",
+    text: "The global aging population is growing. How might this trend drive technology development?",
+    options: [
+      { letter: 'A', text: "It has no effect on technology" },
+      { letter: 'B', text: "Companies develop more health monitoring devices, accessibility tools, and telemedicine services to serve older adults" },
+      { letter: 'C', text: "Technology is only for young people" },
+      { letter: 'D', text: "Aging populations use less technology" }
+    ],
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
+  },
+  {
+    id: "TA-7-CI-018",
+    text: "A student who is skilled at Photoshop starts learning GIMP (a free image editor). Which approach shows knowledge transfer?",
+    options: [
+      { letter: 'A', text: "Start from scratch as if image editing is brand new" },
+      { letter: 'B', text: "Apply what she knows about layers, brushes, and filters — the core concepts work similarly even though the interface is different" },
+      { letter: 'C', text: "Refuse to learn GIMP because Photoshop is better" },
+      { letter: 'D', text: "Delete Photoshop first" }
+    ],
+    correctAnswer: "B",
+    strand: "Creativity and Innovation"
+  },
+  {
+    id: "TA-7-DL-014",
+    text: "A student compares two searches: Search A uses 'dogs' and gets 5 billion results. Search B uses 'golden retriever training tips for puppies' and gets 2 million focused results. Which search strategy is better and why?",
+    options: [
+      { letter: 'A', text: "Search A — more results means better information" },
+      { letter: 'B', text: "Search B — specific keywords narrow results to exactly what's needed, saving time" },
+      { letter: 'C', text: "Both are equally effective" },
+      { letter: 'D', text: "Neither search strategy works" }
+    ],
+    correctAnswer: "B",
+    strand: "Data Literacy"
+  },
+  {
+    id: "TA-7-DC-023",
+    text: "A team uses Slack for their project. One member sends project updates at 11 PM on school nights. What etiquette issue is this?",
+    options: [
+      { letter: 'A', text: "No issue — digital messages can be sent anytime" },
+      { letter: 'B', text: "Sending non-urgent messages very late may disturb teammates — better to schedule messages or send during reasonable hours" },
+      { letter: 'C', text: "All messages must be sent before noon" },
+      { letter: 'D', text: "Slack should never be used for school projects" }
+    ],
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-7-DC-024",
+    text: "During a group video call, one teammate keeps sending unrelated memes in the chat while others are presenting. What should the team do?",
+    options: [
+      { letter: 'A', text: "Everyone should start sending memes too" },
+      { letter: 'B', text: "Politely ask the teammate to save memes for after the meeting and keep the chat focused on the presentation" },
+      { letter: 'C', text: "End the meeting immediately" },
+      { letter: 'D', text: "Memes are always appropriate during meetings" }
+    ],
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-7-DC-025",
+    text: "A student uses a photographer's image in a school website without permission or credit. The photographer sends a takedown notice. What could happen?",
+    options: [
+      { letter: 'A', text: "Nothing — school projects are always exempt" },
+      { letter: 'B', text: "The school may need to remove the image, and the student learns that using others' work without permission has real consequences" },
+      { letter: 'C', text: "The photographer can't do anything about it" },
+      { letter: 'D', text: "Only businesses receive takedown notices" }
+    ],
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-7-DC-026",
+    text: "A student uses a TikTok video as a source in her presentation. What should her citation include?",
+    options: [
+      { letter: 'A', text: "Just 'TikTok'" },
+      { letter: 'B', text: "The creator's username, video title or description, the date posted, and the URL" },
+      { letter: 'C', text: "Nothing — social media doesn't need citations" },
+      { letter: 'D', text: "Only the number of likes on the video" }
+    ],
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
+  },
+  {
+    id: "TA-7-DC-027",
+    text: "A news article headline says 'EVERYONE agrees Product X is the best!' but the article only surveyed 10 people. What is the problem?",
+    options: [
+      { letter: 'A', text: "The headline is perfectly accurate" },
+      { letter: 'B', text: "The headline exaggerates by saying 'EVERYONE' when only 10 people were surveyed — this misrepresents the data" },
+      { letter: 'C', text: "10 people is enough to speak for everyone" },
+      { letter: 'D', text: "Headlines don't need to match the content" }
+    ],
+    correctAnswer: "B",
+    strand: "Digital Citizenship"
+  }
 ];

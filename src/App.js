@@ -1,6 +1,9 @@
 import './App.css';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import jsQR from 'jsqr';
+import { gradeKQuestions } from './gradeKQuestions';
+import { grade1Questions } from './grade1Questions';
+import { grade2Questions } from './grade2Questions';
 import { grade3Questions } from './grade3Questions';
 import { grade4Questions } from './grade4Questions';
 import { grade5Questions } from './grade5Questions';
@@ -17,6 +20,9 @@ import {
 
 
 function getQuestionsForGrade(grade) {
+  if (grade === 0 || grade === 'K') return gradeKQuestions;
+  if (grade === 1) return grade1Questions;
+  if (grade === 2) return grade2Questions;
   if (grade === 3) return grade3Questions;
   if (grade === 4) return grade4Questions;
   if (grade === 5) return grade5Questions;
@@ -32,6 +38,9 @@ function getQuestionsForGrade(grade) {
 // ── Generate Student Passes ───────────────────────────────────────────────────
 
 const PASS_GRADES = [
+  { label: 'Kindergarten', value: 0 },
+  { label: 'Grade 1', value: 1 },
+  { label: 'Grade 2', value: 2 },
   { label: 'Grade 3', value: 3 },
   { label: 'Grade 4', value: 4 },
   { label: 'Grade 5', value: 5 },
