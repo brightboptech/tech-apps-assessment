@@ -5072,6 +5072,10 @@ function App() {
         setError('Token not found. Please check your code and try again.');
         return;
       }
+      if (data.grade_level === null || data.grade_level === undefined) {
+        setError('This pass is missing a grade level. Please ask your teacher for a new pass.');
+        return;
+      }
 
       const [cfgResult, progressResult] = await Promise.all([
         supabase.from('token_configs').select('question_ids, assessment_config_id').eq('token', code).maybeSingle(),
