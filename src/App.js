@@ -5047,9 +5047,11 @@ function App() {
   const currentQ = hasQuestions ? questions[currentQuestion] : null;
   const selectedAnswer = answers[currentQuestion];
   const isElementary = selectedGrade !== null && selectedGrade >= 3 && selectedGrade <= 5;
+  if (isLoggedIn) console.log('[render] isLoggedIn=true selectedGrade=', selectedGrade, 'questions=', questions.length, 'hasQ=', hasQuestions);
 
   const handleLogin = async (codeOverride = null) => {
     const code = (codeOverride ?? tokenInput).toUpperCase().trim();
+    console.log('[handleLogin] code=', code, 'length=', code.length);
     if (code.length !== 8) {
       setError('Token must be exactly 8 characters');
       return;
@@ -5063,6 +5065,7 @@ function App() {
         .select('grade_level')
         .eq('token', code)
         .maybeSingle();
+      console.log('[handleLogin] tokens query → data=', data, 'error=', dbError);
       if (dbError) {
         console.error('Token lookup error:', dbError);
         setError('Unable to connect. Please try again.');
@@ -5076,11 +5079,13 @@ function App() {
         setError('This pass is missing a grade level. Please ask your teacher for a new pass.');
         return;
       }
+      console.log('[handleLogin] grade_level=', data.grade_level, '| questions available=', getQuestionsForGrade(data.grade_level).length);
 
       const [cfgResult, progressResult] = await Promise.all([
         supabase.from('token_configs').select('question_ids, assessment_config_id').eq('token', code).maybeSingle(),
         supabase.from('student_progress').select('answers, current_question, submitted').eq('token', code).maybeSingle(),
       ]);
+      console.log('[handleLogin] cfg=', cfgResult.data, 'progress=', progressResult.data, 'progressErr=', progressResult.error);
 
       // ── Access window check ────────────────────────────────────────────────
       const assessmentConfigId = cfgResult.data?.assessment_config_id ?? null;
@@ -5135,9 +5140,10 @@ function App() {
       }
 
       startTimeRef.current = Date.now();
+      console.log('[handleLogin] calling setIsLoggedIn(true) — selectedGrade will be', data.grade_level);
       setIsLoggedIn(true);
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('[handleLogin] CAUGHT ERROR:', err);
       setError('Unable to connect. Please try again.');
     } finally {
       setIsLoading(false);
