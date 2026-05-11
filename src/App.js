@@ -49,6 +49,11 @@ const PASS_GRADES = [
   { label: 'Grade 8', value: 8 },
 ];
 
+function gradeDisplay(level) {
+  if (Number(level) === 0 || level === 'K') return 'Kindergarten';
+  return `Grade ${Number(level)}`;
+}
+
 function makeToken() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   return Array.from({ length: 8 }, () =>
@@ -146,7 +151,7 @@ function buildMasterSheetHTML(passes, className, grade, studentNames = {}) {
 </style></head>
 <body>
 <h1>TechGrowth Check — Master Reference Sheet</h1>
-<p class="meta">Class: <strong>${className}</strong> &nbsp;·&nbsp; Grade ${grade} &nbsp;·&nbsp; ${date}</p>
+<p class="meta">Class: <strong>${className}</strong> &nbsp;·&nbsp; ${grade} &nbsp;·&nbsp; ${date}</p>
 <p class="warning">⚠ TEACHER COPY — DO NOT DISTRIBUTE TO STUDENTS</p>
 <table>
   <thead>
@@ -1166,7 +1171,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
 
   const handlePrintPre    = () => printDoc(buildPassPrintHTML(passes, 'pre',  className, '', getQrURLs(), studentNames));
   const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, '', getQrURLs(), studentNames));
-  const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, grade, studentNames));
+  const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, gradeDisplay(grade), studentNames));
 
   const loadClassPasses = async (cls) => {
     setGenerating(true);
@@ -1272,7 +1277,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           }}>
             <CheckCircle size={15} color="#3D7A5E" strokeWidth={2} style={{ flexShrink: 0 }} />
             <span style={{ flex: 1 }}>
-              <strong>Adding to existing class:</strong> {existingClass.class_name} · Grade {existingClass.grade_level} · {existingClass.maxStudentNumber} student{existingClass.maxStudentNumber !== 1 ? 's' : ''} already generated · New passes start at Student {startingStudentNumber}
+              <strong>Adding to existing class:</strong> {existingClass.class_name} · {gradeDisplay(existingClass.grade_level)} · {existingClass.maxStudentNumber} student{existingClass.maxStudentNumber !== 1 ? 's' : ''} already generated · New passes start at Student {startingStudentNumber}
             </span>
             {passes.length === 0 && (
               <button
@@ -1320,7 +1325,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
             </label>
             {isAddMode ? (
               <div style={{ ...fieldStyle, background: '#F4F7FA', color: '#555', display: 'flex', alignItems: 'center' }}>
-                Grade {existingClass.grade_level}
+                {gradeDisplay(existingClass.grade_level)}
               </div>
             ) : (
               <select value={grade} onChange={e => setGrade(e.target.value)} style={fieldStyle}>
@@ -1687,8 +1692,8 @@ function CreateAssessment({ profile, onBack }) {
   const strandGroups = gradeStrandGroups.flatMap(({ strandGroups: sg }) => sg);
   const fullQuestionCount = sortedGrades.reduce((n, g) => n + getQuestionsForGrade(Number(g)).length, 0);
   const gradeLabel = sortedGrades.length === 0 ? '' :
-    sortedGrades.length === 1 ? `Grade ${sortedGrades[0]}` :
-    `Grades ${sortedGrades.join(', ')}`;
+    sortedGrades.length === 1 ? gradeDisplay(sortedGrades[0]) :
+    `Grades ${sortedGrades.map(g => Number(g) === 0 ? 'K' : g).join(', ')}`;
 
   useEffect(() => {
     if (grades.size === 0) return;
@@ -3058,7 +3063,7 @@ function Dashboard({ profile, onLogout }) {
                 <div key={c.class_name} style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', marginBottom: '3px' }}>{c.class_name}</div>
                   <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
-                    Grade {c.grade_level} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
+                    {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
                   </div>
                   <button
                     onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
@@ -3449,7 +3454,7 @@ function TIAGrowthReport({ profile, onBack }) {
       const levels = [...new Set((data ?? []).map(t => t.grade_level).filter(v => v !== null && v !== undefined))]
         .sort((a, b) => a - b);
       if (!levels.length) { setGradeLevel(''); return; }
-      setGradeLevel(levels.length === 1 ? `Grade ${levels[0]}` : `Grades ${levels.join(', ')}`);
+      setGradeLevel(levels.length === 1 ? gradeDisplay(levels[0]) : `Grades ${levels.map(l => l === 0 ? 'K' : l).join(', ')}`);
     })();
   }, [selectedClass, profile.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
