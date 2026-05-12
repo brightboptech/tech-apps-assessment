@@ -11,6 +11,7 @@ import { grade6Questions } from './grade6Questions';
 import { grade7Questions } from './grade7Questions';
 import { grade8Questions } from './grade8Questions';
 import { supabase } from './supabaseClient';
+import { getVisualForOption, VisualIcon } from './visualIcons';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
@@ -5047,6 +5048,7 @@ function App() {
   const currentQ = hasQuestions ? questions[currentQuestion] : null;
   const selectedAnswer = answers[currentQuestion];
   const isElementary = selectedGrade !== null && selectedGrade >= 3 && selectedGrade <= 5;
+  const isEarlyGrade = selectedGrade !== null && selectedGrade <= 2;
 
   const handleLogin = async (codeOverride = null) => {
     const code = String(codeOverride ?? tokenInput).toUpperCase().trim();
@@ -5886,9 +5888,9 @@ function App() {
               borderRadius: '10px', marginTop: '20px',
               maxWidth: '700px', width: '90%',
             }}>
-              <h2>Question {currentQuestion + 1}:</h2>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '20px' }}>
-                <p style={{ fontSize: '18px', fontWeight: 'bold', margin: 0, flex: 1 }}>
+              <h2 style={{ fontSize: isEarlyGrade ? '16px' : undefined }}>Question {currentQuestion + 1}:</h2>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: isEarlyGrade ? '24px' : '20px' }}>
+                <p style={{ fontSize: isEarlyGrade ? '22px' : '18px', fontWeight: 'bold', margin: 0, flex: 1, lineHeight: 1.45 }}>
                   {currentQ.text}
                 </p>
                 <button
@@ -5897,12 +5899,14 @@ function App() {
                   title={speakingId === 'question' ? 'Stop reading' : 'Read question aloud'}
                   style={{
                     flexShrink: 0,
-                    width: '44px', height: '44px', padding: 0, borderRadius: '8px',
+                    width: isEarlyGrade ? '52px' : '44px',
+                    height: isEarlyGrade ? '52px' : '44px',
+                    padding: 0, borderRadius: '10px',
                     cursor: loadingId === 'question' ? 'wait' : 'pointer',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    border: speakingId === 'question' ? '1.5px solid #5B8DB8'
-                          : loadingId === 'question' ? '1.5px solid #c7d8ec'
-                          : '1.5px solid #e2e8f0',
+                    border: speakingId === 'question' ? '2px solid #5B8DB8'
+                          : loadingId === 'question' ? '2px solid #c7d8ec'
+                          : '2px solid #e2e8f0',
                     background: speakingId === 'question' ? '#EAF1F8'
                               : loadingId === 'question' ? '#f0f6fc'
                               : 'white',
@@ -5910,48 +5914,125 @@ function App() {
                   }}
                 >
                   {loadingId === 'question'
-                    ? <span style={{ width: 17, height: 17, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
-                    : <Volume2 size={17} color={speakingId === 'question' ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
+                    ? <span style={{ width: 18, height: 18, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                    : <Volume2 size={isEarlyGrade ? 22 : 17} color={speakingId === 'question' ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
                   }
                 </button>
               </div>
 
-              {currentQ.options.map((option) => {
-                const optId = `option-${option.letter}`;
-                return (
-                  <div key={option.letter} style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '10px 0' }}>
-                    <button
-                      onClick={() => handleAnswerClick(option.letter)}
-                      style={{ ...getButtonStyle(option.letter), margin: 0, flex: 1 }}
-                    >
-                      {option.letter}) {option.text}
-                    </button>
-                    <button
-                      onClick={() => speak(`${option.letter}. ${option.text}`, optId)}
-                      disabled={loadingId === optId}
-                      title={speakingId === optId ? 'Stop reading' : 'Read aloud'}
-                      style={{
-                        flexShrink: 0,
-                        width: '44px', height: '44px', padding: 0, borderRadius: '8px',
-                        cursor: loadingId === optId ? 'wait' : 'pointer',
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                        border: speakingId === optId ? '1.5px solid #5B8DB8'
-                              : loadingId === optId ? '1.5px solid #c7d8ec'
-                              : '1.5px solid #e2e8f0',
-                        background: speakingId === optId ? '#EAF1F8'
-                                  : loadingId === optId ? '#f0f6fc'
-                                  : 'white',
-                        transition: 'all 0.15s',
-                      }}
-                    >
-                      {loadingId === optId
-                        ? <span style={{ width: 15, height: 15, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
-                        : <Volume2 size={15} color={speakingId === optId ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
-                      }
-                    </button>
-                  </div>
-                );
-              })}
+              {isEarlyGrade ? (
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  {currentQ.options.map((option) => {
+                    const optId = `option-${option.letter}`;
+                    const isSelected = selectedAnswer === option.letter;
+                    const iconKey = option.visual || getVisualForOption(option.text, option.letter);
+                    return (
+                      <button
+                        key={option.letter}
+                        onClick={() => handleAnswerClick(option.letter)}
+                        style={{
+                          flex: 1, minWidth: 0,
+                          display: 'flex', flexDirection: 'column',
+                          alignItems: 'center', gap: '7px',
+                          padding: '12px 6px 36px',
+                          border: isSelected ? '3px solid #5B8DB8' : '2px solid #dde4ee',
+                          borderRadius: '14px',
+                          background: isSelected ? '#EAF1F8' : 'white',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          transition: 'all 0.15s',
+                          boxShadow: isSelected
+                            ? '0 2px 14px rgba(91,141,184,0.28)'
+                            : '0 1px 4px rgba(0,0,0,0.07)',
+                          minHeight: '150px',
+                        }}
+                      >
+                        {/* Letter badge */}
+                        <div style={{
+                          position: 'absolute', top: '9px', left: '10px',
+                          width: '24px', height: '24px', borderRadius: '50%',
+                          background: isSelected ? '#5B8DB8' : '#e2e8f0',
+                          color: isSelected ? 'white' : '#64748b',
+                          fontSize: '13px', fontWeight: 800,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0,
+                        }}>
+                          {option.letter}
+                        </div>
+                        {/* Icon */}
+                        <VisualIcon iconKey={iconKey} size={76} />
+                        {/* Text label */}
+                        <div style={{
+                          fontSize: '12px', fontWeight: 600,
+                          color: isSelected ? '#1e3a5f' : '#334155',
+                          lineHeight: 1.35, textAlign: 'center',
+                          wordBreak: 'break-word', maxWidth: '100%',
+                          padding: '0 4px',
+                        }}>
+                          {option.text}
+                        </div>
+                        {/* Audio button */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); speak(`${option.letter}. ${option.text}`, optId); }}
+                          disabled={loadingId === optId}
+                          title={speakingId === optId ? 'Stop reading' : 'Read aloud'}
+                          style={{
+                            position: 'absolute', bottom: '8px', right: '8px',
+                            width: '30px', height: '30px', borderRadius: '7px',
+                            border: speakingId === optId ? '1.5px solid #5B8DB8' : '1.5px solid #e2e8f0',
+                            background: speakingId === optId ? '#EAF1F8' : 'white',
+                            cursor: loadingId === optId ? 'wait' : 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: 0, transition: 'all 0.15s',
+                          }}
+                        >
+                          {loadingId === optId
+                            ? <span style={{ width: 13, height: 13, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                            : <Volume2 size={13} color={speakingId === optId ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
+                          }
+                        </button>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                currentQ.options.map((option) => {
+                  const optId = `option-${option.letter}`;
+                  return (
+                    <div key={option.letter} style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '10px 0' }}>
+                      <button
+                        onClick={() => handleAnswerClick(option.letter)}
+                        style={{ ...getButtonStyle(option.letter), margin: 0, flex: 1 }}
+                      >
+                        {option.letter}) {option.text}
+                      </button>
+                      <button
+                        onClick={() => speak(`${option.letter}. ${option.text}`, optId)}
+                        disabled={loadingId === optId}
+                        title={speakingId === optId ? 'Stop reading' : 'Read aloud'}
+                        style={{
+                          flexShrink: 0,
+                          width: '44px', height: '44px', padding: 0, borderRadius: '8px',
+                          cursor: loadingId === optId ? 'wait' : 'pointer',
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          border: speakingId === optId ? '1.5px solid #5B8DB8'
+                                : loadingId === optId ? '1.5px solid #c7d8ec'
+                                : '1.5px solid #e2e8f0',
+                          background: speakingId === optId ? '#EAF1F8'
+                                    : loadingId === optId ? '#f0f6fc'
+                                    : 'white',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        {loadingId === optId
+                          ? <span style={{ width: 15, height: 15, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                          : <Volume2 size={15} color={speakingId === optId ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
+                        }
+                      </button>
+                    </div>
+                  );
+                })
+              )}
 
               <div style={{
                 display: 'flex', flexWrap: 'wrap', gap: '6px',
