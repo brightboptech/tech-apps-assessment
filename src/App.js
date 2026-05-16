@@ -15,7 +15,7 @@ import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
-  BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X,
+  BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X, Archive, RotateCcw, ChevronDown, ChevronRight,
 } from 'lucide-react';
 
 
@@ -2961,24 +2961,41 @@ function Dashboard({ profile, onLogout }) {
   const [quoteIdx] = useState(() => Math.floor(Math.random() * DASHBOARD_QUOTES.length));
   const [dashClasses, setDashClasses] = useState([]);
   const [initialClass, setInitialClass] = useState(null);
+  const [archivedNames, setArchivedNames] = useState(new Set());
+  const [showArchived, setShowArchived] = useState(false);
+  const [confirmArchive, setConfirmArchive] = useState(null);
 
   useEffect(() => {
     const loadDashClasses = async () => {
-      const { data } = await supabase
-        .from('tokens')
-        .select('class_name, grade_level')
-        .eq('teacher_id', profile.id)
-        .eq('test_type', 'pre');
-      if (!data) return;
-      const map = {};
-      data.forEach(({ class_name, grade_level }) => {
-        if (!map[class_name]) map[class_name] = { class_name, grade_level, count: 0 };
-        map[class_name].count++;
-      });
-      setDashClasses(Object.values(map).sort((a, b) => a.class_name.localeCompare(b.class_name)));
+      const [tokenRes, archiveRes] = await Promise.all([
+        supabase.from('tokens').select('class_name, grade_level').eq('teacher_id', profile.id).eq('test_type', 'pre'),
+        supabase.from('class_archives').select('class_name').eq('teacher_id', profile.id),
+      ]);
+      if (tokenRes.data) {
+        const map = {};
+        tokenRes.data.forEach(({ class_name, grade_level }) => {
+          if (!map[class_name]) map[class_name] = { class_name, grade_level, count: 0 };
+          map[class_name].count++;
+        });
+        setDashClasses(Object.values(map).sort((a, b) => a.class_name.localeCompare(b.class_name)));
+      }
+      if (archiveRes.data) {
+        setArchivedNames(new Set(archiveRes.data.map(r => r.class_name)));
+      }
     };
     loadDashClasses();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleArchive = async (className) => {
+    const { error } = await supabase.from('class_archives').insert({ teacher_id: profile.id, class_name: className });
+    if (!error) setArchivedNames(prev => new Set([...prev, className]));
+    setConfirmArchive(null);
+  };
+
+  const handleRestore = async (className) => {
+    const { error } = await supabase.from('class_archives').delete().eq('teacher_id', profile.id).eq('class_name', className);
+    if (!error) setArchivedNames(prev => { const next = new Set(prev); next.delete(className); return next; });
+  };
 
   // Sync section to URL path for back-button support
   useEffect(() => {
@@ -3260,30 +3277,104 @@ function Dashboard({ profile, onLogout }) {
             Click "View Passes" to see and reprint QR codes for any class.
           </p>
 
-          {dashClasses.length === 0 ? (
-            <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', textAlign: 'center', color: '#94a3b8', border: '1px solid #eef2f7' }}>
-              <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
-              <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
-              <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px' }}>
-              {dashClasses.map(c => (
-                <div key={c.class_name} style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b', marginBottom: '3px' }}>{c.class_name}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
-                    {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
-                  </div>
+          {(() => {
+            const activeClasses   = dashClasses.filter(c => !archivedNames.has(c.class_name));
+            const archivedClasses = dashClasses.filter(c =>  archivedNames.has(c.class_name));
+
+            const ClassCard = ({ c, isArchived }) => (
+              <div
+                key={c.class_name}
+                style={{
+                  background: isArchived ? '#f8f9fa' : 'white',
+                  borderRadius: '12px', padding: '20px 18px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+                  border: isArchived ? '1px solid #e2e8f0' : '1px solid #eef2f7',
+                  display: 'flex', flexDirection: 'column',
+                  opacity: isArchived ? 0.72 : 1,
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3px' }}>
+                  <div style={{ fontWeight: 700, fontSize: '15px', color: isArchived ? '#64748b' : '#1e293b' }}>{c.class_name}</div>
+                  {!isArchived && confirmArchive === c.class_name ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '11px', color: '#64748b' }}>Archive?</span>
+                      <button
+                        onClick={() => handleArchive(c.class_name)}
+                        style={{ padding: '3px 10px', fontSize: '11px', fontWeight: 700, border: 'none', borderRadius: '4px', background: '#f59e0b', color: 'white', cursor: 'pointer' }}
+                      >Yes</button>
+                      <button
+                        onClick={() => setConfirmArchive(null)}
+                        style={{ padding: '3px 8px', fontSize: '11px', fontWeight: 600, border: '1px solid #e2e8f0', borderRadius: '4px', background: 'white', color: '#64748b', cursor: 'pointer' }}
+                      >No</button>
+                    </div>
+                  ) : !isArchived ? (
+                    <button
+                      onClick={() => setConfirmArchive(c.class_name)}
+                      title="Archive this class"
+                      style={{ padding: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                      onMouseEnter={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = '#f1f5f9'; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.background = 'none'; }}
+                    ><Archive size={14} strokeWidth={2} /></button>
+                  ) : null}
+                </div>
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                  {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
+                </div>
+                {isArchived ? (
+                  <button
+                    onClick={() => handleRestore(c.class_name)}
+                    style={{ marginTop: 'auto', padding: '7px 14px', fontSize: '12px', fontWeight: 700, background: 'white', color: '#5B8DB8', border: '1.5px solid #5B8DB8', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#EAF1F8'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
+                  ><RotateCcw size={12} strokeWidth={2.5} />Restore</button>
+                ) : (
                   <button
                     onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
                     style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
                     onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
                     onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
                   >View Passes →</button>
-                </div>
-              ))}
-            </div>
-          )}
+                )}
+              </div>
+            );
+
+            return (
+              <>
+                {activeClasses.length === 0 && archivedClasses.length === 0 ? (
+                  <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', textAlign: 'center', color: '#94a3b8', border: '1px solid #eef2f7' }}>
+                    <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
+                    <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
+                    <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
+                  </div>
+                ) : activeClasses.length === 0 ? (
+                  <div style={{ background: 'white', borderRadius: '10px', padding: '28px', textAlign: 'center', color: '#94a3b8', border: '1px solid #eef2f7', marginBottom: '24px' }}>
+                    <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>All classes are archived. Restore one to make it active.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+                    {activeClasses.map(c => <ClassCard key={c.class_name} c={c} isArchived={false} />)}
+                  </div>
+                )}
+
+                {archivedClasses.length > 0 && (
+                  <div>
+                    <button
+                      onClick={() => setShowArchived(v => !v)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0', fontSize: '13px', fontWeight: 600, color: '#94a3b8', marginBottom: showArchived ? '14px' : '0' }}
+                    >
+                      {showArchived ? <ChevronDown size={15} strokeWidth={2.5} /> : <ChevronRight size={15} strokeWidth={2.5} />}
+                      {showArchived ? 'Hide' : 'Show'} Archived Classes ({archivedClasses.length})
+                    </button>
+                    {showArchived && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px' }}>
+                        {archivedClasses.map(c => <ClassCard key={c.class_name} c={c} isArchived={true} />)}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
     </div>
