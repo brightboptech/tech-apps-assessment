@@ -1960,12 +1960,18 @@ function CreateAssessment({ profile, onBack }) {
     const rows = [];
     const configRows = [];
     const passData = [];
-    const shouldRandomize = randomizeQuestions && sortedGrades.every(g => Number(g) >= 3);
+    const earlyGradeIds = new Set(
+      sortedGrades.filter(g => Number(g) <= 2).flatMap(g => getQuestionsForGrade(Number(g)).map(q => q.id))
+    );
+    const shouldRandomize = randomizeQuestions && sortedGrades.some(g => Number(g) >= 3);
     for (let i = 1; i <= count; i++) {
       const pre  = makeToken();
       const post = makeToken();
       const orderedIds = shouldRandomize
-        ? [...selectedIds].sort(() => Math.random() - 0.5)
+        ? [
+            ...selectedIds.filter(id => earlyGradeIds.has(id)),
+            ...[...selectedIds.filter(id => !earlyGradeIds.has(id))].sort(() => Math.random() - 0.5),
+          ]
         : selectedIds;
       rows.push(
         { token: pre,  grade_level: primaryGrade, test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: i },
@@ -2090,7 +2096,7 @@ function CreateAssessment({ profile, onBack }) {
           </div>
         )}
 
-        {grades.size > 0 && sortedGrades.every(g => Number(g) >= 3) && (
+        {grades.size > 0 && sortedGrades.some(g => Number(g) >= 3) && (
           <label style={{
             display: 'flex', alignItems: 'center', gap: '10px', marginTop: '16px',
             fontSize: '14px', fontWeight: 600, color: '#3D4B5C', cursor: 'pointer',
