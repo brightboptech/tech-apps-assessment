@@ -22,15 +22,11 @@ import {
 // ── Teacher Script Mode ────────────────────────────────────────────────────────
 function TeacherScriptMode({ questions, onClose }) {
   const [slide, setSlide] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
   const q = questions[slide];
-
-  useEffect(() => { setShowAnswer(false); }, [slide]);
 
   if (!q) return null;
 
   const total = questions.length;
-  const pct = ((slide + 1) / total * 100).toFixed(0);
 
   return (
     <div style={{
@@ -43,36 +39,18 @@ function TeacherScriptMode({ questions, onClose }) {
         padding: '14px 28px', background: '#111c2a',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', fontWeight: 600 }}>
-            Question {slide + 1} of {total}
-          </span>
-          <div style={{ width: '180px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div style={{ width: `${pct}%`, height: '100%', background: '#5B8DB8', borderRadius: '3px', transition: 'width 0.3s' }} />
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button
-            onClick={() => setShowAnswer(v => !v)}
-            style={{
-              padding: '8px 18px', fontSize: '13px', fontWeight: 700,
-              border: showAnswer ? '1.5px solid #f59e0b' : '1.5px solid rgba(255,255,255,0.25)',
-              borderRadius: '6px',
-              background: showAnswer ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.08)',
-              color: showAnswer ? '#f59e0b' : 'rgba(255,255,255,0.6)',
-              cursor: 'pointer',
-            }}
-          >{showAnswer ? 'Hide Answer' : 'Show Answer'}</button>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '8px 16px', fontSize: '13px', fontWeight: 600,
-              border: '1.5px solid rgba(255,255,255,0.2)', borderRadius: '6px',
-              background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)',
-              cursor: 'pointer',
-            }}
-          >&#x2715; Exit</button>
-        </div>
+        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', fontWeight: 600 }}>
+          Teacher Script Mode
+        </span>
+        <button
+          onClick={onClose}
+          style={{
+            padding: '8px 16px', fontSize: '13px', fontWeight: 600,
+            border: '1.5px solid rgba(255,255,255,0.2)', borderRadius: '6px',
+            background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)',
+            cursor: 'pointer',
+          }}
+        >&#x2715; Exit</button>
       </div>
 
       {/* Main content */}
@@ -88,39 +66,30 @@ function TeacherScriptMode({ questions, onClose }) {
             {q.text}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {q.options.map(opt => {
-              const isCorrect = opt.letter === q.correctAnswer;
-              const highlighted = showAnswer && isCorrect;
-              return (
-                <div
-                  key={opt.letter}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '22px',
-                    padding: '18px 28px',
-                    border: highlighted ? '2.5px solid #4ade80' : '2px solid rgba(255,255,255,0.12)',
-                    borderRadius: '12px',
-                    background: highlighted ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.05)',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <div style={{
-                    width: '48px', height: '48px', borderRadius: '50%', flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: highlighted ? '#4ade80' : 'rgba(255,255,255,0.1)',
-                    fontSize: '22px', fontWeight: 800,
-                    color: highlighted ? '#1a2535' : 'white',
-                  }}>
-                    {opt.letter}
-                  </div>
-                  <span style={{ fontSize: '26px', fontWeight: 600, color: highlighted ? '#4ade80' : 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
-                    {opt.text}
-                  </span>
-                  {highlighted && (
-                    <span style={{ marginLeft: 'auto', fontSize: '18px', color: '#4ade80', fontWeight: 800 }}>&#10003; Correct</span>
-                  )}
+            {q.options.map(opt => (
+              <div
+                key={opt.letter}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '22px',
+                  padding: '18px 28px',
+                  border: '2px solid rgba(255,255,255,0.12)',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.05)',
+                }}
+              >
+                <div style={{
+                  width: '48px', height: '48px', borderRadius: '50%', flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'rgba(255,255,255,0.1)',
+                  fontSize: '22px', fontWeight: 800, color: 'white',
+                }}>
+                  {opt.letter}
                 </div>
-              );
-            })}
+                <span style={{ fontSize: '26px', fontWeight: 600, color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
+                  {opt.text}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -135,33 +104,25 @@ function TeacherScriptMode({ questions, onClose }) {
           onClick={() => setSlide(s => Math.max(0, s - 1))}
           disabled={slide === 0}
           style={{
-            padding: '14px 36px', fontSize: '17px', fontWeight: 700,
-            border: '2px solid rgba(255,255,255,0.2)', borderRadius: '10px',
+            padding: '18px 48px', fontSize: '20px', fontWeight: 700,
+            border: '2px solid rgba(255,255,255,0.2)', borderRadius: '12px',
             background: slide === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.1)',
             color: slide === 0 ? 'rgba(255,255,255,0.2)' : 'white',
             cursor: slide === 0 ? 'not-allowed' : 'pointer',
+            minWidth: '180px',
           }}
         >&#8592; Previous</button>
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-          {questions.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setSlide(i)}
-              style={{
-                width: i === slide ? '28px' : '10px',
-                height: '10px', borderRadius: '5px', border: 'none', cursor: 'pointer', padding: 0,
-                background: i === slide ? '#5B8DB8' : i < slide ? 'rgba(91,141,184,0.4)' : 'rgba(255,255,255,0.15)',
-                transition: 'all 0.2s',
-              }}
-            />
-          ))}
-        </div>
+
+        <span style={{ fontSize: '22px', fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>
+          Question {slide + 1} of {total}
+        </span>
+
         {slide < total - 1 ? (
           <button
             onClick={() => setSlide(s => s + 1)}
             style={{
-              padding: '14px 36px', fontSize: '17px', fontWeight: 700,
-              border: 'none', borderRadius: '10px',
+              padding: '18px 48px', fontSize: '20px', fontWeight: 700,
+              border: 'none', borderRadius: '12px', minWidth: '180px',
               background: '#5B8DB8', color: 'white', cursor: 'pointer',
             }}
           >Next &#8594;</button>
@@ -169,8 +130,8 @@ function TeacherScriptMode({ questions, onClose }) {
           <button
             onClick={onClose}
             style={{
-              padding: '14px 36px', fontSize: '17px', fontWeight: 700,
-              border: 'none', borderRadius: '10px',
+              padding: '18px 48px', fontSize: '20px', fontWeight: 700,
+              border: 'none', borderRadius: '12px', minWidth: '180px',
               background: '#3D7A5E', color: 'white', cursor: 'pointer',
             }}
           >Done &#10003;</button>
