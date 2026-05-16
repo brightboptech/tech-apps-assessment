@@ -11,13 +11,174 @@ import { grade6Questions } from './grade6Questions';
 import { grade7Questions } from './grade7Questions';
 import { grade8Questions } from './grade8Questions';
 import { supabase } from './supabaseClient';
-import { getVisualForOption, VisualIcon } from './visualIcons';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X,
 } from 'lucide-react';
+
+
+// ── Teacher Script Mode ────────────────────────────────────────────────────────
+function TeacherScriptMode({ questions, onClose }) {
+  const [slide, setSlide] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const q = questions[slide];
+
+  useEffect(() => { setShowAnswer(false); }, [slide]);
+
+  if (!q) return null;
+
+  const total = questions.length;
+  const pct = ((slide + 1) / total * 100).toFixed(0);
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: '#1a2535',
+      zIndex: 9999, display: 'flex', flexDirection: 'column',
+    }}>
+      {/* Top bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 28px', background: '#111c2a',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', fontWeight: 600 }}>
+            Question {slide + 1} of {total}
+          </span>
+          <div style={{ width: '180px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ width: `${pct}%`, height: '100%', background: '#5B8DB8', borderRadius: '3px', transition: 'width 0.3s' }} />
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            onClick={() => setShowAnswer(v => !v)}
+            style={{
+              padding: '8px 18px', fontSize: '13px', fontWeight: 700,
+              border: showAnswer ? '1.5px solid #f59e0b' : '1.5px solid rgba(255,255,255,0.25)',
+              borderRadius: '6px',
+              background: showAnswer ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.08)',
+              color: showAnswer ? '#f59e0b' : 'rgba(255,255,255,0.6)',
+              cursor: 'pointer',
+            }}
+          >{showAnswer ? 'Hide Answer' : 'Show Answer'}</button>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '8px 16px', fontSize: '13px', fontWeight: 600,
+              border: '1.5px solid rgba(255,255,255,0.2)', borderRadius: '6px',
+              background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)',
+              cursor: 'pointer',
+            }}
+          >&#x2715; Exit</button>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', padding: '40px 48px', overflowY: 'auto',
+      }}>
+        <div style={{ maxWidth: '900px', width: '100%' }}>
+          <div style={{
+            fontSize: '34px', fontWeight: 700, color: 'white',
+            lineHeight: 1.3, marginBottom: '48px', textAlign: 'center',
+          }}>
+            {q.text}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {q.options.map(opt => {
+              const isCorrect = opt.letter === q.correctAnswer;
+              const highlighted = showAnswer && isCorrect;
+              return (
+                <div
+                  key={opt.letter}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '22px',
+                    padding: '18px 28px',
+                    border: highlighted ? '2.5px solid #4ade80' : '2px solid rgba(255,255,255,0.12)',
+                    borderRadius: '12px',
+                    background: highlighted ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.05)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <div style={{
+                    width: '48px', height: '48px', borderRadius: '50%', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: highlighted ? '#4ade80' : 'rgba(255,255,255,0.1)',
+                    fontSize: '22px', fontWeight: 800,
+                    color: highlighted ? '#1a2535' : 'white',
+                  }}>
+                    {opt.letter}
+                  </div>
+                  <span style={{ fontSize: '26px', fontWeight: 600, color: highlighted ? '#4ade80' : 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
+                    {opt.text}
+                  </span>
+                  {highlighted && (
+                    <span style={{ marginLeft: 'auto', fontSize: '18px', color: '#4ade80', fontWeight: 800 }}>&#10003; Correct</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom nav */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '18px 40px', background: '#111c2a',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        <button
+          onClick={() => setSlide(s => Math.max(0, s - 1))}
+          disabled={slide === 0}
+          style={{
+            padding: '14px 36px', fontSize: '17px', fontWeight: 700,
+            border: '2px solid rgba(255,255,255,0.2)', borderRadius: '10px',
+            background: slide === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.1)',
+            color: slide === 0 ? 'rgba(255,255,255,0.2)' : 'white',
+            cursor: slide === 0 ? 'not-allowed' : 'pointer',
+          }}
+        >&#8592; Previous</button>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          {questions.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setSlide(i)}
+              style={{
+                width: i === slide ? '28px' : '10px',
+                height: '10px', borderRadius: '5px', border: 'none', cursor: 'pointer', padding: 0,
+                background: i === slide ? '#5B8DB8' : i < slide ? 'rgba(91,141,184,0.4)' : 'rgba(255,255,255,0.15)',
+                transition: 'all 0.2s',
+              }}
+            />
+          ))}
+        </div>
+        {slide < total - 1 ? (
+          <button
+            onClick={() => setSlide(s => s + 1)}
+            style={{
+              padding: '14px 36px', fontSize: '17px', fontWeight: 700,
+              border: 'none', borderRadius: '10px',
+              background: '#5B8DB8', color: 'white', cursor: 'pointer',
+            }}
+          >Next &#8594;</button>
+        ) : (
+          <button
+            onClick={onClose}
+            style={{
+              padding: '14px 36px', fontSize: '17px', fontWeight: 700,
+              border: 'none', borderRadius: '10px',
+              background: '#3D7A5E', color: 'white', cursor: 'pointer',
+            }}
+          >Done &#10003;</button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 
 function getQuestionsForGrade(grade) {
@@ -875,6 +1036,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const [studentNames, setStudentNames] = useState({});
   const [isViewingExisting, setIsViewingExisting] = useState(false);
   const canvasRefs = useRef({});
+  const [showTeacherScript, setShowTeacherScript] = useState(false);
 
   // Multi-class additional rows
   const [additionalClasses, setAdditionalClasses] = useState([]);
@@ -1246,6 +1408,12 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
 
   return (
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 24px' }}>
+      {showTeacherScript && (
+        <TeacherScriptMode
+          questions={getQuestionsForGrade(Number(grade))}
+          onClose={() => setShowTeacherScript(false)}
+        />
+      )}
       <button
         onClick={onBack}
         style={{
@@ -1372,6 +1540,21 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           </div>
         </div>
 
+        {grade !== '' && Number(grade) <= 2 && (
+          <div style={{
+            background: '#F0F7FF', border: '1px solid #C5D9EC', borderRadius: '8px',
+            padding: '12px 16px', marginBottom: '16px',
+            fontSize: '13px', color: '#3D6B8A',
+            display: 'flex', gap: '8px', alignItems: 'flex-start',
+          }}>
+            <span style={{ flexShrink: 0, fontSize: '16px' }}>&#128203;</span>
+            <span>
+              <strong>K&#8211;2 Tip:</strong> These assessments are designed to be read aloud by the teacher.
+              We recommend projecting on a smartboard and reading each question and answer choice to the class as a group.
+              Use the <strong>Teacher Script</strong> button after generating passes to launch a full-screen smartboard view.
+            </span>
+          </div>
+        )}
         {/* Additional class rows */}
         {additionalClasses.map((ac, acIdx) => (
           <div key={ac.id} style={{ background: '#F4F7FA', borderRadius: '8px', padding: '16px', marginBottom: '12px', border: '1px solid #E2E8F0' }}>
@@ -1564,6 +1747,12 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
                 onClick={handleExportCSV}
                 style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               ><FileText size={14} strokeWidth={2} color="#555" />Export CSV</button>
+              {grade !== '' && Number(grade) <= 2 && (
+                <button
+                  onClick={() => setShowTeacherScript(true)}
+                  style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #5B8DB8', borderRadius: '6px', backgroundColor: '#EAF1F8', color: '#3D6B8A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                ><ClipboardList size={14} strokeWidth={2} color="#3D6B8A" />Teacher Script</button>
+              )}
             </div>
           </div>
 
@@ -1682,8 +1871,10 @@ function CreateAssessment({ profile, onBack }) {
   const [passes, setPasses] = useState([]);
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [randomizeQuestions, setRandomizeQuestions] = useState(true);
   const [activeTab, setActiveTab] = useState('pre');
   const canvasRefs = useRef({});
+  const [showTeacherScriptCA, setShowTeacherScriptCA] = useState(false);
 
   const sortedGrades = [...grades].sort((a, b) => Number(a) - Number(b));
   const gradeStrandGroups = sortedGrades.map(g => ({
@@ -1808,16 +1999,20 @@ function CreateAssessment({ profile, onBack }) {
     const rows = [];
     const configRows = [];
     const passData = [];
+    const shouldRandomize = randomizeQuestions && sortedGrades.every(g => Number(g) >= 3);
     for (let i = 1; i <= count; i++) {
       const pre  = makeToken();
       const post = makeToken();
+      const orderedIds = shouldRandomize
+        ? [...selectedIds].sort(() => Math.random() - 0.5)
+        : selectedIds;
       rows.push(
         { token: pre,  grade_level: primaryGrade, test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: i },
         { token: post, grade_level: primaryGrade, test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: i },
       );
       configRows.push(
-        { token: pre,  question_ids: selectedIds, assessment_config_id: assessmentConfigId },
-        { token: post, question_ids: selectedIds, assessment_config_id: assessmentConfigId },
+        { token: pre,  question_ids: orderedIds, assessment_config_id: assessmentConfigId },
+        { token: post, question_ids: orderedIds, assessment_config_id: assessmentConfigId },
       );
       passData.push({ studentNum: i, pre, post });
     }
@@ -1865,6 +2060,12 @@ function CreateAssessment({ profile, onBack }) {
 
   return (
     <div style={{ maxWidth: '1020px', margin: '0 auto', padding: '32px 24px' }}>
+      {showTeacherScriptCA && (
+        <TeacherScriptMode
+          questions={selectedIds.map(id => sortedGrades.flatMap(g => getQuestionsForGrade(Number(g))).find(q => q.id === id)).filter(Boolean)}
+          onClose={() => setShowTeacherScriptCA(false)}
+        />
+      )}
       <button
         onClick={onBack}
         style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '14px', cursor: 'pointer', padding: 0, marginBottom: '20px' }}
@@ -1911,6 +2112,40 @@ function CreateAssessment({ profile, onBack }) {
             );
           })}
         </div>
+
+        {grades.size > 0 && sortedGrades.every(g => Number(g) <= 2) && (
+          <div style={{
+            background: '#F0F7FF', border: '1px solid #C5D9EC', borderRadius: '8px',
+            padding: '12px 16px', marginTop: '16px',
+            fontSize: '13px', color: '#3D6B8A',
+            display: 'flex', gap: '8px', alignItems: 'flex-start',
+          }}>
+            <span style={{ flexShrink: 0, fontSize: '16px' }}>&#128203;</span>
+            <span>
+              <strong>K&#8211;2 Tip:</strong> These assessments are designed to be read aloud by the teacher.
+              We recommend projecting on a smartboard and reading each question and answer choice to the class as a group.
+              A <strong>Teacher Script</strong> button will appear after generating passes.
+            </span>
+          </div>
+        )}
+
+        {grades.size > 0 && sortedGrades.every(g => Number(g) >= 3) && (
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '10px', marginTop: '16px',
+            fontSize: '14px', fontWeight: 600, color: '#3D4B5C', cursor: 'pointer',
+          }}>
+            <input
+              type="checkbox"
+              checked={randomizeQuestions}
+              onChange={e => setRandomizeQuestions(e.target.checked)}
+              style={{ width: '17px', height: '17px', accentColor: '#5B8DB8', cursor: 'pointer' }}
+            />
+            Randomize question order per student
+            <span style={{ fontSize: '12px', fontWeight: 400, color: '#888' }}>
+              (students sitting next to each other see questions in a different order)
+            </span>
+          </label>
+        )}
       </div>
 
       {/* Step 2 – Standards */}
@@ -2178,6 +2413,12 @@ function CreateAssessment({ profile, onBack }) {
                 onClick={handlePrintMaster}
                 style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               ><Printer size={14} strokeWidth={2} color="#555" />Print Master Sheet</button>
+              {sortedGrades.every(g => Number(g) <= 2) && (
+                <button
+                  onClick={() => setShowTeacherScriptCA(true)}
+                  style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #5B8DB8', borderRadius: '6px', backgroundColor: '#EAF1F8', color: '#3D6B8A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                ><ClipboardList size={14} strokeWidth={2} color="#3D6B8A" />Teacher Script</button>
+              )}
             </div>
           </div>
 
@@ -5042,7 +5283,7 @@ function App() {
   // ── Student handlers (unchanged) ─────────────────────────────────────────
   const allGradeQuestions = selectedGrade !== null ? getQuestionsForGrade(selectedGrade) : [];
   const questions = customQuestionIds
-    ? allGradeQuestions.filter(q => customQuestionIds.includes(q.id))
+    ? customQuestionIds.map(id => allGradeQuestions.find(q => q.id === id)).filter(Boolean)
     : allGradeQuestions;
   const hasQuestions = questions.length > 0;
   const currentQ = hasQuestions ? questions[currentQuestion] : null;
@@ -5920,119 +6161,42 @@ function App() {
                 </button>
               </div>
 
-              {isEarlyGrade ? (
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                  {currentQ.options.map((option) => {
-                    const optId = `option-${option.letter}`;
-                    const isSelected = selectedAnswer === option.letter;
-                    const iconKey = option.visual || getVisualForOption(option.text, option.letter);
-                    return (
-                      <button
-                        key={option.letter}
-                        onClick={() => handleAnswerClick(option.letter)}
-                        style={{
-                          flex: 1, minWidth: 0,
-                          display: 'flex', flexDirection: 'column',
-                          alignItems: 'center', gap: '7px',
-                          padding: '12px 6px 36px',
-                          border: isSelected ? '3px solid #5B8DB8' : '2px solid #dde4ee',
-                          borderRadius: '14px',
-                          background: isSelected ? '#EAF1F8' : 'white',
-                          cursor: 'pointer',
-                          position: 'relative',
-                          transition: 'all 0.15s',
-                          boxShadow: isSelected
-                            ? '0 2px 14px rgba(91,141,184,0.28)'
-                            : '0 1px 4px rgba(0,0,0,0.07)',
-                          minHeight: '150px',
-                        }}
-                      >
-                        {/* Letter badge */}
-                        <div style={{
-                          position: 'absolute', top: '9px', left: '10px',
-                          width: '24px', height: '24px', borderRadius: '50%',
-                          background: isSelected ? '#5B8DB8' : '#e2e8f0',
-                          color: isSelected ? 'white' : '#64748b',
-                          fontSize: '13px', fontWeight: 800,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          flexShrink: 0,
-                        }}>
-                          {option.letter}
-                        </div>
-                        {/* Icon */}
-                        <VisualIcon iconKey={iconKey} size={76} />
-                        {/* Text label */}
-                        <div style={{
-                          fontSize: '12px', fontWeight: 600,
-                          color: isSelected ? '#1e3a5f' : '#334155',
-                          lineHeight: 1.35, textAlign: 'center',
-                          wordBreak: 'break-word', maxWidth: '100%',
-                          padding: '0 4px',
-                        }}>
-                          {option.text}
-                        </div>
-                        {/* Audio button */}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); speak(`${option.letter}. ${option.text}`, optId); }}
-                          disabled={loadingId === optId}
-                          title={speakingId === optId ? 'Stop reading' : 'Read aloud'}
-                          style={{
-                            position: 'absolute', bottom: '8px', right: '8px',
-                            width: '30px', height: '30px', borderRadius: '7px',
-                            border: speakingId === optId ? '1.5px solid #5B8DB8' : '1.5px solid #e2e8f0',
-                            background: speakingId === optId ? '#EAF1F8' : 'white',
-                            cursor: loadingId === optId ? 'wait' : 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            padding: 0, transition: 'all 0.15s',
-                          }}
-                        >
-                          {loadingId === optId
-                            ? <span style={{ width: 13, height: 13, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
-                            : <Volume2 size={13} color={speakingId === optId ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
-                          }
-                        </button>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                currentQ.options.map((option) => {
-                  const optId = `option-${option.letter}`;
-                  return (
-                    <div key={option.letter} style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '10px 0' }}>
-                      <button
-                        onClick={() => handleAnswerClick(option.letter)}
-                        style={{ ...getButtonStyle(option.letter), margin: 0, flex: 1 }}
-                      >
-                        {option.letter}) {option.text}
-                      </button>
-                      <button
-                        onClick={() => speak(`${option.letter}. ${option.text}`, optId)}
-                        disabled={loadingId === optId}
-                        title={speakingId === optId ? 'Stop reading' : 'Read aloud'}
-                        style={{
-                          flexShrink: 0,
-                          width: '44px', height: '44px', padding: 0, borderRadius: '8px',
-                          cursor: loadingId === optId ? 'wait' : 'pointer',
-                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                          border: speakingId === optId ? '1.5px solid #5B8DB8'
-                                : loadingId === optId ? '1.5px solid #c7d8ec'
-                                : '1.5px solid #e2e8f0',
-                          background: speakingId === optId ? '#EAF1F8'
-                                    : loadingId === optId ? '#f0f6fc'
-                                    : 'white',
-                          transition: 'all 0.15s',
-                        }}
-                      >
-                        {loadingId === optId
-                          ? <span style={{ width: 15, height: 15, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
-                          : <Volume2 size={15} color={speakingId === optId ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
-                        }
-                      </button>
-                    </div>
-                  );
-                })
-              )}
+              {currentQ.options.map((option) => {
+                const optId = `option-${option.letter}`;
+                return (
+                  <div key={option.letter} style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '10px 0' }}>
+                    <button
+                      onClick={() => handleAnswerClick(option.letter)}
+                      style={{ ...getButtonStyle(option.letter), margin: 0, flex: 1 }}
+                    >
+                      {option.letter}) {option.text}
+                    </button>
+                    <button
+                      onClick={() => speak(`${option.letter}. ${option.text}`, optId)}
+                      disabled={loadingId === optId}
+                      title={speakingId === optId ? 'Stop reading' : 'Read aloud'}
+                      style={{
+                        flexShrink: 0,
+                        width: '44px', height: '44px', padding: 0, borderRadius: '8px',
+                        cursor: loadingId === optId ? 'wait' : 'pointer',
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        border: speakingId === optId ? '1.5px solid #5B8DB8'
+                              : loadingId === optId ? '1.5px solid #c7d8ec'
+                              : '1.5px solid #e2e8f0',
+                        background: speakingId === optId ? '#EAF1F8'
+                                  : loadingId === optId ? '#f0f6fc'
+                                  : 'white',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {loadingId === optId
+                        ? <span style={{ width: 15, height: 15, border: '2px solid #c7d8ec', borderTopColor: '#5B8DB8', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                        : <Volume2 size={15} color={speakingId === optId ? '#5B8DB8' : '#94a3b8'} strokeWidth={2} />
+                      }
+                    </button>
+                  </div>
+                );
+              })}
 
               <div style={{
                 display: 'flex', flexWrap: 'wrap', gap: '6px',
