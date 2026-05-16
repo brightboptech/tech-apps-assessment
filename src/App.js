@@ -16,6 +16,7 @@ import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X, Archive, RotateCcw, ChevronDown, ChevronRight,
+  BookOpen, HelpCircle, Send,
 } from 'lucide-react';
 
 
@@ -300,6 +301,73 @@ function buildMasterSheetHTML(passes, className, grade, studentNames = {}) {
     }).join('')}
   </tbody>
 </table>
+</body></html>`;
+}
+
+function buildAnswerKeyHTML(questions, title, subtitle) {
+  const date = new Date().toLocaleDateString();
+  const rows = questions.map((q, idx) => {
+    const optionRows = q.options.map(opt => {
+      const correct = opt.letter === q.correctAnswer;
+      return `<div class="opt${correct ? ' correct' : ''}">
+        <span class="letter${correct ? ' correct-letter' : ''}">${opt.letter}</span>
+        <span class="opt-text">${opt.text}</span>
+        ${correct ? '<span class="check-badge">&#10003; Correct</span>' : ''}
+      </div>`;
+    }).join('');
+    return `<div class="q-block">
+      <div class="q-header">
+        <span class="q-num">Q${idx + 1}</span>
+        <span class="q-meta">${q.strand || ''} &nbsp;·&nbsp; <code>${q.id}</code></span>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">${optionRows}</div>
+    </div>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/>
+<title>Answer Key – ${title}</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 28px 32px; color: #1e293b; font-size: 13px; }
+  h1   { font-size: 18px; margin: 0 0 3px; color: #3D6B8A; }
+  .meta { color: #64748b; font-size: 12px; margin-bottom: 10px; }
+  .warning { display: inline-block; background: #fff8e1; border: 1px solid #ffe082;
+             border-radius: 4px; padding: 5px 12px; font-size: 11px; color: #7a5f00;
+             font-weight: bold; margin-bottom: 18px; }
+  .print-btn { display: inline-block; margin-left: 14px; padding: 5px 16px;
+               background: #3D6B8A; color: white; border: none; border-radius: 4px;
+               font-size: 12px; font-weight: 700; cursor: pointer; }
+  @media print { .print-btn { display: none; } }
+  .q-block { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px;
+             margin-bottom: 14px; break-inside: avoid; page-break-inside: avoid; }
+  .q-header { display: flex; align-items: center; gap: 12px; margin-bottom: 7px; }
+  .q-num  { background: #EAF1F8; color: #3D6B8A; font-weight: 800; font-size: 13px;
+             padding: 2px 9px; border-radius: 4px; flex-shrink: 0; }
+  .q-meta { font-size: 11px; color: #94a3b8; }
+  code    { font-family: 'Courier New', monospace; font-size: 11px; background: #f1f5f9;
+             padding: 1px 5px; border-radius: 3px; }
+  .q-text { font-weight: 600; font-size: 14px; margin-bottom: 10px; line-height: 1.45; }
+  .options { display: flex; flex-direction: column; gap: 6px; }
+  .opt { display: flex; align-items: center; gap: 10px; padding: 6px 10px;
+         border-radius: 6px; border: 1px solid #e2e8f0; background: #fafafa; }
+  .opt.correct { border-color: #4ade80; background: #f0fdf4; }
+  .letter { width: 24px; height: 24px; border-radius: 50%; background: #e2e8f0;
+             display: flex; align-items: center; justify-content: center;
+             font-weight: 800; font-size: 12px; flex-shrink: 0; color: #475569; }
+  .correct-letter { background: #4ade80; color: #14532d; }
+  .opt-text { flex: 1; font-size: 13px; }
+  .check-badge { font-size: 11px; font-weight: 800; color: #16a34a;
+                  background: #dcfce7; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; }
+  .two-col { columns: 2; column-gap: 18px; }
+  @media print { .two-col { columns: 2; } }
+</style></head>
+<body>
+<h1>TechGrowth Check — Answer Key</h1>
+<p class="meta">${title}${subtitle ? ' &nbsp;·&nbsp; ' + subtitle : ''} &nbsp;·&nbsp; ${date} &nbsp;·&nbsp; ${questions.length} questions</p>
+<p class="warning">&#9888; TEACHER COPY — DO NOT DISTRIBUTE TO STUDENTS</p>
+<button class="print-btn" onclick="window.print()">&#128438; Print Answer Key</button>
+<div class="two-col" style="margin-top:18px">${rows}</div>
 </body></html>`;
 }
 
@@ -1296,6 +1364,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const handlePrintPre    = () => printDoc(buildPassPrintHTML(passes, 'pre',  className, '', getQrURLs(), studentNames));
   const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, '', getQrURLs(), studentNames));
   const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, gradeDisplay(grade), studentNames));
+  const handleAnswerKey   = () => printDoc(buildAnswerKeyHTML(getQuestionsForGrade(Number(grade)), gradeDisplay(grade), className));
 
   const loadClassPasses = async (cls) => {
     setGenerating(true);
@@ -1708,6 +1777,12 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
                 onClick={handleExportCSV}
                 style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               ><FileText size={14} strokeWidth={2} color="#555" />Export CSV</button>
+              {grade !== '' && (
+                <button
+                  onClick={handleAnswerKey}
+                  style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #6B5F9B', borderRadius: '6px', backgroundColor: '#EDEAF6', color: '#4B3F82', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                ><BookOpen size={14} strokeWidth={2} color="#4B3F82" />Answer Key</button>
+              )}
               {grade !== '' && Number(grade) <= 2 && (
                 <button
                   onClick={() => setShowTeacherScript(true)}
@@ -2014,6 +2089,11 @@ function CreateAssessment({ profile, onBack }) {
   const handlePrintPre    = () => printDoc(buildPassPrintHTML(passes, 'pre',  className, assessmentName, getQrURLs()));
   const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, assessmentName, getQrURLs()));
   const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, gradeLabel));
+  const handleAnswerKeyCA = () => {
+    const allQs = sortedGrades.flatMap(g => getQuestionsForGrade(Number(g)));
+    const qs = selectedIds.map(id => allQs.find(q => q.id === id)).filter(Boolean);
+    printDoc(buildAnswerKeyHTML(qs, assessmentName || gradeLabel, className));
+  };
 
   const fieldStyle = {
     width: '100%', padding: '10px 12px', fontSize: '15px',
@@ -2380,6 +2460,10 @@ function CreateAssessment({ profile, onBack }) {
                 onClick={handlePrintMaster}
                 style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               ><Printer size={14} strokeWidth={2} color="#555" />Print Master Sheet</button>
+              <button
+                onClick={handleAnswerKeyCA}
+                style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #6B5F9B', borderRadius: '6px', backgroundColor: '#EDEAF6', color: '#4B3F82', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              ><BookOpen size={14} strokeWidth={2} color="#4B3F82" />Answer Key</button>
               {sortedGrades.every(g => Number(g) <= 2) && (
                 <button
                   onClick={() => setShowTeacherScriptCA(true)}
@@ -3031,6 +3115,39 @@ function Dashboard({ profile, onLogout }) {
   const firstName = (profile.full_name || 'Teacher').split(' ')[0];
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
 
+  // ── Help Assistant ───────────────────────────────────────────────────────
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpMessages, setHelpMessages] = useState([]);
+  const [helpInput, setHelpInput] = useState('');
+  const [helpLoading, setHelpLoading] = useState(false);
+  const helpBottomRef = useRef(null);
+
+  useEffect(() => {
+    if (helpOpen && helpBottomRef.current) helpBottomRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [helpMessages, helpOpen]);
+
+  const sendHelpMessage = async () => {
+    const text = helpInput.trim();
+    if (!text || helpLoading) return;
+    const userMsg = { role: 'user', content: text };
+    const next = [...helpMessages, userMsg];
+    setHelpMessages(next);
+    setHelpInput('');
+    setHelpLoading(true);
+    try {
+      const res = await fetch('/api/help-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: next }),
+      });
+      const data = await res.json();
+      setHelpMessages(prev => [...prev, { role: 'assistant', content: data.content || data.error || 'Sorry, something went wrong.' }]);
+    } catch {
+      setHelpMessages(prev => [...prev, { role: 'assistant', content: 'Could not reach the help assistant. Please try again.' }]);
+    }
+    setHelpLoading(false);
+  };
+
   const steps = [
     {
       num: 1, Icon: ClipboardList,
@@ -3372,6 +3489,105 @@ function Dashboard({ profile, onLogout }) {
           )}
         </div>
       )}
+
+      {/* ── Floating Help Assistant ───────────────────────────────────────── */}
+      <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 8000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+
+        {/* Chat panel */}
+        {helpOpen && (
+          <div style={{
+            width: '340px', height: '480px', background: 'white',
+            borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+            border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column',
+            overflow: 'hidden',
+          }}>
+            {/* Panel header */}
+            <div style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <HelpCircle size={16} color="white" strokeWidth={2} />
+                <span style={{ color: 'white', fontWeight: 700, fontSize: '14px' }}>TechGrowth Help</span>
+              </div>
+              <button onClick={() => setHelpOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>&#x2715;</button>
+            </div>
+
+            {/* Messages */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {helpMessages.length === 0 && (
+                <div style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', marginTop: '32px', lineHeight: 1.6 }}>
+                  <HelpCircle size={28} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '10px' }} />
+                  <div>Ask me anything about TechGrowth Check —</div>
+                  <div>how to create assessments, generate passes, view results, and more.</div>
+                </div>
+              )}
+              {helpMessages.map((msg, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '85%', padding: '9px 13px', borderRadius: msg.role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                    background: msg.role === 'user' ? '#3D6B8A' : '#f1f5f9',
+                    color: msg.role === 'user' ? 'white' : '#1e293b',
+                    fontSize: '13px', lineHeight: 1.55, whiteSpace: 'pre-wrap',
+                  }}>
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+              {helpLoading && (
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <div style={{ background: '#f1f5f9', borderRadius: '14px 14px 14px 4px', padding: '9px 16px', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    {[0, 1, 2].map(i => (
+                      <span key={i} style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#94a3b8', display: 'inline-block', animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div ref={helpBottomRef} />
+            </div>
+
+            {/* Input */}
+            <div style={{ padding: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '8px', flexShrink: 0 }}>
+              <input
+                value={helpInput}
+                onChange={e => setHelpInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendHelpMessage(); } }}
+                placeholder="Ask a question…"
+                style={{ flex: 1, padding: '9px 12px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '8px', outline: 'none', fontFamily: 'inherit' }}
+                disabled={helpLoading}
+              />
+              <button
+                onClick={sendHelpMessage}
+                disabled={!helpInput.trim() || helpLoading}
+                style={{ padding: '9px 13px', background: helpInput.trim() && !helpLoading ? '#3D6B8A' : '#e2e8f0', border: 'none', borderRadius: '8px', cursor: helpInput.trim() && !helpLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+              >
+                <Send size={15} color={helpInput.trim() && !helpLoading ? 'white' : '#94a3b8'} strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Floating ? button */}
+        <button
+          onClick={() => setHelpOpen(v => !v)}
+          title="Help"
+          style={{
+            width: '52px', height: '52px', borderRadius: '50%',
+            background: helpOpen ? '#3D6B8A' : 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)',
+            border: 'none', cursor: 'pointer', boxShadow: '0 4px 18px rgba(61,107,138,0.45)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'transform 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <HelpCircle size={24} color="white" strokeWidth={2.5} />
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-6px); }
+        }
+      `}</style>
     </div>
   );
 }
