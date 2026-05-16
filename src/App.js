@@ -3277,104 +3277,92 @@ function Dashboard({ profile, onLogout }) {
             Click "View Passes" to see and reprint QR codes for any class.
           </p>
 
-          {(() => {
-            const activeClasses   = dashClasses.filter(c => !archivedNames.has(c.class_name));
-            const archivedClasses = dashClasses.filter(c =>  archivedNames.has(c.class_name));
-
-            const ClassCard = ({ c, isArchived }) => (
-              <div
-                key={c.class_name}
-                style={{
-                  background: isArchived ? '#f8f9fa' : 'white',
-                  borderRadius: '12px', padding: '20px 18px',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-                  border: isArchived ? '1px solid #e2e8f0' : '1px solid #eef2f7',
-                  display: 'flex', flexDirection: 'column',
-                  opacity: isArchived ? 0.72 : 1,
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3px' }}>
-                  <div style={{ fontWeight: 700, fontSize: '15px', color: isArchived ? '#64748b' : '#1e293b' }}>{c.class_name}</div>
-                  {!isArchived && confirmArchive === c.class_name ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                      <span style={{ fontSize: '11px', color: '#64748b' }}>Archive?</span>
-                      <button
-                        onClick={() => handleArchive(c.class_name)}
-                        style={{ padding: '3px 10px', fontSize: '11px', fontWeight: 700, border: 'none', borderRadius: '4px', background: '#f59e0b', color: 'white', cursor: 'pointer' }}
-                      >Yes</button>
-                      <button
-                        onClick={() => setConfirmArchive(null)}
-                        style={{ padding: '3px 8px', fontSize: '11px', fontWeight: 600, border: '1px solid #e2e8f0', borderRadius: '4px', background: 'white', color: '#64748b', cursor: 'pointer' }}
-                      >No</button>
-                    </div>
-                  ) : !isArchived ? (
-                    <button
-                      onClick={() => setConfirmArchive(c.class_name)}
-                      title="Archive this class"
-                      style={{ padding: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
-                      onMouseEnter={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = '#f1f5f9'; }}
-                      onMouseLeave={e => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.background = 'none'; }}
-                    ><Archive size={14} strokeWidth={2} /></button>
-                  ) : null}
+          {dashClasses.length === 0 && archivedNames.size === 0 ? (
+            <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', textAlign: 'center', color: '#94a3b8', border: '1px solid #eef2f7' }}>
+              <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
+              <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
+              <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
+            </div>
+          ) : (
+            <>
+              {/* Active classes */}
+              {dashClasses.filter(c => !archivedNames.has(c.class_name)).length === 0 ? (
+                <div style={{ background: 'white', borderRadius: '10px', padding: '24px', textAlign: 'center', border: '1px solid #eef2f7', marginBottom: '24px' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>All classes are archived. Restore one below to make it active.</p>
                 </div>
-                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
-                  {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
-                </div>
-                {isArchived ? (
-                  <button
-                    onClick={() => handleRestore(c.class_name)}
-                    style={{ marginTop: 'auto', padding: '7px 14px', fontSize: '12px', fontWeight: 700, background: 'white', color: '#5B8DB8', border: '1.5px solid #5B8DB8', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '5px' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#EAF1F8'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
-                  ><RotateCcw size={12} strokeWidth={2.5} />Restore</button>
-                ) : (
-                  <button
-                    onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
-                    style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
-                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-                  >View Passes →</button>
-                )}
-              </div>
-            );
-
-            return (
-              <>
-                {activeClasses.length === 0 && archivedClasses.length === 0 ? (
-                  <div style={{ background: 'white', borderRadius: '10px', padding: '40px 28px', textAlign: 'center', color: '#94a3b8', border: '1px solid #eef2f7' }}>
-                    <Layers size={32} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '12px' }} />
-                    <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 600, color: '#64748b' }}>No classes yet</p>
-                    <p style={{ margin: 0, fontSize: '13px' }}>Generate student passes to create your first class.</p>
-                  </div>
-                ) : activeClasses.length === 0 ? (
-                  <div style={{ background: 'white', borderRadius: '10px', padding: '28px', textAlign: 'center', color: '#94a3b8', border: '1px solid #eef2f7', marginBottom: '24px' }}>
-                    <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>All classes are archived. Restore one to make it active.</p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px', marginBottom: '28px' }}>
-                    {activeClasses.map(c => <ClassCard key={c.class_name} c={c} isArchived={false} />)}
-                  </div>
-                )}
-
-                {archivedClasses.length > 0 && (
-                  <div>
-                    <button
-                      onClick={() => setShowArchived(v => !v)}
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0', fontSize: '13px', fontWeight: 600, color: '#94a3b8', marginBottom: showArchived ? '14px' : '0' }}
-                    >
-                      {showArchived ? <ChevronDown size={15} strokeWidth={2.5} /> : <ChevronRight size={15} strokeWidth={2.5} />}
-                      {showArchived ? 'Hide' : 'Show'} Archived Classes ({archivedClasses.length})
-                    </button>
-                    {showArchived && (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px' }}>
-                        {archivedClasses.map(c => <ClassCard key={c.class_name} c={c} isArchived={true} />)}
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+                  {dashClasses.filter(c => !archivedNames.has(c.class_name)).map(c => (
+                    <div key={c.class_name} style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3px' }}>
+                        <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b' }}>{c.class_name}</div>
+                        {confirmArchive === c.class_name ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>Archive?</span>
+                            <button onClick={() => handleArchive(c.class_name)} style={{ padding: '3px 9px', fontSize: '11px', fontWeight: 700, border: 'none', borderRadius: '4px', background: '#f59e0b', color: 'white', cursor: 'pointer' }}>Yes</button>
+                            <button onClick={() => setConfirmArchive(null)} style={{ padding: '3px 7px', fontSize: '11px', fontWeight: 600, border: '1px solid #e2e8f0', borderRadius: '4px', background: 'white', color: '#64748b', cursor: 'pointer' }}>No</button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmArchive(c.class_name)}
+                            title="Archive this class"
+                            style={{ padding: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                            onMouseEnter={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = '#f1f5f9'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.background = 'none'; }}
+                          ><Archive size={14} strokeWidth={2} /></button>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
-              </>
-            );
-          })()}
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
+                        {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
+                      </div>
+                      <button
+                        onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
+                        style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
+                        onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+                        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                      >View Passes →</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Archived classes */}
+              {dashClasses.filter(c => archivedNames.has(c.class_name)).length > 0 && (
+                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+                  <button
+                    onClick={() => setShowArchived(v => !v)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', marginBottom: showArchived ? '16px' : '0', color: '#64748b' }}
+                  >
+                    {showArchived
+                      ? <ChevronDown size={16} strokeWidth={2.5} color="#64748b" />
+                      : <ChevronRight size={16} strokeWidth={2.5} color="#64748b" />}
+                    <span style={{ fontSize: '14px', fontWeight: 700 }}>
+                      &#128230; Archived Classes ({dashClasses.filter(c => archivedNames.has(c.class_name)).length})
+                    </span>
+                  </button>
+
+                  {showArchived && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px' }}>
+                      {dashClasses.filter(c => archivedNames.has(c.class_name)).map(c => (
+                        <div key={c.class_name} style={{ background: '#f8f9fa', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', opacity: 0.8 }}>
+                          <div style={{ fontWeight: 700, fontSize: '15px', color: '#64748b', marginBottom: '3px' }}>{c.class_name}</div>
+                          <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                            {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
+                          </div>
+                          <button
+                            onClick={() => handleRestore(c.class_name)}
+                            style={{ marginTop: 'auto', padding: '7px 14px', fontSize: '12px', fontWeight: 700, background: 'white', color: '#5B8DB8', border: '1.5px solid #5B8DB8', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '5px' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#EAF1F8'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
+                          ><RotateCcw size={12} strokeWidth={2.5} />Restore</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
     </div>
