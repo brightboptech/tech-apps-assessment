@@ -3176,9 +3176,10 @@ function Dashboard({ profile, onLogout }) {
   const [faqSearch, setFaqSearch] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [helpView, setHelpView] = useState('faq'); // 'faq' | 'contact' | 'success'
-  const [contactForm, setContactForm] = useState({ name: '', email: '', school: '', gradeLevels: [], issueType: '', description: '', screenshot: null });
+  const [contactForm, setContactForm] = useState({ name: '', email: '', school: '', gradeLevels: [], issueType: '', description: '', screenshotUrl: '', honeypot: '' });
   const [contactErrors, setContactErrors] = useState({});
   const [contactSubmitting, setContactSubmitting] = useState(false);
+  const contactOpenedAt = useRef(null);
 
   const HELP_ISSUE_TYPES = [
     'I need help using the platform',
@@ -3191,6 +3192,25 @@ function Dashboard({ profile, onLogout }) {
   ];
 
   const handleContactSubmit = async () => {
+    const stripHtml = s => s.replace(/<[^>]*>/g, '');
+
+    // Bot detection: honeypot filled or form submitted under 3 seconds
+    if (contactForm.honeypot.length > 0 || (contactOpenedAt.current && Date.now() - contactOpenedAt.current < 3000)) {
+      setHelpView('success');
+      return;
+    }
+
+    // Rate limit: max 3 submissions per hour tracked in sessionStorage
+    const RATE_KEY = 'tgc_support_submissions';
+    const now = Date.now();
+    const prev = JSON.parse(sessionStorage.getItem(RATE_KEY) || '[]');
+    const recent = prev.filter(ts => now - ts < 60 * 60 * 1000);
+    if (recent.length >= 3) {
+      setContactErrors({ submit: "You've submitted multiple requests recently. Please wait before submitting again." });
+      return;
+    }
+
+    // Validation
     const errs = {};
     if (!contactForm.name.trim()) errs.name = 'Name is required.';
     if (!contactForm.email.trim()) errs.email = 'Email is required.';
@@ -3198,33 +3218,21 @@ function Dashboard({ profile, onLogout }) {
     if (!contactForm.issueType) errs.issueType = 'Please select an issue type.';
     if (!contactForm.description.trim()) errs.description = 'Description is required.';
     else if (contactForm.description.trim().length < 20) errs.description = 'Please provide at least 20 characters.';
+    const urlVal = contactForm.screenshotUrl.trim();
+    if (urlVal && !urlVal.startsWith('https://')) errs.screenshotUrl = 'URL must start with https://';
     if (Object.keys(errs).length > 0) { setContactErrors(errs); return; }
 
     setContactSubmitting(true);
     setContactErrors({});
 
-    let screenshotUrl = null;
-    if (contactForm.screenshot) {
-      try {
-        const file = contactForm.screenshot;
-        const ext = file.name.split('.').pop().toLowerCase();
-        const path = `${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from('support-screenshots').upload(path, file, { contentType: file.type });
-        if (!upErr) {
-          const { data: pubData } = supabase.storage.from('support-screenshots').getPublicUrl(path);
-          screenshotUrl = pubData?.publicUrl ?? null;
-        }
-      } catch { /* screenshot upload is non-fatal */ }
-    }
-
     const { error } = await supabase.from('support_tickets').insert({
-      name: contactForm.name.trim(),
+      name: stripHtml(contactForm.name.trim()),
       email: contactForm.email.trim(),
-      school: contactForm.school.trim() || null,
+      school: contactForm.school.trim() ? stripHtml(contactForm.school.trim()) : null,
       grade_levels: contactForm.gradeLevels.length > 0 ? contactForm.gradeLevels.join(', ') : null,
       issue_type: contactForm.issueType,
-      description: contactForm.description.trim(),
-      screenshot_url: screenshotUrl,
+      description: stripHtml(contactForm.description.trim()),
+      screenshot_url: urlVal || null,
       status: 'new',
     });
 
@@ -3232,6 +3240,7 @@ function Dashboard({ profile, onLogout }) {
     if (error) {
       setContactErrors({ submit: 'Something went wrong. Please email support@brightboptech.com directly.' });
     } else {
+      sessionStorage.setItem(RATE_KEY, JSON.stringify([...recent, now]));
       setHelpView('success');
     }
   };
@@ -3720,7 +3729,7 @@ function Dashboard({ profile, onLogout }) {
                     {/* Contact Support button */}
                     <div style={{ textAlign: 'center', padding: '16px 16px 12px' }}>
                       <button
-                        onClick={() => setHelpView('contact')}
+                        onClick={() => { setHelpView('contact'); contactOpenedAt.current = Date.now(); }}
                         style={{ padding: '9px 22px', background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                         onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
                         onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
@@ -3819,26 +3828,28 @@ function Dashboard({ profile, onLogout }) {
                       </div>
                     </div>
 
-                    {/* Screenshot */}
+                    {/* Honeypot — hidden from real users, catches bots */}
+                    <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }} aria-hidden="true">
+                      <input
+                        type="text" tabIndex={-1} autoComplete="off"
+                        value={contactForm.honeypot}
+                        onChange={e => setContactForm(f => ({ ...f, honeypot: e.target.value }))}
+                      />
+                    </div>
+
+                    {/* Screenshot URL */}
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>
-                        Screenshot <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional · PNG/JPG · max 5 MB)</span>
+                        Screenshot URL <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional)</span>
                       </label>
                       <input
-                        type="file" accept=".png,.jpg,.jpeg"
-                        onChange={e => {
-                          const file = e.target.files[0];
-                          if (file && file.size > 5 * 1024 * 1024) {
-                            setContactErrors(v => ({ ...v, screenshot: 'File must be under 5 MB.' }));
-                            e.target.value = '';
-                          } else {
-                            setContactForm(f => ({ ...f, screenshot: file || null }));
-                            setContactErrors(v => { const n = { ...v }; delete n.screenshot; return n; });
-                          }
-                        }}
-                        style={{ width: '100%', fontSize: '12px', color: '#64748b', cursor: 'pointer' }}
+                        type="url"
+                        placeholder="Paste a link to your screenshot (e.g., from Imgur, Google Drive, or Dropbox)"
+                        value={contactForm.screenshotUrl}
+                        onChange={e => { setContactForm(f => ({ ...f, screenshotUrl: e.target.value })); setContactErrors(v => ({ ...v, screenshotUrl: undefined })); }}
+                        style={fieldStyle('screenshotUrl')}
                       />
-                      {contactErrors.screenshot && <div style={{ color: '#ef4444', fontSize: '11px', marginTop: '3px' }}>{contactErrors.screenshot}</div>}
+                      {contactErrors.screenshotUrl && <div style={{ color: '#ef4444', fontSize: '11px', marginTop: '3px' }}>{contactErrors.screenshotUrl}</div>}
                     </div>
 
                     {/* Submit error */}
@@ -3870,7 +3881,7 @@ function Dashboard({ profile, onLogout }) {
                     <button
                       onClick={() => {
                         setHelpView('faq');
-                        setContactForm({ name: '', email: '', school: '', gradeLevels: [], issueType: '', description: '', screenshot: null });
+                        setContactForm({ name: '', email: '', school: '', gradeLevels: [], issueType: '', description: '', screenshotUrl: '', honeypot: '' });
                         setContactErrors({});
                       }}
                       style={{ padding: '8px 20px', background: 'white', color: '#3D6B8A', border: '1.5px solid #3D6B8A', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
