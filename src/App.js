@@ -3318,13 +3318,6 @@ function Dashboard({ profile, onLogout }) {
       body: 'Select a pre-assessment and post-assessment, fill in your report header, and generate a detailed growth report. Includes class summary, student-level data, and standards breakdown — ready to print or export as PDF.',
       onClick: () => setSection('tia-report'), color: '#2E7F84', bg: '#E5F4F5',
     },
-    {
-      num: 7, Icon: Archive,
-      title: 'Archive Old Classes',
-      desc: 'Keep your dashboard clean by archiving classes from previous semesters.',
-      body: 'Keep your dashboard clean by archiving classes from previous semesters. Click the archive icon on any class card in My Classes. View or restore archived classes anytime from the Archived Classes section at the bottom of the page.',
-      onClick: () => setSection('my-classes'), color: '#64748b', bg: '#f1f5f9',
-    },
   ];
 
   return (
