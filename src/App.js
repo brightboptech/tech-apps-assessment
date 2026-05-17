@@ -3180,6 +3180,7 @@ function Dashboard({ profile, onLogout }) {
   const [contactErrors, setContactErrors] = useState({});
   const [contactSubmitting, setContactSubmitting] = useState(false);
   const contactOpenedAt = useRef(null);
+  const [helpPulseDone, setHelpPulseDone] = useState(false);
 
   const HELP_ISSUE_TYPES = [
     'I need help using the platform',
@@ -3896,23 +3897,43 @@ function Dashboard({ profile, onLogout }) {
           );
         })()}
 
-        {/* Floating ? button */}
-        <button
-          onClick={() => { setHelpOpen(v => !v); setFaqSearch(''); setExpandedFaq(null); setHelpView('faq'); setContactErrors({}); }}
-          title="Help"
-          style={{
-            width: '52px', height: '52px', borderRadius: '50%',
-            background: helpOpen ? '#3D6B8A' : 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)',
-            border: 'none', cursor: 'pointer', boxShadow: '0 4px 18px rgba(61,107,138,0.45)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'transform 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-        >
-          <HelpCircle size={24} color="white" strokeWidth={2.5} />
-        </button>
+        {/* Floating Help button */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+          <button
+            onClick={() => { setHelpOpen(v => !v); setFaqSearch(''); setExpandedFaq(null); setHelpView('faq'); setContactErrors({}); }}
+            title="Help"
+            onAnimationEnd={() => setHelpPulseDone(true)}
+            style={{
+              width: '58px', height: '58px', borderRadius: '50%',
+              background: helpOpen ? '#B45E0A' : '#D97706',
+              border: 'none', cursor: 'pointer',
+              boxShadow: helpOpen
+                ? '0 2px 10px rgba(0,0,0,0.25)'
+                : '0 4px 22px rgba(217,119,6,0.55)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'transform 0.15s, background 0.2s, box-shadow 0.2s',
+              animation: helpPulseDone || helpOpen ? 'none' : 'helpPulse 0.9s ease-out 3',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.07)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            <HelpCircle size={26} color="white" strokeWidth={2.5} />
+          </button>
+          <span style={{
+            fontSize: '11px', fontWeight: 700, color: '#92400e',
+            letterSpacing: '0.05em', userSelect: 'none',
+            textShadow: '0 1px 2px rgba(255,255,255,0.8)',
+          }}>HELP</span>
+        </div>
       </div>
+
+      <style>{`
+        @keyframes helpPulse {
+          0%   { box-shadow: 0 4px 22px rgba(217,119,6,0.55), 0 0 0 0 rgba(217,119,6,0.65); }
+          70%  { box-shadow: 0 4px 22px rgba(217,119,6,0.55), 0 0 0 16px rgba(217,119,6,0); }
+          100% { box-shadow: 0 4px 22px rgba(217,119,6,0.55), 0 0 0 0 rgba(217,119,6,0); }
+        }
+      `}</style>
     </div>
   );
 }
