@@ -3175,6 +3175,66 @@ function Dashboard({ profile, onLogout }) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [faqSearch, setFaqSearch] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [helpView, setHelpView] = useState('faq'); // 'faq' | 'contact' | 'success'
+  const [contactForm, setContactForm] = useState({ name: '', email: '', school: '', gradeLevels: [], issueType: '', description: '', screenshot: null });
+  const [contactErrors, setContactErrors] = useState({});
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+
+  const HELP_ISSUE_TYPES = [
+    'I need help using the platform',
+    'I found a bug or error',
+    'Question about billing or passes',
+    'Question about TEKS alignment or content',
+    'Feature request or suggestion',
+    'TIA reporting help',
+    'Other',
+  ];
+
+  const handleContactSubmit = async () => {
+    const errs = {};
+    if (!contactForm.name.trim()) errs.name = 'Name is required.';
+    if (!contactForm.email.trim()) errs.email = 'Email is required.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactForm.email)) errs.email = 'Enter a valid email address.';
+    if (!contactForm.issueType) errs.issueType = 'Please select an issue type.';
+    if (!contactForm.description.trim()) errs.description = 'Description is required.';
+    else if (contactForm.description.trim().length < 20) errs.description = 'Please provide at least 20 characters.';
+    if (Object.keys(errs).length > 0) { setContactErrors(errs); return; }
+
+    setContactSubmitting(true);
+    setContactErrors({});
+
+    let screenshotUrl = null;
+    if (contactForm.screenshot) {
+      try {
+        const file = contactForm.screenshot;
+        const ext = file.name.split('.').pop().toLowerCase();
+        const path = `${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('support-screenshots').upload(path, file, { contentType: file.type });
+        if (!upErr) {
+          const { data: pubData } = supabase.storage.from('support-screenshots').getPublicUrl(path);
+          screenshotUrl = pubData?.publicUrl ?? null;
+        }
+      } catch { /* screenshot upload is non-fatal */ }
+    }
+
+    const { error } = await supabase.from('support_tickets').insert({
+      name: contactForm.name.trim(),
+      email: contactForm.email.trim(),
+      school: contactForm.school.trim() || null,
+      grade_levels: contactForm.gradeLevels.length > 0 ? contactForm.gradeLevels.join(', ') : null,
+      issue_type: contactForm.issueType,
+      description: contactForm.description.trim(),
+      screenshot_url: screenshotUrl,
+      status: 'new',
+    });
+
+    setContactSubmitting(false);
+    if (error) {
+      setContactErrors({ submit: 'Something went wrong. Please email support@brightboptech.com directly.' });
+    } else {
+      setHelpView('success');
+    }
+  };
 
   const steps = [
     {
@@ -3521,9 +3581,8 @@ function Dashboard({ profile, onLogout }) {
       {/* ── Floating FAQ Help Panel ───────────────────────────────────────── */}
       <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 8000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
 
-        {/* FAQ panel */}
         {helpOpen && (() => {
-          const query = faqSearch.trim().toLowerCase();
+          const query = helpView === 'faq' ? faqSearch.trim().toLowerCase() : '';
           const filtered = query
             ? FAQ_DATA.flatMap(cat =>
                 cat.items
@@ -3532,121 +3591,295 @@ function Dashboard({ profile, onLogout }) {
               )
             : null;
 
+          const fieldStyle = (field) => ({
+            width: '100%', padding: '7px 10px', fontSize: '13px', fontFamily: 'inherit',
+            border: `1.5px solid ${contactErrors[field] ? '#fca5a5' : '#e2e8f0'}`,
+            borderRadius: '7px', outline: 'none', boxSizing: 'border-box',
+            background: contactErrors[field] ? '#fff5f5' : 'white',
+          });
+
+          const closePanel = () => {
+            setHelpOpen(false); setFaqSearch(''); setExpandedFaq(null);
+            setHelpView('faq'); setContactErrors({});
+          };
+
           return (
             <div style={{
-              width: '360px', height: '520px', background: 'white',
-              borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
-              border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column',
-              overflow: 'hidden',
+              width: '360px', height: helpView === 'faq' ? '520px' : '560px',
+              background: 'white', borderRadius: '16px',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.18)', border: '1px solid #e2e8f0',
+              display: 'flex', flexDirection: 'column', overflow: 'hidden',
+              transition: 'height 0.18s ease',
             }}>
+
               {/* Header */}
               <div style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', padding: '13px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {helpView !== 'faq' && (
+                    <button
+                      onClick={() => { setHelpView('faq'); setContactErrors({}); }}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', borderRadius: '6px', padding: '3px 9px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, lineHeight: 1.5 }}
+                    >← Back</button>
+                  )}
                   <HelpCircle size={16} color="white" strokeWidth={2} />
-                  <span style={{ color: 'white', fontWeight: 700, fontSize: '14px' }}>TechGrowth Check Help</span>
+                  <span style={{ color: 'white', fontWeight: 700, fontSize: '14px' }}>
+                    {helpView === 'faq' ? 'TechGrowth Check Help' : helpView === 'contact' ? 'Contact Support' : 'Message Sent'}
+                  </span>
                 </div>
-                <button
-                  onClick={() => { setHelpOpen(false); setFaqSearch(''); setExpandedFaq(null); }}
-                  style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}
-                >&#x2715;</button>
+                <button onClick={closePanel} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>&#x2715;</button>
               </div>
 
-              {/* Search */}
-              <div style={{ padding: '12px 14px 8px', flexShrink: 0, borderBottom: '1px solid #f1f5f9' }}>
-                <input
-                  value={faqSearch}
-                  onChange={e => { setFaqSearch(e.target.value); setExpandedFaq(null); }}
-                  placeholder="Search for help..."
-                  style={{ width: '100%', padding: '8px 12px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '8px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
-                />
-              </div>
+              {/* Search bar (FAQ view only) */}
+              {helpView === 'faq' && (
+                <div style={{ padding: '12px 14px 8px', flexShrink: 0, borderBottom: '1px solid #f1f5f9' }}>
+                  <input
+                    value={faqSearch}
+                    onChange={e => { setFaqSearch(e.target.value); setExpandedFaq(null); }}
+                    placeholder="Search for help..."
+                    style={{ width: '100%', padding: '8px 12px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '8px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  />
+                </div>
+              )}
 
-              {/* Content */}
-              <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-                {filtered !== null ? (
-                  filtered.length === 0 ? (
-                    <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', marginTop: '40px', lineHeight: 1.7 }}>
-                      No results for <strong>"{faqSearch}"</strong><br />
-                      <span style={{ fontSize: '12px' }}>Try a different keyword.</span>
-                    </div>
-                  ) : (
-                    <div style={{ padding: '0 10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      {filtered.map((item, idx) => {
-                        const key = `search-${idx}`;
-                        const open = expandedFaq === key;
+              {/* Scrollable content area */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: helpView === 'faq' ? '8px 0' : '14px' }}>
+
+                {/* ── FAQ list ── */}
+                {helpView === 'faq' && (
+                  <>
+                    {filtered !== null ? (
+                      filtered.length === 0 ? (
+                        <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', marginTop: '40px', lineHeight: 1.7 }}>
+                          No results for <strong>"{faqSearch}"</strong><br />
+                          <span style={{ fontSize: '12px' }}>Try a different keyword.</span>
+                        </div>
+                      ) : (
+                        <div style={{ padding: '0 10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {filtered.map((item, idx) => {
+                            const key = `search-${idx}`;
+                            const open = expandedFaq === key;
+                            return (
+                              <div key={key} style={{ border: '1px solid #e8edf2', borderRadius: '8px', overflow: 'hidden' }}>
+                                <button onClick={() => setExpandedFaq(open ? null : key)} style={{ width: '100%', textAlign: 'left', padding: '10px 12px', background: open ? '#EAF1F8' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b', lineHeight: 1.4 }}>{item.q}</span>
+                                  <span style={{ color: '#5B8DB8', fontSize: '14px', lineHeight: 1, flexShrink: 0, marginTop: '2px' }}>{open ? '▲' : '▼'}</span>
+                                </button>
+                                {open && (
+                                  <div style={{ padding: '0 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
+                                    <div style={{ paddingTop: '10px' }}>{item.a}</div>
+                                    <div style={{ marginTop: '6px', fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item._cat}</div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )
+                    ) : (
+                      FAQ_DATA.map((cat, ci) => {
+                        const catKey = `cat-${ci}`;
+                        const catOpen = expandedFaq === catKey || expandedFaq?.startsWith(`${catKey}-`);
                         return (
-                          <div key={key} style={{ border: '1px solid #e8edf2', borderRadius: '8px', overflow: 'hidden' }}>
+                          <div key={catKey} style={{ marginBottom: '2px' }}>
                             <button
-                              onClick={() => setExpandedFaq(open ? null : key)}
-                              style={{ width: '100%', textAlign: 'left', padding: '10px 12px', background: open ? '#EAF1F8' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}
+                              onClick={() => setExpandedFaq(catOpen ? null : catKey)}
+                              style={{ width: '100%', textAlign: 'left', padding: '9px 16px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                             >
-                              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b', lineHeight: 1.4 }}>{item.q}</span>
-                              <span style={{ color: '#5B8DB8', fontSize: '16px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>{open ? '▲' : '▼'}</span>
+                              <span style={{ fontSize: '12px', fontWeight: 700, color: '#3D6B8A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.category}</span>
+                              <ChevronDown size={14} color="#94a3b8" style={{ transform: catOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                             </button>
-                            {open && (
-                              <div style={{ padding: '0 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
-                                <div style={{ paddingTop: '10px' }}>{item.a}</div>
-                                <div style={{ marginTop: '6px', fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item._cat}</div>
+                            {catOpen && (
+                              <div style={{ padding: '0 10px 6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                {cat.items.map((item, ii) => {
+                                  const itemKey = `${catKey}-${ii}`;
+                                  const open = expandedFaq === itemKey;
+                                  return (
+                                    <div key={itemKey} style={{ border: '1px solid #e8edf2', borderRadius: '8px', overflow: 'hidden' }}>
+                                      <button onClick={() => setExpandedFaq(open ? catKey : itemKey)} style={{ width: '100%', textAlign: 'left', padding: '9px 12px', background: open ? '#EAF1F8' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b', lineHeight: 1.4 }}>{item.q}</span>
+                                        <span style={{ color: '#5B8DB8', fontSize: '14px', lineHeight: 1, flexShrink: 0, marginTop: '2px' }}>{open ? '▲' : '▼'}</span>
+                                      </button>
+                                      {open && (
+                                        <div style={{ padding: '10px 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
+                                          {item.a}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
+                            <div style={{ height: '1px', background: '#f1f5f9', margin: '0 10px' }} />
                           </div>
                         );
-                      })}
-                    </div>
-                  )
-                ) : (
-                  FAQ_DATA.map((cat, ci) => {
-                    const catKey = `cat-${ci}`;
-                    const catOpen = expandedFaq === catKey || expandedFaq?.startsWith(`${catKey}-`);
-                    return (
-                      <div key={catKey} style={{ marginBottom: '2px' }}>
-                        {/* Category header */}
-                        <button
-                          onClick={() => setExpandedFaq(catOpen ? null : catKey)}
-                          style={{ width: '100%', textAlign: 'left', padding: '9px 16px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                          onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                        >
-                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#3D6B8A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.category}</span>
-                          <ChevronDown size={14} color="#94a3b8" style={{ transform: catOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                        </button>
+                      })
+                    )}
 
-                        {/* Items */}
-                        {catOpen && (
-                          <div style={{ padding: '0 10px 6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            {cat.items.map((item, ii) => {
-                              const itemKey = `${catKey}-${ii}`;
-                              const open = expandedFaq === itemKey;
-                              return (
-                                <div key={itemKey} style={{ border: '1px solid #e8edf2', borderRadius: '8px', overflow: 'hidden' }}>
-                                  <button
-                                    onClick={() => setExpandedFaq(open ? catKey : itemKey)}
-                                    style={{ width: '100%', textAlign: 'left', padding: '9px 12px', background: open ? '#EAF1F8' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}
-                                  >
-                                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b', lineHeight: 1.4 }}>{item.q}</span>
-                                    <span style={{ color: '#5B8DB8', fontSize: '14px', lineHeight: 1, flexShrink: 0, marginTop: '2px' }}>{open ? '▲' : '▼'}</span>
-                                  </button>
-                                  {open && (
-                                    <div style={{ padding: '10px 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
-                                      {item.a}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                        <div style={{ height: '1px', background: '#f1f5f9', margin: '0 10px' }} />
-                      </div>
-                    );
-                  })
+                    {/* Contact Support button */}
+                    <div style={{ textAlign: 'center', padding: '16px 16px 12px' }}>
+                      <button
+                        onClick={() => setHelpView('contact')}
+                        style={{ padding: '9px 22px', background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                        onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
+                        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                      >Contact Support</button>
+                    </div>
+                  </>
                 )}
 
-                {/* Footer */}
-                <div style={{ textAlign: 'center', padding: '14px 16px 10px', color: '#94a3b8', fontSize: '12px', lineHeight: 1.5 }}>
-                  Still have questions?<br />
-                  <a href="mailto:support@brightboptech.com" style={{ color: '#5B8DB8', fontWeight: 600, textDecoration: 'none' }}>support@brightboptech.com</a>
-                </div>
+                {/* ── Contact form ── */}
+                {helpView === 'contact' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
+
+                    {/* Name */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Name <span style={{ color: '#ef4444' }}>*</span></label>
+                      <input
+                        type="text" placeholder="Your name" value={contactForm.name}
+                        onChange={e => { setContactForm(f => ({ ...f, name: e.target.value })); setContactErrors(v => ({ ...v, name: undefined })); }}
+                        style={fieldStyle('name')}
+                      />
+                      {contactErrors.name && <div style={{ color: '#ef4444', fontSize: '11px', marginTop: '3px' }}>{contactErrors.name}</div>}
+                    </div>
+
+                    {/* Email */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Email <span style={{ color: '#ef4444' }}>*</span></label>
+                      <input
+                        type="email" placeholder="your@email.com" value={contactForm.email}
+                        onChange={e => { setContactForm(f => ({ ...f, email: e.target.value })); setContactErrors(v => ({ ...v, email: undefined })); }}
+                        style={fieldStyle('email')}
+                      />
+                      {contactErrors.email && <div style={{ color: '#ef4444', fontSize: '11px', marginTop: '3px' }}>{contactErrors.email}</div>}
+                    </div>
+
+                    {/* School/District */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>
+                        School / District <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional)</span>
+                      </label>
+                      <input
+                        type="text" placeholder="e.g. Austin ISD" value={contactForm.school}
+                        onChange={e => setContactForm(f => ({ ...f, school: e.target.value }))}
+                        style={fieldStyle('school')}
+                      />
+                    </div>
+
+                    {/* Grade Levels */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                        Grade Level(s) <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional)</span>
+                      </label>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                        {['K','1','2','3','4','5','6','7','8'].map(g => {
+                          const checked = contactForm.gradeLevels.includes(g);
+                          return (
+                            <label key={g} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: checked ? '#3D6B8A' : '#64748b', padding: '3px 10px', border: `1.5px solid ${checked ? '#3D6B8A' : '#e2e8f0'}`, borderRadius: '5px', background: checked ? '#EAF1F8' : 'white', userSelect: 'none', transition: 'all 0.1s' }}>
+                              <input
+                                type="checkbox" checked={checked}
+                                onChange={e => setContactForm(f => ({ ...f, gradeLevels: e.target.checked ? [...f.gradeLevels, g] : f.gradeLevels.filter(gl => gl !== g) }))}
+                                style={{ display: 'none' }}
+                              />
+                              {g}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Issue Type */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Issue Type <span style={{ color: '#ef4444' }}>*</span></label>
+                      <select
+                        value={contactForm.issueType}
+                        onChange={e => { setContactForm(f => ({ ...f, issueType: e.target.value })); setContactErrors(v => ({ ...v, issueType: undefined })); }}
+                        style={{ ...fieldStyle('issueType'), cursor: 'pointer', appearance: 'none' }}
+                      >
+                        <option value="">Select an issue type...</option>
+                        {HELP_ISSUE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                      {contactErrors.issueType && <div style={{ color: '#ef4444', fontSize: '11px', marginTop: '3px' }}>{contactErrors.issueType}</div>}
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Description <span style={{ color: '#ef4444' }}>*</span></label>
+                      <textarea
+                        value={contactForm.description}
+                        onChange={e => { setContactForm(f => ({ ...f, description: e.target.value })); setContactErrors(v => ({ ...v, description: undefined })); }}
+                        placeholder="Please describe your question or issue in detail..."
+                        rows={4}
+                        style={{ ...fieldStyle('description'), resize: 'vertical' }}
+                      />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '2px' }}>
+                        <span style={{ color: '#ef4444' }}>{contactErrors.description || ''}</span>
+                        <span style={{ color: contactForm.description.length >= 20 ? '#22c55e' : '#94a3b8' }}>{contactForm.description.length} / 20 min</span>
+                      </div>
+                    </div>
+
+                    {/* Screenshot */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>
+                        Screenshot <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional · PNG/JPG · max 5 MB)</span>
+                      </label>
+                      <input
+                        type="file" accept=".png,.jpg,.jpeg"
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          if (file && file.size > 5 * 1024 * 1024) {
+                            setContactErrors(v => ({ ...v, screenshot: 'File must be under 5 MB.' }));
+                            e.target.value = '';
+                          } else {
+                            setContactForm(f => ({ ...f, screenshot: file || null }));
+                            setContactErrors(v => { const n = { ...v }; delete n.screenshot; return n; });
+                          }
+                        }}
+                        style={{ width: '100%', fontSize: '12px', color: '#64748b', cursor: 'pointer' }}
+                      />
+                      {contactErrors.screenshot && <div style={{ color: '#ef4444', fontSize: '11px', marginTop: '3px' }}>{contactErrors.screenshot}</div>}
+                    </div>
+
+                    {/* Submit error */}
+                    {contactErrors.submit && (
+                      <div style={{ padding: '9px 12px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '7px', fontSize: '12px', color: '#b91c1c', lineHeight: 1.5 }}>
+                        {contactErrors.submit}
+                      </div>
+                    )}
+
+                    {/* Submit button */}
+                    <button
+                      onClick={handleContactSubmit}
+                      disabled={contactSubmitting}
+                      style={{ width: '100%', padding: '10px', background: contactSubmitting ? '#94a3b8' : 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: contactSubmitting ? 'not-allowed' : 'pointer', marginBottom: '4px' }}
+                    >
+                      {contactSubmitting ? 'Sending…' : 'Send Message'}
+                    </button>
+                  </div>
+                )}
+
+                {/* ── Success screen ── */}
+                {helpView === 'success' && (
+                  <div style={{ textAlign: 'center', padding: '36px 20px 24px' }}>
+                    <div style={{ width: '52px', height: '52px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '22px', color: '#16a34a' }}>✓</div>
+                    <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '15px', marginBottom: '10px' }}>Message Sent!</div>
+                    <div style={{ color: '#64748b', fontSize: '13px', lineHeight: 1.7, marginBottom: '24px' }}>
+                      Thank you! We've received your message and will respond within 1 business day.
+                    </div>
+                    <button
+                      onClick={() => {
+                        setHelpView('faq');
+                        setContactForm({ name: '', email: '', school: '', gradeLevels: [], issueType: '', description: '', screenshot: null });
+                        setContactErrors({});
+                      }}
+                      style={{ padding: '8px 20px', background: 'white', color: '#3D6B8A', border: '1.5px solid #3D6B8A', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#EAF1F8'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
+                    >← Back to FAQ</button>
+                  </div>
+                )}
+
               </div>
             </div>
           );
@@ -3654,7 +3887,7 @@ function Dashboard({ profile, onLogout }) {
 
         {/* Floating ? button */}
         <button
-          onClick={() => { setHelpOpen(v => !v); setFaqSearch(''); setExpandedFaq(null); }}
+          onClick={() => { setHelpOpen(v => !v); setFaqSearch(''); setExpandedFaq(null); setHelpView('faq'); setContactErrors({}); }}
           title="Help"
           style={{
             width: '52px', height: '52px', borderRadius: '50%',
