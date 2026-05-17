@@ -16,7 +16,7 @@ import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X, Archive, RotateCcw, ChevronDown, ChevronRight,
-  BookOpen, HelpCircle, Send,
+  BookOpen, HelpCircle,
 } from 'lucide-react';
 
 
@@ -3115,38 +3115,66 @@ function Dashboard({ profile, onLogout }) {
   const firstName = (profile.full_name || 'Teacher').split(' ')[0];
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
 
-  // ── Help Assistant ───────────────────────────────────────────────────────
+  // ── FAQ Help Panel ────────────────────────────────────────────────────────
+  const FAQ_DATA = [
+    {
+      category: 'Getting Started',
+      items: [
+        { q: 'How do I create my first assessment?', a: 'Go to Create Custom Assessment from the dashboard. Select your grade level (K-8), choose which TEKS standards to include, set 1-3 questions per standard, and click Generate Student Passes.' },
+        { q: 'How do I create a class?', a: 'Go to Generate Student Passes. Enter a class name, select the grade level, enter the number of students, and click Generate. This creates your class with pre-test and post-test passes for each student.' },
+        { q: 'How do students log in?', a: 'Students go to techgrowthcheck.com and enter their 8-character pass code, then click Begin Assessment. You can print pass sheets or display QR codes for students to scan.' },
+      ],
+    },
+    {
+      category: 'Questions & Answer Keys',
+      items: [
+        { q: 'How do I see the questions my students will see?', a: 'Go to My Classes, click View Passes on your class, then click the purple Answer Key button. This shows every question with the correct answer highlighted. The answer key is only available after generating passes.' },
+        { q: 'How do I get the answer key?', a: 'The Answer Key button appears on your class pass page after passes are generated. Click it to view and print all questions with correct answers marked.' },
+        { q: "Why can't I see questions before generating passes?", a: 'Questions are part of the paid assessment and are only accessible after passes are generated.' },
+      ],
+    },
+    {
+      category: 'K-2 Assessments',
+      items: [
+        { q: 'How do I give the test to Kindergarten, 1st, or 2nd graders?', a: 'Use Teacher Script Mode. Go to My Classes, click View Passes on your K-2 class, then click the Teacher Script button. Project it on a smartboard and read each question and answer choice aloud while students follow along as a group.' },
+        { q: 'Do K-2 students take the test on their own?', a: 'We recommend whole-group administration for K-2. The teacher reads questions aloud from the smartboard using Teacher Script Mode. Students can also take it individually with audio support, but teacher-led is the recommended approach.' },
+      ],
+    },
+    {
+      category: 'Results & Reporting',
+      items: [
+        { q: "How do I see my students' results?", a: "Go to My Results from the dashboard. Select a class to see each student's pre-test and post-test scores side by side with growth calculated in percentage points." },
+        { q: 'How do I download results?', a: 'In My Results, click Export CSV to download a spreadsheet of all scores formatted for TIA reporting.' },
+        { q: 'How do I generate a TIA Growth Report?', a: 'Go to TIA Growth Report from the dashboard. Select a pre-assessment and post-assessment, fill in your report header, and click Generate. The report includes class summary, student-level data, and standards breakdown — ready to print or export as PDF.' },
+      ],
+    },
+    {
+      category: 'Managing Classes',
+      items: [
+        { q: 'How do I archive an old class?', a: 'In My Classes, click the small archive icon in the top-right corner of any class card. Confirm by clicking Yes. The class moves to the Archived Classes section at the bottom of the page.' },
+        { q: 'How do I restore an archived class?', a: 'Scroll to the bottom of My Classes, click the Archived Classes header to expand it, and click the Restore button on any archived class card.' },
+        { q: 'Can I delete a class?', a: 'Classes cannot be deleted, but you can archive them to keep your dashboard clean. Archived classes and their data are always available if you need them later.' },
+      ],
+    },
+    {
+      category: 'Assessment Settings',
+      items: [
+        { q: "What does 'Randomize question order' do?", a: 'When enabled (default for grades 3-8), each student sees questions in a different random order. This prevents students sitting next to each other from having the same sequence. K-2 questions are always in fixed order regardless of this setting.' },
+        { q: 'How do I set testing windows?', a: 'Go to Schedule from the dashboard. Add recurring access windows by day of week and time. Outside these windows, students see a message that the assessment is unavailable. If no windows are set, assessments are open at all times.' },
+        { q: 'Can students save and come back later?', a: 'Yes. Students can click Save & Exit during the assessment and return later with the same pass code to resume where they left off. Once submitted, the assessment is complete.' },
+      ],
+    },
+    {
+      category: 'Account & Support',
+      items: [
+        { q: 'How do I contact support?', a: 'Email support@brightboptech.com for any questions not covered here.' },
+      ],
+    },
+  ];
+
   const [helpOpen, setHelpOpen] = useState(false);
-  const [helpMessages, setHelpMessages] = useState([]);
-  const [helpInput, setHelpInput] = useState('');
-  const [helpLoading, setHelpLoading] = useState(false);
-  const helpBottomRef = useRef(null);
-
-  useEffect(() => {
-    if (helpOpen && helpBottomRef.current) helpBottomRef.current.scrollIntoView({ behavior: 'smooth' });
-  }, [helpMessages, helpOpen]);
-
-  const sendHelpMessage = async () => {
-    const text = helpInput.trim();
-    if (!text || helpLoading) return;
-    const userMsg = { role: 'user', content: text };
-    const next = [...helpMessages, userMsg];
-    setHelpMessages(next);
-    setHelpInput('');
-    setHelpLoading(true);
-    try {
-      const res = await fetch('/api/help-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: next }),
-      });
-      const data = await res.json();
-      setHelpMessages(prev => [...prev, { role: 'assistant', content: data.content || data.error || 'Sorry, something went wrong.' }]);
-    } catch {
-      setHelpMessages(prev => [...prev, { role: 'assistant', content: 'Could not reach the help assistant. Please try again.' }]);
-    }
-    setHelpLoading(false);
-  };
+  const [faqSearch, setFaqSearch] = useState('');
+  const [expandedFaq, setExpandedFaq] = useState(null);
 
   const steps = [
     {
@@ -3490,83 +3518,143 @@ function Dashboard({ profile, onLogout }) {
         </div>
       )}
 
-      {/* ── Floating Help Assistant ───────────────────────────────────────── */}
+      {/* ── Floating FAQ Help Panel ───────────────────────────────────────── */}
       <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 8000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
 
-        {/* Chat panel */}
-        {helpOpen && (
-          <div style={{
-            width: '340px', height: '480px', background: 'white',
-            borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
-            border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column',
-            overflow: 'hidden',
-          }}>
-            {/* Panel header */}
-            <div style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <HelpCircle size={16} color="white" strokeWidth={2} />
-                <span style={{ color: 'white', fontWeight: 700, fontSize: '14px' }}>TechGrowth Help</span>
+        {/* FAQ panel */}
+        {helpOpen && (() => {
+          const query = faqSearch.trim().toLowerCase();
+          const filtered = query
+            ? FAQ_DATA.flatMap(cat =>
+                cat.items
+                  .filter(item => item.q.toLowerCase().includes(query) || item.a.toLowerCase().includes(query))
+                  .map(item => ({ ...item, _cat: cat.category }))
+              )
+            : null;
+
+          return (
+            <div style={{
+              width: '360px', height: '520px', background: 'white',
+              borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+              border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column',
+              overflow: 'hidden',
+            }}>
+              {/* Header */}
+              <div style={{ background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', padding: '13px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <HelpCircle size={16} color="white" strokeWidth={2} />
+                  <span style={{ color: 'white', fontWeight: 700, fontSize: '14px' }}>TechGrowth Check Help</span>
+                </div>
+                <button
+                  onClick={() => { setHelpOpen(false); setFaqSearch(''); setExpandedFaq(null); }}
+                  style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}
+                >&#x2715;</button>
               </div>
-              <button onClick={() => setHelpOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>&#x2715;</button>
-            </div>
 
-            {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {helpMessages.length === 0 && (
-                <div style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', marginTop: '32px', lineHeight: 1.6 }}>
-                  <HelpCircle size={28} color="#cbd5e1" strokeWidth={1.5} style={{ marginBottom: '10px' }} />
-                  <div>Ask me anything about TechGrowth Check —</div>
-                  <div>how to create assessments, generate passes, view results, and more.</div>
-                </div>
-              )}
-              {helpMessages.map((msg, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                  <div style={{
-                    maxWidth: '85%', padding: '9px 13px', borderRadius: msg.role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                    background: msg.role === 'user' ? '#3D6B8A' : '#f1f5f9',
-                    color: msg.role === 'user' ? 'white' : '#1e293b',
-                    fontSize: '13px', lineHeight: 1.55, whiteSpace: 'pre-wrap',
-                  }}>
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-              {helpLoading && (
-                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                  <div style={{ background: '#f1f5f9', borderRadius: '14px 14px 14px 4px', padding: '9px 16px', display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    {[0, 1, 2].map(i => (
-                      <span key={i} style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#94a3b8', display: 'inline-block', animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div ref={helpBottomRef} />
-            </div>
+              {/* Search */}
+              <div style={{ padding: '12px 14px 8px', flexShrink: 0, borderBottom: '1px solid #f1f5f9' }}>
+                <input
+                  value={faqSearch}
+                  onChange={e => { setFaqSearch(e.target.value); setExpandedFaq(null); }}
+                  placeholder="Search for help..."
+                  style={{ width: '100%', padding: '8px 12px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '8px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                />
+              </div>
 
-            {/* Input */}
-            <div style={{ padding: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '8px', flexShrink: 0 }}>
-              <input
-                value={helpInput}
-                onChange={e => setHelpInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendHelpMessage(); } }}
-                placeholder="Ask a question…"
-                style={{ flex: 1, padding: '9px 12px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '8px', outline: 'none', fontFamily: 'inherit' }}
-                disabled={helpLoading}
-              />
-              <button
-                onClick={sendHelpMessage}
-                disabled={!helpInput.trim() || helpLoading}
-                style={{ padding: '9px 13px', background: helpInput.trim() && !helpLoading ? '#3D6B8A' : '#e2e8f0', border: 'none', borderRadius: '8px', cursor: helpInput.trim() && !helpLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-              >
-                <Send size={15} color={helpInput.trim() && !helpLoading ? 'white' : '#94a3b8'} strokeWidth={2} />
-              </button>
+              {/* Content */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+                {filtered !== null ? (
+                  filtered.length === 0 ? (
+                    <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', marginTop: '40px', lineHeight: 1.7 }}>
+                      No results for <strong>"{faqSearch}"</strong><br />
+                      <span style={{ fontSize: '12px' }}>Try a different keyword.</span>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '0 10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {filtered.map((item, idx) => {
+                        const key = `search-${idx}`;
+                        const open = expandedFaq === key;
+                        return (
+                          <div key={key} style={{ border: '1px solid #e8edf2', borderRadius: '8px', overflow: 'hidden' }}>
+                            <button
+                              onClick={() => setExpandedFaq(open ? null : key)}
+                              style={{ width: '100%', textAlign: 'left', padding: '10px 12px', background: open ? '#EAF1F8' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}
+                            >
+                              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b', lineHeight: 1.4 }}>{item.q}</span>
+                              <span style={{ color: '#5B8DB8', fontSize: '16px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>{open ? '▲' : '▼'}</span>
+                            </button>
+                            {open && (
+                              <div style={{ padding: '0 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
+                                <div style={{ paddingTop: '10px' }}>{item.a}</div>
+                                <div style={{ marginTop: '6px', fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item._cat}</div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
+                ) : (
+                  FAQ_DATA.map((cat, ci) => {
+                    const catKey = `cat-${ci}`;
+                    const catOpen = expandedFaq === catKey || expandedFaq?.startsWith(`${catKey}-`);
+                    return (
+                      <div key={catKey} style={{ marginBottom: '2px' }}>
+                        {/* Category header */}
+                        <button
+                          onClick={() => setExpandedFaq(catOpen ? null : catKey)}
+                          style={{ width: '100%', textAlign: 'left', padding: '9px 16px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                        >
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#3D6B8A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.category}</span>
+                          <ChevronDown size={14} color="#94a3b8" style={{ transform: catOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                        </button>
+
+                        {/* Items */}
+                        {catOpen && (
+                          <div style={{ padding: '0 10px 6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {cat.items.map((item, ii) => {
+                              const itemKey = `${catKey}-${ii}`;
+                              const open = expandedFaq === itemKey;
+                              return (
+                                <div key={itemKey} style={{ border: '1px solid #e8edf2', borderRadius: '8px', overflow: 'hidden' }}>
+                                  <button
+                                    onClick={() => setExpandedFaq(open ? catKey : itemKey)}
+                                    style={{ width: '100%', textAlign: 'left', padding: '9px 12px', background: open ? '#EAF1F8' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}
+                                  >
+                                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b', lineHeight: 1.4 }}>{item.q}</span>
+                                    <span style={{ color: '#5B8DB8', fontSize: '14px', lineHeight: 1, flexShrink: 0, marginTop: '2px' }}>{open ? '▲' : '▼'}</span>
+                                  </button>
+                                  {open && (
+                                    <div style={{ padding: '10px 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
+                                      {item.a}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        <div style={{ height: '1px', background: '#f1f5f9', margin: '0 10px' }} />
+                      </div>
+                    );
+                  })
+                )}
+
+                {/* Footer */}
+                <div style={{ textAlign: 'center', padding: '14px 16px 10px', color: '#94a3b8', fontSize: '12px', lineHeight: 1.5 }}>
+                  Still have questions?<br />
+                  <a href="mailto:support@brightboptech.com" style={{ color: '#5B8DB8', fontWeight: 600, textDecoration: 'none' }}>support@brightboptech.com</a>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Floating ? button */}
         <button
-          onClick={() => setHelpOpen(v => !v)}
+          onClick={() => { setHelpOpen(v => !v); setFaqSearch(''); setExpandedFaq(null); }}
           title="Help"
           style={{
             width: '52px', height: '52px', borderRadius: '50%',
@@ -3581,13 +3669,6 @@ function Dashboard({ profile, onLogout }) {
           <HelpCircle size={24} color="white" strokeWidth={2.5} />
         </button>
       </div>
-
-      <style>{`
-        @keyframes bounce {
-          0%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-6px); }
-        }
-      `}</style>
     </div>
   );
 }
