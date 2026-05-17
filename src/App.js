@@ -1066,6 +1066,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const [isViewingExisting, setIsViewingExisting] = useState(false);
   const canvasRefs = useRef({});
   const [showTeacherScript, setShowTeacherScript] = useState(false);
+  const [expiresAt, setExpiresAt] = useState(initialClass?.expires_at ?? null);
 
   // Multi-class additional rows
   const [additionalClasses, setAdditionalClasses] = useState([]);
@@ -1176,6 +1177,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
 
       const allRows = [];
       const byClass = {};
+      const newExpiresAt = (() => { const d = new Date(); d.setMonth(d.getMonth() + 13); return d.toISOString(); })();
 
       for (const cls of classes) {
         const n = parseInt(cls.studentCount, 10);
@@ -1187,8 +1189,8 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           const pre  = makeToken();
           const post = makeToken();
           allRows.push(
-            { token: pre,  grade_level: Number(cls.grade), test_type: 'pre',  teacher_id: profile.id, class_name: cls.className, student_number: studentNum },
-            { token: post, grade_level: Number(cls.grade), test_type: 'post', teacher_id: profile.id, class_name: cls.className, student_number: studentNum },
+            { token: pre,  grade_level: Number(cls.grade), test_type: 'pre',  teacher_id: profile.id, class_name: cls.className, student_number: studentNum, expires_at: newExpiresAt },
+            { token: post, grade_level: Number(cls.grade), test_type: 'post', teacher_id: profile.id, class_name: cls.className, student_number: studentNum, expires_at: newExpiresAt },
           );
           byClass[classKey].passes.push({ studentNum, pre, post });
         }
@@ -1218,6 +1220,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       window.history.replaceState({}, '', cleanUrl.toString());
 
       const classList = Object.values(byClass);
+      setExpiresAt(newExpiresAt);
       if (classList.length === 1) {
         setClassName(classList[0].className);
         setGrade(classList[0].grade);
@@ -1322,13 +1325,14 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
 
       const rows = [];
       const passData = [];
+      const betaExpiresAt = (() => { const d = new Date(); d.setMonth(d.getMonth() + 13); return d.toISOString(); })();
       for (let i = 0; i < count; i++) {
         const studentNum = startingStudentNumber + i;
         const pre  = makeToken();
         const post = makeToken();
         rows.push(
-          { token: pre,  grade_level: Number(grade), test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: studentNum },
-          { token: post, grade_level: Number(grade), test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: studentNum },
+          { token: pre,  grade_level: Number(grade), test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: studentNum, expires_at: betaExpiresAt },
+          { token: post, grade_level: Number(grade), test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: studentNum, expires_at: betaExpiresAt },
         );
         passData.push({ studentNum, pre, post });
       }
@@ -1337,6 +1341,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       if (insertError) { setBetaCodeError('Could not save passes: ' + insertError.message); setGenerating(false); return; }
 
       await supabase.from('beta_codes').update({ used_students: (codeData.used_students || 0) + count }).eq('code', codeData.code);
+      setExpiresAt(betaExpiresAt);
       setPasses(passData);
     } catch (err) {
       setBetaCodeError('Something went wrong: ' + err.message);
@@ -1371,7 +1376,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     setError('');
     const { data, error: dbError } = await supabase
       .from('tokens')
-      .select('token, test_type, student_number, grade_level')
+      .select('token, test_type, student_number, grade_level, expires_at')
       .eq('teacher_id', profile.id)
       .eq('class_name', cls)
       .order('student_number');
@@ -1396,6 +1401,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       map[num].post = token;
     });
     setPasses(Object.values(map).sort((a, b) => a.studentNum - b.studentNum));
+    setExpiresAt(data[0]?.expires_at ?? null);
     setIsViewingExisting(true);
     setGenerating(false);
   };
@@ -1735,6 +1741,28 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       {passes.length > 0 && (
         <div style={{ background: 'white', borderRadius: '10px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
 
+          {/* Expiry banner */}
+          {expiresAt && (() => {
+            const exp = new Date(expiresAt);
+            const now = new Date();
+            const expired = exp < now;
+            const daysLeft = Math.ceil((exp - now) / 86400000);
+            const expLabel = exp.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            if (expired) return (
+              <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#475569', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                <span style={{ flexShrink: 0 }}>ℹ️</span>
+                <span>These passes expired on <strong>{expLabel}</strong>. Students can no longer take assessments. All results and reports are still available.</span>
+              </div>
+            );
+            if (daysLeft <= 30) return (
+              <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#92400e', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                <span style={{ flexShrink: 0 }}>⚠️</span>
+                <span>These passes expire on <strong>{expLabel}</strong>. Students will not be able to take assessments after this date. Results and reports will remain accessible.</span>
+              </div>
+            );
+            return null;
+          })()}
+
           {/* Instruction note */}
           {!isViewingExisting && (
             <div style={{
@@ -2032,6 +2060,7 @@ function CreateAssessment({ profile, onBack }) {
 
     const assessmentConfigId = acData.id;
     const primaryGrade = sortedGrades.length > 0 ? Number(sortedGrades[0]) : null;
+    const caExpiresAt = (() => { const d = new Date(); d.setMonth(d.getMonth() + 13); return d.toISOString(); })();
     const rows = [];
     const configRows = [];
     const passData = [];
@@ -2049,8 +2078,8 @@ function CreateAssessment({ profile, onBack }) {
           ]
         : selectedIds;
       rows.push(
-        { token: pre,  grade_level: primaryGrade, test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: i },
-        { token: post, grade_level: primaryGrade, test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: i },
+        { token: pre,  grade_level: primaryGrade, test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: i, expires_at: caExpiresAt },
+        { token: post, grade_level: primaryGrade, test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: i, expires_at: caExpiresAt },
       );
       configRows.push(
         { token: pre,  question_ids: orderedIds, assessment_config_id: assessmentConfigId },
@@ -3052,13 +3081,13 @@ function Dashboard({ profile, onLogout }) {
   useEffect(() => {
     const loadDashClasses = async () => {
       const [tokenRes, archiveRes] = await Promise.all([
-        supabase.from('tokens').select('class_name, grade_level').eq('teacher_id', profile.id).eq('test_type', 'pre'),
+        supabase.from('tokens').select('class_name, grade_level, expires_at').eq('teacher_id', profile.id).eq('test_type', 'pre'),
         supabase.from('class_archives').select('class_name').eq('teacher_id', profile.id),
       ]);
       if (tokenRes.data) {
         const map = {};
-        tokenRes.data.forEach(({ class_name, grade_level }) => {
-          if (!map[class_name]) map[class_name] = { class_name, grade_level, count: 0 };
+        tokenRes.data.forEach(({ class_name, grade_level, expires_at }) => {
+          if (!map[class_name]) map[class_name] = { class_name, grade_level, count: 0, expires_at: expires_at ?? null };
           map[class_name].count++;
         });
         setDashClasses(Object.values(map).sort((a, b) => a.class_name.localeCompare(b.class_name)));
@@ -3514,8 +3543,13 @@ function Dashboard({ profile, onLogout }) {
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '14px', marginBottom: '28px' }}>
-                  {dashClasses.filter(c => !archivedNames.has(c.class_name)).map(c => (
-                    <div key={c.class_name} style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7', display: 'flex', flexDirection: 'column' }}>
+                  {dashClasses.filter(c => !archivedNames.has(c.class_name)).map(c => {
+                    const isExpired = c.expires_at && new Date(c.expires_at) < new Date();
+                    const daysLeft = c.expires_at ? Math.ceil((new Date(c.expires_at) - new Date()) / 86400000) : null;
+                    const expLabel = c.expires_at ? new Date(c.expires_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : null;
+                    const expiryColor = isExpired ? '#dc2626' : daysLeft !== null && daysLeft <= 30 ? '#D97706' : '#94a3b8';
+                    return (
+                    <div key={c.class_name} style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: `1px solid ${isExpired ? '#fecaca' : '#eef2f7'}`, display: 'flex', flexDirection: 'column', opacity: isExpired ? 0.72 : 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3px' }}>
                         <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b' }}>{c.class_name}</div>
                         {confirmArchive === c.class_name ? (
@@ -3534,9 +3568,14 @@ function Dashboard({ profile, onLogout }) {
                           ><Archive size={14} strokeWidth={2} /></button>
                         )}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: expLabel ? '4px' : '16px' }}>
                         {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
                       </div>
+                      {expLabel && (
+                        <div style={{ fontSize: '11px', color: expiryColor, fontWeight: isExpired || (daysLeft !== null && daysLeft <= 30) ? 700 : 400, marginBottom: '16px' }}>
+                          {isExpired ? '⊘ Expired' : `Expires ${expLabel}`}
+                        </div>
+                      )}
                       <button
                         onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
                         style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
@@ -3544,7 +3583,8 @@ function Dashboard({ profile, onLogout }) {
                         onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
                       >View Passes →</button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -5918,7 +5958,7 @@ function App() {
     try {
       const { data, error: dbError } = await supabase
         .from('tokens')
-        .select('grade_level')
+        .select('grade_level, expires_at')
         .eq('token', code)
         .maybeSingle();
       if (dbError) {
@@ -5928,6 +5968,10 @@ function App() {
       }
       if (!data) {
         setError('Token not found. Please check your code and try again.');
+        return;
+      }
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        setError('This assessment pass has expired. Please ask your teacher for a new pass.');
         return;
       }
       if (data.grade_level === null || data.grade_level === undefined) {
