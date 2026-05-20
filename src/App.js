@@ -20,20 +20,55 @@ import {
 } from 'lucide-react';
 
 
+// ── Copy-protection helpers (applied to all question/answer content) ──────────
+const noSelect = {
+  userSelect: 'none', WebkitUserSelect: 'none',
+  MozUserSelect: 'none', msUserSelect: 'none',
+};
+const noCopy = e => e.preventDefault();
+
+// Blocks Ctrl/Cmd+C, Ctrl/Cmd+A, Ctrl/Cmd+P via capture-phase keydown listener.
+// Returns the removeEventListener cleanup function.
+function addCopyKeyBlock() {
+  const handler = (e) => {
+    if ((e.ctrlKey || e.metaKey) && ['c', 'a', 'p'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+  window.addEventListener('keydown', handler, true);
+  return () => window.removeEventListener('keydown', handler, true);
+}
+
 // ── Teacher Script Mode ────────────────────────────────────────────────────────
 function TeacherScriptMode({ questions, onClose }) {
   const [slide, setSlide] = useState(0);
   const q = questions[slide];
+
+  useEffect(() => {
+    const cleanup = addCopyKeyBlock();
+    const noprint = document.createElement('style');
+    noprint.id = 'ts-no-print';
+    noprint.textContent = '@media print { body * { visibility: hidden !important; } }';
+    document.head.appendChild(noprint);
+    return () => { cleanup(); document.getElementById('ts-no-print')?.remove(); };
+  }, []);
 
   if (!q) return null;
 
   const total = questions.length;
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: '#1a2535',
-      zIndex: 9999, display: 'flex', flexDirection: 'column',
-    }}>
+    <div
+      style={{
+        position: 'fixed', inset: 0, background: '#1a2535',
+        zIndex: 9999, display: 'flex', flexDirection: 'column',
+        ...noSelect,
+      }}
+      onCopy={noCopy}
+      onContextMenu={noCopy}
+      onDragStart={noCopy}
+    >
       {/* Top bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -145,33 +180,25 @@ function TeacherScriptMode({ questions, onClose }) {
 
 function AnswerKeyOverlay({ questions, title, subtitle, onClose }) {
   useEffect(() => {
-    // Block Ctrl/Cmd+P keyboard shortcut while overlay is open
-    const blockPrint = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
-    window.addEventListener('keydown', blockPrint, true);
-
-    // Inject CSS that makes the page print blank if browser print is triggered anyway
+    const cleanup = addCopyKeyBlock();
     const style = document.createElement('style');
     style.id = 'ak-no-print';
     style.textContent = '@media print { body * { visibility: hidden !important; } }';
     document.head.appendChild(style);
-
-    return () => {
-      window.removeEventListener('keydown', blockPrint, true);
-      document.getElementById('ak-no-print')?.remove();
-    };
+    return () => { cleanup(); document.getElementById('ak-no-print')?.remove(); };
   }, []);
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 9999,
-      background: 'white', display: 'flex', flexDirection: 'column',
-      overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'white', display: 'flex', flexDirection: 'column',
+        overflow: 'hidden', ...noSelect,
+      }}
+      onCopy={noCopy}
+      onContextMenu={noCopy}
+      onDragStart={noCopy}
+    >
       {/* Top bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -5832,6 +5859,12 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Block copy/select keyboard shortcuts during active student assessment
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    return addCopyKeyBlock();
+  }, [isLoggedIn]);
+
   const loadTeacherProfile = async (userId, isNewLogin) => {
     const { data, error } = await supabase
       .from('teachers')
@@ -6675,7 +6708,13 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div
+      className="App"
+      style={noSelect}
+      onCopy={noCopy}
+      onContextMenu={noCopy}
+      onDragStart={noCopy}
+    >
       <header className="App-header">
         <div className="tc-token-badge" style={{
           position: 'absolute', top: '18px', right: '20px',
