@@ -1562,10 +1562,13 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     return urls;
   };
 
+  const passesExpired = !!(expiresAt && new Date(expiresAt) < new Date());
+
   const handlePrintPre    = () => printDoc(buildPassPrintHTML(passes, 'pre',  className, '', getQrURLs(), studentNames));
   const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, '', getQrURLs(), studentNames));
   const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, gradeDisplay(grade), studentNames));
   const handleAnswerKey = () => {
+    if (passesExpired) return;
     const qs = getQuestionsForGrade(Number(grade));
     setAnswerKeyData({ questions: qs, title: gradeDisplay(grade), subtitle: className });
     setShowAnswerKey(true);
@@ -1970,13 +1973,18 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
             if (expired) return (
               <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#475569', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
                 <span style={{ flexShrink: 0 }}>ℹ️</span>
-                <span>These passes expired on <strong>{expLabel}</strong>. Students can no longer take assessments. All results and reports are still available.</span>
+                <div>
+                  <div>These passes expired on <strong>{expLabel}</strong>. Students can no longer take assessments. Pass codes, results, reports, and CSV exports remain accessible.</div>
+                  <div style={{ marginTop: '6px', color: '#64748b' }}>
+                    <strong>Assessment content (answer key, teacher script) is no longer available.</strong> Purchase new passes to restore access.
+                  </div>
+                </div>
               </div>
             );
             if (daysLeft <= 30) return (
               <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#92400e', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
                 <span style={{ flexShrink: 0 }}>⚠️</span>
-                <span>These passes expire on <strong>{expLabel}</strong>. Students will not be able to take assessments after this date. Results and reports will remain accessible.</span>
+                <span>These passes expire on <strong>{expLabel}</strong>. Students will not be able to take assessments after this date. Results, reports, and assessment content remain accessible until then.</span>
               </div>
             );
             return null;
@@ -2024,13 +2032,13 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
                 onClick={handleExportCSV}
                 style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               ><FileText size={14} strokeWidth={2} color="#555" />Export CSV</button>
-              {grade !== '' && (
+              {grade !== '' && !passesExpired && (
                 <button
                   onClick={handleAnswerKey}
                   style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #6B5F9B', borderRadius: '6px', backgroundColor: '#EDEAF6', color: '#4B3F82', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                 ><BookOpen size={14} strokeWidth={2} color="#4B3F82" />Answer Key</button>
               )}
-              {grade !== '' && Number(grade) <= 2 && (
+              {grade !== '' && Number(grade) <= 2 && !passesExpired && (
                 <button
                   onClick={() => setShowTeacherScript(true)}
                   style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #5B8DB8', borderRadius: '6px', backgroundColor: '#EAF1F8', color: '#3D6B8A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -3901,8 +3909,15 @@ function Dashboard({ profile, onLogout }) {
                         {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
                       </div>
                       {expLabel && (
-                        <div style={{ fontSize: '11px', color: expiryColor, fontWeight: isExpired || (daysLeft !== null && daysLeft <= 30) ? 700 : 400, marginBottom: '16px' }}>
-                          {isExpired ? '⊘ Expired' : `Expires ${expLabel}`}
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ fontSize: '11px', color: expiryColor, fontWeight: isExpired || (daysLeft !== null && daysLeft <= 30) ? 700 : 400 }}>
+                            {isExpired ? '⊘ Expired' : `Expires ${expLabel}`}
+                          </div>
+                          {isExpired && (
+                            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px', lineHeight: 1.4 }}>
+                              Answer key &amp; teacher script unavailable
+                            </div>
+                          )}
                         </div>
                       )}
                       <button
