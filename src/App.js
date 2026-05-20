@@ -3623,6 +3623,20 @@ function Dashboard({ profile, onLogout }) {
       setContactErrors({ submit: 'Something went wrong. Please email support@brightboptech.com directly.' });
     } else {
       sessionStorage.setItem(RATE_KEY, JSON.stringify([...recent, now]));
+      // Fire-and-forget email notification — ticket is already saved to Supabase
+      fetch('/api/support-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: stripHtml(contactForm.name.trim()),
+          email: contactForm.email.trim(),
+          school: contactForm.school.trim() || null,
+          grade_levels: contactForm.gradeLevels.length > 0 ? contactForm.gradeLevels.join(', ') : null,
+          issue_type: contactForm.issueType,
+          description: stripHtml(contactForm.description.trim()),
+          screenshot_url: contactForm.screenshotUrl.trim() || null,
+        }),
+      }).catch(() => {});
       setHelpView('success');
     }
   };
