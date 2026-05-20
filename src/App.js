@@ -14,7 +14,7 @@ import { supabase } from './supabaseClient';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
-  KeyRound, TrendingUp, ClipboardList, Sparkles, Calendar, Volume2, FileText,
+  KeyRound, TrendingUp, ClipboardList, Sparkles, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X, Archive, RotateCcw, ChevronDown, ChevronRight,
   BookOpen, HelpCircle,
 } from 'lucide-react';
@@ -142,6 +142,130 @@ function TeacherScriptMode({ questions, onClose }) {
   );
 }
 
+
+function AnswerKeyOverlay({ questions, title, subtitle, onClose }) {
+  useEffect(() => {
+    // Block Ctrl/Cmd+P keyboard shortcut while overlay is open
+    const blockPrint = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener('keydown', blockPrint, true);
+
+    // Inject CSS that makes the page print blank if browser print is triggered anyway
+    const style = document.createElement('style');
+    style.id = 'ak-no-print';
+    style.textContent = '@media print { body * { visibility: hidden !important; } }';
+    document.head.appendChild(style);
+
+    return () => {
+      window.removeEventListener('keydown', blockPrint, true);
+      document.getElementById('ak-no-print')?.remove();
+    };
+  }, []);
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'white', display: 'flex', flexDirection: 'column',
+      overflow: 'hidden',
+    }}>
+      {/* Top bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 28px', background: '#2D3D4A',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        flexShrink: 0, flexWrap: 'wrap', gap: '10px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+          <span style={{ color: 'white', fontSize: '15px', fontWeight: 700 }}>
+            TechGrowth Check — Answer Key
+          </span>
+          <span style={{
+            background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '4px',
+            padding: '3px 10px', fontSize: '11px', color: '#7a5f00', fontWeight: 800,
+          }}>
+            ⚠ TEACHER COPY — DO NOT DISTRIBUTE
+          </span>
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            padding: '8px 16px', fontSize: '13px', fontWeight: 600,
+            border: '1.5px solid rgba(255,255,255,0.25)', borderRadius: '6px',
+            background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)',
+            cursor: 'pointer',
+          }}
+        >✕ Close</button>
+      </div>
+
+      {/* Subtitle row */}
+      <div style={{
+        padding: '9px 28px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0',
+        fontSize: '13px', color: '#64748b', flexShrink: 0,
+      }}>
+        {title}{subtitle ? ` · ${subtitle}` : ''} · {questions.length} question{questions.length !== 1 ? 's' : ''}
+      </div>
+
+      {/* Scrollable question list */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
+        <div style={{ columns: 2, columnGap: '18px', maxWidth: '1200px', margin: '0 auto' }}>
+          {questions.map((q, idx) => (
+            <div key={q.id} style={{
+              border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px 16px',
+              marginBottom: '14px', breakInside: 'avoid',
+              background: 'white',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '7px' }}>
+                <span style={{
+                  background: '#EAF1F8', color: '#3D6B8A', fontWeight: 800, fontSize: '12px',
+                  padding: '2px 8px', borderRadius: '4px', flexShrink: 0,
+                }}>Q{idx + 1}</span>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                  {q.strand || ''}{q.strand && q.id ? ' · ' : ''}
+                  {q.id && <span style={{ fontFamily: 'monospace', fontSize: '11px', background: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>{q.id}</span>}
+                </span>
+              </div>
+              <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '10px', lineHeight: 1.45, color: '#1e293b' }}>
+                {q.text}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {q.options.map(opt => {
+                  const correct = opt.letter === q.correctAnswer;
+                  return (
+                    <div key={opt.letter} style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '6px 10px', borderRadius: '6px',
+                      border: correct ? '1px solid #4ade80' : '1px solid #e2e8f0',
+                      background: correct ? '#f0fdf4' : '#fafafa',
+                    }}>
+                      <div style={{
+                        width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: correct ? '#4ade80' : '#e2e8f0',
+                        fontWeight: 800, fontSize: '12px',
+                        color: correct ? '#14532d' : '#475569',
+                      }}>{opt.letter}</div>
+                      <span style={{ flex: 1, fontSize: '13px', color: '#1e293b' }}>{opt.text}</span>
+                      {correct && (
+                        <span style={{
+                          fontSize: '11px', fontWeight: 800, color: '#16a34a',
+                          background: '#dcfce7', padding: '2px 8px', borderRadius: '3px', flexShrink: 0,
+                        }}>✓ Correct</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function getQuestionsForGrade(grade) {
   if (grade === 0 || grade === 'K') return gradeKQuestions;
@@ -1052,6 +1176,18 @@ function LandingPage({ onGetStarted, onJoinBeta }) {
   );
 }
 
+const TIMEZONES = [
+  'America/New_York',
+  'America/Chicago',
+  'America/Denver',
+  'America/Phoenix',
+  'America/Los_Angeles',
+  'America/Anchorage',
+  'Pacific/Honolulu',
+];
+
+const SCHED_DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null }) {
   const [className, setClassName] = useState('');
   const [grade, setGrade] = useState('');
@@ -1066,6 +1202,8 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const [isViewingExisting, setIsViewingExisting] = useState(false);
   const canvasRefs = useRef({});
   const [showTeacherScript, setShowTeacherScript] = useState(false);
+  const [showAnswerKey, setShowAnswerKey] = useState(false);
+  const [answerKeyData, setAnswerKeyData] = useState({ questions: [], title: '', subtitle: '' });
   const [expiresAt, setExpiresAt] = useState(initialClass?.expires_at ?? null);
 
   // Multi-class additional rows
@@ -1078,6 +1216,20 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const [showBetaCode, setShowBetaCode] = useState(false);
   const [betaCode, setBetaCode] = useState('');
   const [betaCodeError, setBetaCodeError] = useState('');
+
+  // Access Windows (scheduling for custom assessments)
+  const [assessmentConfigId, setAssessmentConfigId] = useState(null);
+  const [schedWindows, setSchedWindows] = useState([]);
+  const [schedLoading, setSchedLoading] = useState(false);
+  const [schedOpen, setSchedOpen] = useState(false);
+  const [schedFormDays, setSchedFormDays] = useState(new Set());
+  const [schedFormStart, setSchedFormStart] = useState('08:00');
+  const [schedFormEnd, setSchedFormEnd] = useState('08:50');
+  const [schedFormUntil, setSchedFormUntil] = useState('');
+  const [schedTz, setSchedTz] = useState(() => localStorage.getItem('scheduleTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const [schedShowTzPicker, setSchedShowTzPicker] = useState(false);
+  const [schedError, setSchedError] = useState('');
+  const [schedSaving, setSchedSaving] = useState(false);
 
   const addAnotherClass = () =>
     setAdditionalClasses(prev => [...prev, { id: String(Date.now()), className: '', grade: '', studentCount: '' }]);
@@ -1105,6 +1257,50 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     if (!isAddMode && !grade) return 'Select a grade level to continue.';
     return null;
   })();
+
+  const fmtSchedTime = (t) => { const [h, m] = t.split(':'); const hr = parseInt(h, 10); return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`; };
+  const fmtSchedDays = (days) => days.map(d => SCHED_DAY_LABELS[d]).join(', ');
+  const fmtSchedDate = (d) => { const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const [y, m, day] = d.split('-'); return `${mo[parseInt(m,10)-1]} ${parseInt(day,10)}, ${y}`; };
+  const getSchedTzAbbr = (tz) => { try { return new Intl.DateTimeFormat('en-US', { timeZoneName: 'short', timeZone: tz }).formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? ''; } catch { return ''; } };
+  const getSchedTzLongName = (tz) => { try { return new Intl.DateTimeFormat('en-US', { timeZoneName: 'long', timeZone: tz }).formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? tz; } catch { return tz; } };
+  const handleSchedTzChange = (tz) => { setSchedTz(tz); setSchedShowTzPicker(false); localStorage.setItem('scheduleTimezone', tz); };
+  const toggleSchedDay = (i) => { setSchedFormDays(prev => { const next = new Set(prev); next.has(i) ? next.delete(i) : next.add(i); return next; }); };
+
+  const loadSchedWindows = async (configId) => {
+    setSchedLoading(true);
+    const { data } = await supabase.from('access_windows').select('*').eq('teacher_id', profile.id).eq('assessment_id', configId).order('start_time');
+    setSchedWindows(data ?? []);
+    setSchedLoading(false);
+  };
+
+  const handleSchedAdd = async () => {
+    if (schedFormDays.size === 0) { setSchedError('Select at least one day.'); return; }
+    if (!schedFormStart || !schedFormEnd) { setSchedError('Set a start and end time.'); return; }
+    if (schedFormEnd <= schedFormStart) { setSchedError('End time must be after start time.'); return; }
+    if (!schedFormUntil) { setSchedError('Set a repeat-until date.'); return; }
+    setSchedError('');
+    setSchedSaving(true);
+    const { error: insertErr } = await supabase.from('access_windows').insert({
+      teacher_id: profile.id,
+      assessment_id: assessmentConfigId,
+      days_of_week: [...schedFormDays].sort((a, b) => a - b),
+      start_time: schedFormStart,
+      end_time: schedFormEnd,
+      repeat_until: schedFormUntil,
+    });
+    setSchedSaving(false);
+    if (insertErr) { setSchedError(insertErr.message); return; }
+    setSchedFormDays(new Set());
+    setSchedFormStart('08:00');
+    setSchedFormEnd('08:50');
+    setSchedFormUntil('');
+    loadSchedWindows(assessmentConfigId);
+  };
+
+  const handleSchedDelete = async (id) => {
+    await supabase.from('access_windows').delete().eq('id', id);
+    setSchedWindows(prev => prev.filter(w => w.id !== id));
+  };
 
   const loadExistingClasses = async () => {
     const { data } = await supabase
@@ -1369,7 +1565,11 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const handlePrintPre    = () => printDoc(buildPassPrintHTML(passes, 'pre',  className, '', getQrURLs(), studentNames));
   const handlePrintPost   = () => printDoc(buildPassPrintHTML(passes, 'post', className, '', getQrURLs(), studentNames));
   const handlePrintMaster = () => printDoc(buildMasterSheetHTML(passes, className, gradeDisplay(grade), studentNames));
-  const handleAnswerKey   = () => printDoc(buildAnswerKeyHTML(getQuestionsForGrade(Number(grade)), gradeDisplay(grade), className));
+  const handleAnswerKey = () => {
+    const qs = getQuestionsForGrade(Number(grade));
+    setAnswerKeyData({ questions: qs, title: gradeDisplay(grade), subtitle: className });
+    setShowAnswerKey(true);
+  };
 
   const loadClassPasses = async (cls) => {
     setGenerating(true);
@@ -1404,6 +1604,17 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     setExpiresAt(data[0]?.expires_at ?? null);
     setIsViewingExisting(true);
     setGenerating(false);
+
+    // Look up assessment_config_id for access windows scheduling
+    const preToken = data.find(r => r.test_type === 'pre')?.token;
+    if (preToken) {
+      const { data: cfgData } = await supabase.from('token_configs').select('assessment_config_id').eq('token', preToken).maybeSingle();
+      const configId = cfgData?.assessment_config_id ?? null;
+      setAssessmentConfigId(configId);
+      if (configId) loadSchedWindows(configId);
+    } else {
+      setAssessmentConfigId(null);
+    }
   };
 
   const handleExportCSV = () => {
@@ -1448,6 +1659,14 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         <TeacherScriptMode
           questions={getQuestionsForGrade(Number(grade))}
           onClose={() => setShowTeacherScript(false)}
+        />
+      )}
+      {showAnswerKey && (
+        <AnswerKeyOverlay
+          questions={answerKeyData.questions}
+          title={answerKeyData.title}
+          subtitle={answerKeyData.subtitle}
+          onClose={() => setShowAnswerKey(false)}
         />
       )}
       <button
@@ -1904,6 +2123,120 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
             ])}
           </div>
 
+          {/* Access Windows */}
+          {isViewingExisting && (
+            <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #f0f0f0' }}>
+              <button
+                onClick={() => setSchedOpen(o => !o)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', padding: 0, fontSize: '14px', fontWeight: 700, color: '#3D6B8A' }}
+              >
+                <Clock size={16} strokeWidth={2} color="#3D6B8A" />
+                Access Windows
+                {schedOpen ? <ChevronDown size={16} color="#3D6B8A" /> : <ChevronRight size={16} color="#3D6B8A" />}
+                {schedWindows.length > 0 && (
+                  <span style={{ background: '#EAF1F8', color: '#3D6B8A', fontSize: '11px', fontWeight: 700, padding: '2px 7px', borderRadius: '10px' }}>
+                    {schedWindows.length}
+                  </span>
+                )}
+              </button>
+
+              {schedOpen && (
+                <div style={{ marginTop: '16px' }}>
+                  {!assessmentConfigId ? (
+                    <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px 16px', fontSize: '13px', color: '#64748b', lineHeight: 1.6 }}>
+                      <strong>Access windows apply only to custom assessments</strong> created via Create Custom Assessment. Standard grade-level passes are always open.
+                    </div>
+                  ) : (
+                    <>
+                      <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748b', lineHeight: 1.6 }}>
+                        Set time windows when students are allowed to start this assessment. Outside these windows students see a message that it is unavailable.{' '}
+                        <strong>No windows = always open.</strong>
+                      </p>
+
+                      {/* Add form */}
+                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', marginBottom: '16px' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b', marginBottom: '12px' }}>Add Window</div>
+
+                        <div style={{ marginBottom: '12px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '5px' }}>Days of Week</div>
+                          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                            {SCHED_DAY_LABELS.map((day, i) => {
+                              const on = schedFormDays.has(i);
+                              return (
+                                <button key={i} onClick={() => toggleSchedDay(i)} style={{ padding: '5px 9px', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, border: on ? '2px solid #5B8DB8' : '2px solid #e2e8f0', background: on ? '#EAF1F8' : 'white', color: on ? '#3D6B8A' : '#64748b' }}>{day}</button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div style={{ marginBottom: '10px' }}>
+                          {schedShowTzPicker ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>Times are in:</span>
+                              <select value={schedTz} autoFocus onChange={e => handleSchedTzChange(e.target.value)} onBlur={() => setSchedShowTzPicker(false)}
+                                style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #5B8DB8', borderRadius: '5px', color: '#1e293b', cursor: 'pointer' }}>
+                                {TIMEZONES.map(tz => <option key={tz} value={tz}>{getSchedTzLongName(tz)} — {tz}</option>)}
+                                {!TIMEZONES.includes(schedTz) && <option value={schedTz}>{getSchedTzLongName(schedTz)} — {schedTz}</option>}
+                              </select>
+                            </div>
+                          ) : (
+                            <button onClick={() => setSchedShowTzPicker(true)} title="Click to change timezone" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                              <span style={{ fontSize: '12px' }}>🌐</span>
+                              <span style={{ fontSize: '12px', color: '#64748b' }}>Times in: <strong style={{ color: '#3D6B8A' }}>{getSchedTzLongName(schedTz)}</strong>{' '}<span style={{ color: '#94a3b8' }}>({schedTz})</span></span>
+                              <span style={{ fontSize: '10px', color: '#5B8DB8' }}>▾</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                          <div style={{ flex: 1, minWidth: '120px' }}>
+                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Start Time</label>
+                            <input type="time" value={schedFormStart} onChange={e => setSchedFormStart(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: '120px' }}>
+                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>End Time</label>
+                            <input type="time" value={schedFormEnd} onChange={e => setSchedFormEnd(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+                          </div>
+                          <div style={{ flex: '1 1 150px', minWidth: '150px' }}>
+                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Repeat Until</label>
+                            <input type="date" value={schedFormUntil} onChange={e => setSchedFormUntil(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+                          </div>
+                        </div>
+
+                        {schedError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '0 0 12px' }}>{schedError}</p>}
+
+                        <button onClick={handleSchedAdd} disabled={schedSaving} style={{ padding: '8px 20px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '6px', background: '#5B8DB8', color: 'white', cursor: schedSaving ? 'not-allowed' : 'pointer', opacity: schedSaving ? 0.7 : 1 }}>
+                          {schedSaving ? 'Adding…' : '+ Add Window'}
+                        </button>
+                      </div>
+
+                      {schedLoading ? (
+                        <p style={{ fontSize: '13px', color: '#94a3b8' }}>Loading…</p>
+                      ) : schedWindows.length === 0 ? (
+                        <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>No windows set — this assessment is open at all times.</p>
+                      ) : (
+                        <div>
+                          {schedWindows.map((w, i) => (
+                            <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < schedWindows.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                              <div>
+                                <div style={{ fontWeight: 600, fontSize: '13px', color: '#1e293b', marginBottom: '2px' }}>
+                                  {fmtSchedDays(w.days_of_week)} · {fmtSchedTime(w.start_time)} – {fmtSchedTime(w.end_time)}{' '}
+                                  <span style={{ fontWeight: 400, color: '#94a3b8', fontSize: '12px' }}>{getSchedTzAbbr(schedTz)}</span>
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#94a3b8' }}>Repeats until {fmtSchedDate(w.repeat_until)}</div>
+                              </div>
+                              <button onClick={() => handleSchedDelete(w.id)} style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '5px', padding: '5px 12px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, marginLeft: '12px', flexShrink: 0 }}>Delete</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Add more students */}
           <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button
@@ -1939,6 +2272,8 @@ function CreateAssessment({ profile, onBack }) {
   const [activeTab, setActiveTab] = useState('pre');
   const canvasRefs = useRef({});
   const [showTeacherScriptCA, setShowTeacherScriptCA] = useState(false);
+  const [showAnswerKeyCA, setShowAnswerKeyCA] = useState(false);
+  const [answerKeyDataCA, setAnswerKeyDataCA] = useState({ questions: [], title: '', subtitle: '' });
 
   const sortedGrades = [...grades].sort((a, b) => Number(a) - Number(b));
   const gradeStrandGroups = sortedGrades.map(g => ({
@@ -2121,7 +2456,8 @@ function CreateAssessment({ profile, onBack }) {
   const handleAnswerKeyCA = () => {
     const allQs = sortedGrades.flatMap(g => getQuestionsForGrade(Number(g)));
     const qs = selectedIds.map(id => allQs.find(q => q.id === id)).filter(Boolean);
-    printDoc(buildAnswerKeyHTML(qs, assessmentName || gradeLabel, className));
+    setAnswerKeyDataCA({ questions: qs, title: assessmentName || gradeLabel, subtitle: className });
+    setShowAnswerKeyCA(true);
   };
 
   const fieldStyle = {
@@ -2140,6 +2476,14 @@ function CreateAssessment({ profile, onBack }) {
         <TeacherScriptMode
           questions={selectedIds.map(id => sortedGrades.flatMap(g => getQuestionsForGrade(Number(g))).find(q => q.id === id)).filter(Boolean)}
           onClose={() => setShowTeacherScriptCA(false)}
+        />
+      )}
+      {showAnswerKeyCA && (
+        <AnswerKeyOverlay
+          questions={answerKeyDataCA.questions}
+          title={answerKeyDataCA.title}
+          subtitle={answerKeyDataCA.subtitle}
+          onClose={() => setShowAnswerKeyCA(false)}
         />
       )}
       <button
@@ -3056,7 +3400,7 @@ const DASHBOARD_QUOTES = [
 ];
 
 function Dashboard({ profile, onLogout }) {
-  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'schedule', 'create-assessment', 'tia-report'];
+  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report'];
 
   const [section, setSection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -3189,7 +3533,7 @@ function Dashboard({ profile, onLogout }) {
       category: 'Assessment Settings',
       items: [
         { q: "What does 'Randomize question order' do?", a: 'When enabled (default for grades 3-8), each student sees questions in a different random order. This prevents students sitting next to each other from having the same sequence. K-2 questions are always in fixed order regardless of this setting.' },
-        { q: 'How do I set testing windows?', a: 'Go to Schedule from the dashboard. Add recurring access windows by day of week and time. Outside these windows, students see a message that the assessment is unavailable. If no windows are set, assessments are open at all times.' },
+        { q: 'How do I set testing windows?', a: 'Go to My Classes, click View Passes on your class, then expand the Access Windows section at the bottom of the page. Add recurring windows by day of week and time. Outside these windows students see a message that the assessment is unavailable. If no windows are set, the assessment is always open. Note: access windows only apply to custom assessments created via Create Custom Assessment — standard grade-level passes are always open.' },
         { q: 'Can students save and come back later?', a: 'Yes. Students can click Save & Exit during the assessment and return later with the same pass code to resume where they left off. Once submitted, the assessment is complete.' },
       ],
     },
@@ -3294,7 +3638,7 @@ function Dashboard({ profile, onLogout }) {
       num: 3, Icon: Layers,
       title: 'My Classes',
       desc: 'View all your classes, reprint passes, and manage archived classes.',
-      body: 'See every class you\'ve created. Click any class card to view and reprint passes or QR codes, access the answer key, or use Teacher Script Mode. Archive classes from previous semesters to keep your dashboard clean — archived classes and their data are always available.',
+      body: 'See every class you\'ve created. Click any class card to view and reprint passes or QR codes, access the answer key, or use Teacher Script Mode. From the pass view, expand Access Windows to set testing schedules for custom assessments. Archive classes from previous semesters to keep your dashboard clean — archived classes and their data are always available.',
       onClick: () => setSection('my-classes'), color: '#3D5A8A', bg: '#E8EDF8',
     },
     {
@@ -3305,14 +3649,7 @@ function Dashboard({ profile, onLogout }) {
       onClick: () => setSection('results'), color: '#6B5F9B', bg: '#EDEAF6',
     },
     {
-      num: 5, Icon: Calendar,
-      title: 'Schedule',
-      desc: 'Set time windows when students are allowed to start assessments.',
-      body: 'Add recurring access windows by day of week and time. Outside these windows students see a message that the assessment is unavailable. If no windows are set, assessments are open at all times.',
-      onClick: () => setSection('schedule'), color: '#B87B3D', bg: '#FEF3E2',
-    },
-    {
-      num: 6, Icon: FileText,
+      num: 5, Icon: FileText,
       title: 'TIA Growth Report',
       desc: 'Generate a printable pre-to-post growth report for TIA designation evidence.',
       body: 'Select a pre-assessment and post-assessment, fill in your report header, and generate a detailed growth report. Includes class summary, student-level data, and standards breakdown — ready to print or export as PDF.',
@@ -3503,7 +3840,6 @@ function Dashboard({ profile, onLogout }) {
       {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('overview')} paymentSessionId={paymentSessionId} initialClass={initialClass} />}
       {section === 'create-assessment' && <CreateAssessment  profile={profile} onBack={() => setSection('overview')} />}
       {section === 'results'           && <ResultsDashboard  profile={profile} onBack={() => setSection('overview')} />}
-      {section === 'schedule'          && <ScheduleManager   profile={profile} onBack={() => setSection('overview')} />}
       {section === 'tia-report'        && <TIAGrowthReport   profile={profile} onBack={() => setSection('overview')} />}
 
       {section === 'my-classes' && (
@@ -3967,337 +4303,6 @@ function Dashboard({ profile, onLogout }) {
           100% { box-shadow: 0 4px 22px rgba(217,119,6,0.55), 0 0 0 0 rgba(217,119,6,0); }
         }
       `}</style>
-    </div>
-  );
-}
-
-const TIMEZONES = [
-  'America/New_York',
-  'America/Chicago',
-  'America/Denver',
-  'America/Phoenix',
-  'America/Los_Angeles',
-  'America/Anchorage',
-  'Pacific/Honolulu',
-];
-
-function ScheduleManager({ profile, onBack }) {
-  const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const [assessments, setAssessments] = useState([]);
-  const [windows, setWindows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [formAssessmentId, setFormAssessmentId] = useState('');
-  const [formDays, setFormDays] = useState(new Set());
-  const [formStart, setFormStart] = useState('08:00');
-  const [formEnd, setFormEnd] = useState('08:50');
-  const [formUntil, setFormUntil] = useState('');
-  const [selectedTz, setSelectedTz] = useState(
-    () => localStorage.getItem('scheduleTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone
-  );
-  const [showTzPicker, setShowTzPicker] = useState(false);
-
-  useEffect(() => {
-    Promise.all([loadAssessments(), loadWindows()]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const loadAssessments = async () => {
-    const { data } = await supabase
-      .from('assessment_configs')
-      .select('id, name, grade_levels')
-      .eq('teacher_id', profile.id)
-      .order('created_at', { ascending: false });
-    setAssessments(data ?? []);
-  };
-
-  const loadWindows = async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from('access_windows')
-      .select('*')
-      .eq('teacher_id', profile.id)
-      .order('assessment_id, start_time');
-    setWindows(data ?? []);
-    setLoading(false);
-  };
-
-  const toggleDay = (i) => {
-    setFormDays(prev => {
-      const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
-      return next;
-    });
-  };
-
-  const handleAdd = async () => {
-    if (!formAssessmentId) { setError('Select an assessment.'); return; }
-    if (formDays.size === 0) { setError('Select at least one day.'); return; }
-    if (!formStart || !formEnd) { setError('Set a start and end time.'); return; }
-    if (formEnd <= formStart) { setError('End time must be after start time.'); return; }
-    if (!formUntil) { setError('Set a repeat-until date.'); return; }
-    setError('');
-    setSaving(true);
-    const { error: insertErr } = await supabase.from('access_windows').insert({
-      teacher_id: profile.id,
-      assessment_id: formAssessmentId,
-      days_of_week: [...formDays].sort((a, b) => a - b),
-      start_time: formStart,
-      end_time: formEnd,
-      repeat_until: formUntil,
-    });
-    setSaving(false);
-    if (insertErr) { setError(insertErr.message); return; }
-    setFormAssessmentId('');
-    setFormDays(new Set());
-    setFormStart('08:00');
-    setFormEnd('08:50');
-    setFormUntil('');
-    loadWindows();
-  };
-
-  const handleDelete = async (id) => {
-    await supabase.from('access_windows').delete().eq('id', id);
-    setWindows(prev => prev.filter(w => w.id !== id));
-  };
-
-  const fmtTime = (t) => {
-    const [h, m] = t.split(':');
-    const hour = parseInt(h, 10);
-    return `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
-  };
-  const fmtDays = (days) => days.map(d => DAY_LABELS[d]).join(', ');
-  const fmtDate = (d) => {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const [y, mo, day] = d.split('-');
-    return `${months[parseInt(mo, 10) - 1]} ${parseInt(day, 10)}, ${y}`;
-  };
-
-  const getTzAbbr = (tz) => {
-    try {
-      return new Intl.DateTimeFormat('en-US', { timeZoneName: 'short', timeZone: tz })
-        .formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? '';
-    } catch { return ''; }
-  };
-  const getTzLongName = (tz) => {
-    try {
-      return new Intl.DateTimeFormat('en-US', { timeZoneName: 'long', timeZone: tz })
-        .formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? tz;
-    } catch { return tz; }
-  };
-  const handleTzChange = (tz) => {
-    setSelectedTz(tz);
-    setShowTzPicker(false);
-    localStorage.setItem('scheduleTimezone', tz);
-  };
-
-  const inputStyle = {
-    width: '100%', padding: '9px 10px',
-    border: '1px solid #e2e8f0', borderRadius: '6px',
-    fontSize: '14px', boxSizing: 'border-box',
-  };
-  const labelStyle = {
-    display: 'block', fontSize: '13px',
-    fontWeight: 600, color: '#475569', marginBottom: '6px',
-  };
-
-  // Group windows by assessment
-  const windowGroups = assessments
-    .map(a => ({ assessment: a, rows: windows.filter(w => w.assessment_id === a.id) }))
-    .filter(g => g.rows.length > 0);
-
-  return (
-    <div style={{ maxWidth: '700px', margin: '36px auto', padding: '0 24px' }}>
-      <button
-        onClick={onBack}
-        style={{ background: 'none', border: 'none', color: '#5B8DB8', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '0 0 20px', display: 'block' }}
-      >← Back to Dashboard</button>
-
-      <h2 style={{ margin: '0 0 6px', color: '#2D3D4A', fontSize: '22px' }}>Assessment Schedule</h2>
-      <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px', lineHeight: 1.6 }}>
-        Set time windows when students are allowed to start each assessment. Outside these windows students will see a message that the assessment is not currently available.{' '}
-        <strong>Assessments with no windows remain open at all times.</strong>
-      </p>
-
-      {/* Add form */}
-      <div style={{ background: 'white', borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7' }}>
-        <h3 style={{ margin: '0 0 20px', fontSize: '16px', color: '#1e293b' }}>Add Access Window</h3>
-
-        {/* Assessment picker */}
-        <div style={{ marginBottom: '18px' }}>
-          <label style={labelStyle}>Assessment</label>
-          <select
-            value={formAssessmentId}
-            onChange={e => setFormAssessmentId(e.target.value)}
-            style={{ ...inputStyle, color: formAssessmentId ? '#1e293b' : '#94a3b8' }}
-          >
-            <option value="">Select Assessment…</option>
-            {assessments.map(a => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
-          </select>
-          {assessments.length === 0 && (
-            <p style={{ color: '#94a3b8', fontSize: '12px', margin: '6px 0 0' }}>
-              No assessments found. Create a Custom Assessment first.
-            </p>
-          )}
-        </div>
-
-        {/* Days of week */}
-        <div style={{ marginBottom: '18px' }}>
-          <div style={labelStyle}>Days of Week</div>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {DAY_LABELS.map((day, i) => {
-              const on = formDays.has(i);
-              return (
-                <button
-                  key={i}
-                  onClick={() => toggleDay(i)}
-                  style={{
-                    padding: '7px 12px', borderRadius: '6px', cursor: 'pointer',
-                    fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
-                    border: on ? '2px solid #5B8DB8' : '2px solid #e2e8f0',
-                    background: on ? '#EAF1F8' : 'white',
-                    color: on ? '#3D6B8A' : '#64748b',
-                  }}
-                >{day}</button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Timezone indicator */}
-        <div style={{ marginBottom: '10px' }}>
-          {showTzPicker ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>Times are in:</span>
-              <select
-                value={selectedTz}
-                autoFocus
-                onChange={e => handleTzChange(e.target.value)}
-                onBlur={() => setShowTzPicker(false)}
-                style={{
-                  fontSize: '13px', padding: '4px 8px',
-                  border: '1px solid #5B8DB8', borderRadius: '5px',
-                  color: '#1e293b', cursor: 'pointer',
-                }}
-              >
-                {TIMEZONES.map(tz => (
-                  <option key={tz} value={tz}>{getTzLongName(tz)} — {tz}</option>
-                ))}
-                {!TIMEZONES.includes(selectedTz) && (
-                  <option value={selectedTz}>{getTzLongName(selectedTz)} — {selectedTz}</option>
-                )}
-              </select>
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowTzPicker(true)}
-              title="Click to change timezone"
-              style={{
-                background: 'none', border: 'none', padding: 0,
-                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px',
-              }}
-            >
-              <span style={{ fontSize: '13px' }}>🌐</span>
-              <span style={{ fontSize: '12px', color: '#64748b' }}>
-                Times are in:{' '}
-                <strong style={{ color: '#3D6B8A' }}>{getTzLongName(selectedTz)}</strong>
-                {' '}<span style={{ color: '#94a3b8' }}>({selectedTz})</span>
-              </span>
-              <span style={{ fontSize: '10px', color: '#5B8DB8' }}>▾</span>
-            </button>
-          )}
-        </div>
-
-        {/* Time + date row */}
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '18px' }}>
-          <div style={{ flex: 1, minWidth: '130px' }}>
-            <label style={labelStyle}>Start Time</label>
-            <input type="time" value={formStart} onChange={e => setFormStart(e.target.value)} style={inputStyle} />
-          </div>
-          <div style={{ flex: 1, minWidth: '130px' }}>
-            <label style={labelStyle}>End Time</label>
-            <input type="time" value={formEnd} onChange={e => setFormEnd(e.target.value)} style={inputStyle} />
-          </div>
-          <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
-            <label style={labelStyle}>Repeat Until</label>
-            <input type="date" value={formUntil} onChange={e => setFormUntil(e.target.value)} style={inputStyle} />
-          </div>
-        </div>
-
-        {error && <p style={{ color: '#ef4444', fontSize: '13px', margin: '0 0 14px' }}>{error}</p>}
-
-        <button
-          onClick={handleAdd}
-          disabled={saving}
-          style={{
-            padding: '10px 24px', fontSize: '14px', fontWeight: 700,
-            cursor: saving ? 'not-allowed' : 'pointer',
-            border: 'none', borderRadius: '7px',
-            background: '#5B8DB8', color: 'white',
-            opacity: saving ? 0.7 : 1,
-          }}
-        >{saving ? 'Adding…' : '+ Add Window'}</button>
-      </div>
-
-      {/* Window list grouped by assessment */}
-      <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7' }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: '16px', color: '#1e293b' }}>Active Windows</h3>
-        {loading ? (
-          <p style={{ color: '#94a3b8', fontSize: '14px' }}>Loading…</p>
-        ) : windowGroups.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '28px 0', color: '#94a3b8' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-              <Clock size={36} color="#cbd5e1" strokeWidth={1.5} />
-            </div>
-            <p style={{ margin: 0, fontSize: '14px' }}>No windows set — all assessments are open at all times.</p>
-          </div>
-        ) : (
-          windowGroups.map(({ assessment, rows }) => (
-            <div key={assessment.id} style={{ marginBottom: '24px' }}>
-              <div style={{
-                fontSize: '12px', fontWeight: 700, color: '#3D6B8A',
-                textTransform: 'uppercase', letterSpacing: '0.6px',
-                paddingBottom: '8px', borderBottom: '2px solid #EAF1F8',
-                marginBottom: '4px',
-              }}>
-                {assessment.name}
-              </div>
-              {rows.map((w, i) => (
-                <div
-                  key={w.id}
-                  style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '12px 0',
-                    borderBottom: i < rows.length - 1 ? '1px solid #f1f5f9' : 'none',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '14px', marginBottom: '2px' }}>
-                      {fmtDays(w.days_of_week)} &nbsp;·&nbsp; {fmtTime(w.start_time)} – {fmtTime(w.end_time)}
-                      {' '}<span style={{ fontWeight: 400, color: '#94a3b8', fontSize: '12px' }}>{getTzAbbr(selectedTz)}</span>
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-                      Repeats until {fmtDate(w.repeat_until)}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleDelete(w.id)}
-                    style={{
-                      background: '#fef2f2', border: '1px solid #fecaca',
-                      color: '#ef4444', borderRadius: '6px',
-                      padding: '6px 14px', cursor: 'pointer',
-                      fontSize: '13px', fontWeight: 600, flexShrink: 0, marginLeft: '16px',
-                    }}
-                  >Delete</button>
-                </div>
-              ))}
-            </div>
-          ))
-        )}
-      </div>
     </div>
   );
 }
