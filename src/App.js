@@ -188,19 +188,18 @@ function AnswerKeyOverlay({ questions, title, subtitle, onClose, email }) {
     return () => { cleanup(); document.getElementById('ak-no-print')?.remove(); };
   }, []);
 
-  const wmDate = new Date().toLocaleDateString('en-US');
-  const wmText = `${email || ''} — ${wmDate}`;
+  const wmText = 'BrightBop Tech © 2026';
   const wmTiles = [];
-  for (let r = 0; r <= 8; r++) {
-    for (let c = 0; c <= 4; c++) {
+  for (let r = 0; r <= 3; r++) {
+    for (let c = 0; c <= 2; c++) {
       wmTiles.push(
         <div key={`${r}-${c}`} style={{
           position: 'absolute',
-          left: `${(c / 4) * 100}%`,
-          top: `${(r / 8) * 100}%`,
+          left: `${(c / 2) * 100}%`,
+          top: `${(r / 3) * 100}%`,
           transform: 'translate(-50%, -50%) rotate(-30deg)',
-          fontSize: '17px', fontWeight: 700,
-          color: 'rgba(0,0,0,0.13)',
+          fontSize: '18px', fontWeight: 700,
+          color: 'rgba(0,0,0,0.06)',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
           ...noSelect,
