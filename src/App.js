@@ -192,15 +192,15 @@ function AnswerKeyOverlay({ questions, title, subtitle, onClose, email }) {
   const wmText = `${email || ''} — ${wmDate}`;
   const wmTiles = [];
   for (let r = 0; r <= 8; r++) {
-    for (let c = 0; c <= 3; c++) {
+    for (let c = 0; c <= 4; c++) {
       wmTiles.push(
         <div key={`${r}-${c}`} style={{
           position: 'absolute',
-          left: `${(c / 3) * 100}%`,
+          left: `${(c / 4) * 100}%`,
           top: `${(r / 8) * 100}%`,
           transform: 'translate(-50%, -50%) rotate(-30deg)',
-          fontSize: '13px', fontWeight: 600,
-          color: 'rgba(0,0,0,0.08)',
+          fontSize: '17px', fontWeight: 700,
+          color: 'rgba(0,0,0,0.13)',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
           ...noSelect,
@@ -221,7 +221,7 @@ function AnswerKeyOverlay({ questions, title, subtitle, onClose, email }) {
       onContextMenu={noCopy}
       onDragStart={noCopy}
     >
-      {/* Watermark — covers entire overlay, sits above content but below header */}
+      {/* Watermark — absolute over entire overlay, above content (z 2), below header (z 10) */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 2,
         pointerEvents: 'none', overflow: 'hidden',
