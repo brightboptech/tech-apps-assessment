@@ -2276,6 +2276,8 @@ function CreateAssessment({ profile, onBack }) {
   const [showTeacherScriptCA, setShowTeacherScriptCA] = useState(false);
   const [showAnswerKeyCA, setShowAnswerKeyCA] = useState(false);
   const [answerKeyDataCA, setAnswerKeyDataCA] = useState({ questions: [], title: '', subtitle: '' });
+  const [caPassExpiresAt, setCaPassExpiresAt] = useState(null);
+  const passesExpiredCA = !!(caPassExpiresAt && new Date(caPassExpiresAt) < new Date());
 
   const sortedGrades = [...grades].sort((a, b) => Number(a) - Number(b));
   const gradeStrandGroups = sortedGrades.map(g => ({
@@ -2432,6 +2434,7 @@ function CreateAssessment({ profile, onBack }) {
     if (cfgErr) { setError('Could not save question config: ' + cfgErr.message); setGenerating(false); return; }
 
     setPasses(passData);
+    setCaPassExpiresAt(caExpiresAt);
     setGenerating(false);
   };
 
@@ -2836,11 +2839,13 @@ function CreateAssessment({ profile, onBack }) {
                 onClick={handlePrintMaster}
                 style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #ddd', borderRadius: '6px', backgroundColor: 'white', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               ><Printer size={14} strokeWidth={2} color="#555" />Print Master Sheet</button>
-              <button
-                onClick={handleAnswerKeyCA}
-                style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #6B5F9B', borderRadius: '6px', backgroundColor: '#EDEAF6', color: '#4B3F82', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-              ><BookOpen size={14} strokeWidth={2} color="#4B3F82" />Answer Key</button>
-              {sortedGrades.every(g => Number(g) <= 2) && (
+              {!passesExpiredCA && (
+                <button
+                  onClick={handleAnswerKeyCA}
+                  style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #6B5F9B', borderRadius: '6px', backgroundColor: '#EDEAF6', color: '#4B3F82', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                ><BookOpen size={14} strokeWidth={2} color="#4B3F82" />Answer Key</button>
+              )}
+              {sortedGrades.every(g => Number(g) <= 2) && !passesExpiredCA && (
                 <button
                   onClick={() => setShowTeacherScriptCA(true)}
                   style={{ padding: '9px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #5B8DB8', borderRadius: '6px', backgroundColor: '#EAF1F8', color: '#3D6B8A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
