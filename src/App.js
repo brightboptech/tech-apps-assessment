@@ -178,7 +178,7 @@ function TeacherScriptMode({ questions, onClose }) {
 }
 
 
-function AnswerKeyOverlay({ questions, title, subtitle, onClose }) {
+function AnswerKeyOverlay({ questions, title, subtitle, onClose, email }) {
   useEffect(() => {
     const cleanup = addCopyKeyBlock();
     const style = document.createElement('style');
@@ -187,6 +187,28 @@ function AnswerKeyOverlay({ questions, title, subtitle, onClose }) {
     document.head.appendChild(style);
     return () => { cleanup(); document.getElementById('ak-no-print')?.remove(); };
   }, []);
+
+  const wmDate = new Date().toLocaleDateString('en-US');
+  const wmText = `${email || ''} — ${wmDate}`;
+  const wmTiles = [];
+  for (let r = 0; r <= 8; r++) {
+    for (let c = 0; c <= 3; c++) {
+      wmTiles.push(
+        <div key={`${r}-${c}`} style={{
+          position: 'absolute',
+          left: `${(c / 3) * 100}%`,
+          top: `${(r / 8) * 100}%`,
+          transform: 'translate(-50%, -50%) rotate(-30deg)',
+          fontSize: '13px', fontWeight: 600,
+          color: 'rgba(0,0,0,0.08)',
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          ...noSelect,
+          letterSpacing: '0.5px',
+        }}>{wmText}</div>
+      );
+    }
+  }
 
   return (
     <div
@@ -199,12 +221,22 @@ function AnswerKeyOverlay({ questions, title, subtitle, onClose }) {
       onContextMenu={noCopy}
       onDragStart={noCopy}
     >
+      {/* Watermark — covers entire overlay, sits above content but below header */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 2,
+        pointerEvents: 'none', overflow: 'hidden',
+        ...noSelect,
+      }}>
+        {wmTiles}
+      </div>
+
       {/* Top bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '14px 28px', background: '#2D3D4A',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
         flexShrink: 0, flexWrap: 'wrap', gap: '10px',
+        position: 'relative', zIndex: 10,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
           <span style={{ color: 'white', fontSize: '15px', fontWeight: 700 }}>
@@ -232,12 +264,13 @@ function AnswerKeyOverlay({ questions, title, subtitle, onClose }) {
       <div style={{
         padding: '9px 28px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0',
         fontSize: '13px', color: '#64748b', flexShrink: 0,
+        position: 'relative', zIndex: 10,
       }}>
         {title}{subtitle ? ` · ${subtitle}` : ''} · {questions.length} question{questions.length !== 1 ? 's' : ''}
       </div>
 
       {/* Scrollable question list */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px', position: 'relative', zIndex: 1 }}>
         <div style={{ columns: 2, columnGap: '18px', maxWidth: '1200px', margin: '0 auto' }}>
           {questions.map((q, idx) => (
             <div key={q.id} style={{
@@ -1631,6 +1664,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           title={answerKeyData.title}
           subtitle={answerKeyData.subtitle}
           onClose={() => setShowAnswerKey(false)}
+          email={profile.email}
         />
       )}
       <button
@@ -2453,6 +2487,7 @@ function CreateAssessment({ profile, onBack }) {
           title={answerKeyDataCA.title}
           subtitle={answerKeyDataCA.subtitle}
           onClose={() => setShowAnswerKeyCA(false)}
+          email={profile.email}
         />
       )}
       <button
