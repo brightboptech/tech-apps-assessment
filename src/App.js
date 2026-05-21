@@ -678,8 +678,8 @@ h2.section-title{font-size:clamp(1.8rem,3.5vw,2.3rem);font-weight:700;color:var(
 .how-it-works{padding:4.5rem 2rem;background:var(--bg)}
 .how-inner{max-width:1000px;margin:0 auto}
 .how-subtitle{text-align:center;color:var(--text-muted);margin-bottom:3rem;font-size:1.05rem}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:2rem}
-.step{background:#fff;border-radius:12px;padding:2rem 1.5rem;border:1px solid rgba(0,0,0,0.06);transition:transform 0.2s}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:2rem;align-items:stretch}
+.step{background:#fff;border-radius:12px;padding:2rem 1.5rem;border:1px solid rgba(0,0,0,0.06);transition:transform 0.2s;display:flex;flex-direction:column;justify-content:flex-start}
 .step:hover{transform:translateY(-3px)}
 .step-num{width:36px;height:36px;border-radius:50%;background:var(--green-light);color:var(--green-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;margin-bottom:1rem;font-family:'Inter',sans-serif}
 .step h3{font-size:1.05rem;font-weight:600;margin-bottom:0.5rem;color:var(--slate-dark)}
@@ -868,12 +868,12 @@ const LANDING_HTML = `
       <div class="step">
         <div class="step-num">2</div>
         <h3>Set up your class</h3>
-        <p>Add your students and get them started in minutes.</p>
+        <p>Add your students and get them started in minutes. Works with any class size.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <h3>Students take assessments</h3>
-        <p>Students complete short, engaging assessments on any device. No student accounts needed.</p>
+        <p>Students complete short, engaging assessments on any device.</p>
       </div>
       <div class="step">
         <div class="step-num">4</div>
@@ -915,7 +915,7 @@ const LANDING_HTML = `
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       </div>
       <h3>Secure assessment delivery</h3>
-      <p>No student accounts needed. No personal data collected. Assessment integrity stays protected.</p>
+      <p>Built with assessment security and data privacy in mind.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:var(--lavender-light);color:var(--lavender)">
