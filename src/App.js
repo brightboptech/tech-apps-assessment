@@ -862,23 +862,23 @@ const LANDING_HTML = `
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <h3>Build your assessment</h3>
-        <p>Choose your grade level and the Technology Applications TEKS you want to focus on.</p>
+        <h3>Know where they start</h3>
+        <p>Set up your assessment in minutes, not hours. Get a clear picture of where your students are in Technology Applications before instruction begins.</p>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <h3>Set up your class</h3>
-        <p>Add your students and get them started in minutes. Works with any class size.</p>
+        <h3>Teach with confidence</h3>
+        <p>Focus on what you do best. Your baseline is set and ready to measure against.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <h3>Students take assessments</h3>
-        <p>Students complete short, engaging assessments on any device.</p>
+        <h3>See the impact</h3>
+        <p>Your teaching made a difference &mdash; now there&apos;s data to prove it.</p>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <h3>See your growth data</h3>
-        <p>Review student growth data designed for TIA designation evidence.</p>
+        <h3>Earn your recognition</h3>
+        <p>Growth evidence ready for TIA. Because your impact deserves to be rewarded.</p>
       </div>
     </div>
   </div>
