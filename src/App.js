@@ -836,7 +836,7 @@ const LANDING_HTML = `
     </div>
     <div class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-      TIA growth reports included
+      TIA growth data included
     </div>
     <div class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
@@ -907,8 +907,8 @@ const LANDING_HTML = `
       <div class="feature-icon" style="background:var(--gold-light);color:var(--gold)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
       </div>
-      <h3>Growth reports designed for TIA</h3>
-      <p>Student growth reports ready for your district&apos;s TIA submission process.</p>
+      <h3>Growth data designed for TIA</h3>
+      <p>Student growth data ready for your district&apos;s TIA process.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:var(--green-light);color:var(--green-dark)">
@@ -940,7 +940,7 @@ const LANDING_HTML = `
         <li><span class="check">&#10003;</span> Complete assessment access per student</li>
         <li><span class="check">&#10003;</span> Growth data designed for TIA</li>
         <li><span class="check">&#10003;</span> Grades K&ndash;8 Technology Applications TEKS</li>
-        <li><span class="check">&#10003;</span> Audio support for younger students</li>
+        <li><span class="check">&#10003;</span> Built for all learners, K&ndash;8</li>
         <li><span class="check">&#10003;</span> Set up in minutes</li>
       </ul>
       <a href="#" class="btn btn-green" style="width:100%;justify-content:center;font-size:1rem;padding:0.85rem" data-cta="1">Get started &#8594;</a>
