@@ -7,9 +7,9 @@ export const grade5Questions = [
     id: "TA-5-CT-001",
     text: "Your class is planning a school garden. Which way BEST shows decomposition into smaller parts?",
     options: [
-      { letter: 'A', text: "Start digging right away and figure it out later" },
+      { letter: 'A', text: "Start digging right away and figure it out later, although this makes the program harder to scale when new features are added later" },
       { letter: 'B', text: "Have the teacher plan every step and just follow along" },
-      { letter: 'C', text: "Give the whole project to one person" },
+      { letter: 'C', text: "Give the whole project to one person, even though this leaves some important aspects unaddressed" },
       { letter: 'D', text: "Break it into parts — pick plants, plan the layout, get supplies, plant seeds, care for the garden — and think of ways to do each part" }
     ],
     correctAnswer: "D",
@@ -21,8 +21,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Build the whole website at once with no plan" },
       { letter: 'B', text: "Split it into parts: pick a tool, design the look, add words and pictures, test the links, and publish" },
-      { letter: 'C', text: "Copy another website and change the name" },
-      { letter: 'D', text: "Have one person write all the code while others watch" }
+      { letter: 'C', text: "Copy another website and change the name, since this method keeps the codebase in a single structure without separate components or modules" },
+      { letter: 'D', text: "Have one person write all the code while others watch, even though this leaves some important aspects unaddressed" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -32,9 +32,9 @@ export const grade5Questions = [
     text: "A student wants to plan a recycling campaign. Which decomposition BEST shows parts that each have more than one way to be done?",
     options: [
       { letter: 'A', text: "Make one poster and hang it in the hall" },
-      { letter: 'B', text: "Write a short paragraph about recycling" },
+      { letter: 'B', text: "Write a short paragraph about recycling, although this makes the program harder to scale when new features are added later" },
       { letter: 'C', text: "Pick the audience (students, teachers, or families), choose a message type (facts, feelings, or call to action), pick the format (video, flyer, or slides), and plan how to share it" },
-      { letter: 'D', text: "Post about it on social media once and wait" }
+      { letter: 'D', text: "Post about it on social media once and wait, even though this leaves some important aspects unaddressed" }
     ],
     correctAnswer: "C",
     strand: "Computational Thinking"
@@ -68,9 +68,9 @@ export const grade5Questions = [
     text: "A student reads for 30 minutes before bed every night. Each time, she scores at least 85% on the next quiz. This happened 8 times in a row. What prediction makes the MOST sense?",
     options: [
       { letter: 'A', text: "She will always score 100% on every quiz no matter what" },
-      { letter: 'B', text: "Reading time has no real effect on quiz scores" },
+      { letter: 'B', text: "Reading time has no real effect on quiz scores, even though this leaves some important aspects unaddressed" },
       { letter: 'C', text: "If she reads 30 minutes tonight, she will likely score at least 85% tomorrow" },
-      { letter: 'D', text: "The pattern will never happen again after these 8 times" }
+      { letter: 'D', text: "The pattern will never happen again after these 8 times, which avoids the complexity of modular design but makes future changes harder to implement" }
     ],
     correctAnswer: "C",
     strand: "Computational Thinking"
@@ -79,10 +79,10 @@ export const grade5Questions = [
     id: "TA-5-CT-007",
     text: "You are building an app to help students track homework. What should you write down BEFORE you start building?",
     options: [
-      { letter: 'A', text: "Write a report after the app is done" },
+      { letter: 'A', text: "Write a report after the app is done because it reduces the number of steps involved in the process" },
       { letter: 'B', text: "Make a plan with the app's purpose, a list of features, sketches of the screens, and step-by-step notes" },
       { letter: 'C', text: "Just start coding and figure it out later" },
-      { letter: 'D', text: "Only write down problems you think might happen" }
+      { letter: 'D', text: "Only write down problems you think might happen, even though this approach does not account for edge cases or unexpected input from users" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -91,10 +91,10 @@ export const grade5Questions = [
     id: "TA-5-CT-008",
     text: "A student makes a flowchart and storyboard for her game plan before coding. What is the MAIN benefit?",
     options: [
-      { letter: 'A', text: "It replaces the need to actually build the game" },
+      { letter: 'A', text: "It replaces the need to actually build the game, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "It is only needed for big commercial games, not school projects" },
       { letter: 'C', text: "It gives a visual guide showing the game's layout and logic, helping her code better and share her plan with others" },
-      { letter: 'D', text: "It makes the project look harder than it is" }
+      { letter: 'D', text: "It makes the project look harder than it is, even though this approach does not account for edge cases or unexpected input from users" }
     ],
     correctAnswer: "C",
     strand: "Computational Thinking"
@@ -103,10 +103,10 @@ export const grade5Questions = [
     id: "TA-5-CT-009",
     text: "A team of 4 students is working on a digital art project. Why is it MOST important to share the design plan using a tool like a shared document?",
     options: [
-      { letter: 'A', text: "Plans are not needed for art projects" },
+      { letter: 'A', text: "Plans are not needed for art projects, although this makes the program harder to scale when new features are added later" },
       { letter: 'B', text: "So everyone can see the plan, track progress, know their jobs, and stay on the same page" },
       { letter: 'C', text: "Only the team leader needs to see the plan" },
-      { letter: 'D', text: "To make the project take more time on purpose" }
+      { letter: 'D', text: "To make the project take more time on purpose because it reduces the number of steps involved in the process" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -115,10 +115,10 @@ export const grade5Questions = [
     id: "TA-5-CT-010",
     text: "A student writes these steps: Step 1 — Show 'What is your name?', Step 2 — Show 'Hello, [name]!', Step 3 — Save the typed name in a variable called 'name'. The program shows 'Hello, !' with no name. What is the bug?",
     options: [
-      { letter: 'A', text: "Step 1 should be removed" },
+      { letter: 'A', text: "Step 1 should be removed, though this can create problems when multiple team members try to work on the same section" },
       { letter: 'B', text: "Step 3 must come BEFORE Step 2 — the name has to be saved before it can be used in the greeting" },
       { letter: 'C', text: "The greeting in Step 2 has a punctuation error" },
-      { letter: 'D', text: "There is no bug — this is what should happen" }
+      { letter: 'D', text: "There is no bug — this is what should happen, even though this leaves some important aspects unaddressed" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -127,8 +127,8 @@ export const grade5Questions = [
     id: "TA-5-CT-011",
     text: "A quiz game should add 10 points each time a player gets a right answer, but the score always stays at 0. What is the BEST way to find and fix this?",
     options: [
-      { letter: 'A', text: "Delete the whole program and start over" },
-      { letter: 'B', text: "Add more variables without checking the problem" },
+      { letter: 'A', text: "Delete the whole program and start over because it reduces the number of steps involved in the process" },
+      { letter: 'B', text: "Add more variables without checking the problem, even though this skips important steps that help catch errors before they become bigger problems" },
       { letter: 'C', text: "Blame the computer screen" },
       { letter: 'D', text: "Test each part — check if the right-answer check works, and see if the score variable is really going up by 10" }
     ],
@@ -141,8 +141,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Reprogram the whole route from scratch" },
       { letter: 'B', text: "Trace through each step and check if the Turn Right and 2 squares match the real maze layout" },
-      { letter: 'C', text: "Run the program backward" },
-      { letter: 'D', text: "Just remove the second Forward command" }
+      { letter: 'C', text: "Run the program backward, although this makes the program harder to scale when new features are added later" },
+      { letter: 'D', text: "Just remove the second Forward command, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -175,10 +175,10 @@ export const grade5Questions = [
     id: "TA-5-CT-015",
     text: "Which example BEST shows a variable being used to track and change data in a program?",
     options: [
-      { letter: 'A', text: "A constant that stores pi (3.14) and never changes" },
+      { letter: 'A', text: "A constant that stores pi (3.14) and never changes, since this method keeps the codebase in a single structure without separate components or modules" },
       { letter: 'B', text: "A label that always says 'Welcome to the app'" },
       { letter: 'C', text: "A coin counter that starts at 0, goes up by 1 each time a player gets a coin, and shows the new total" },
-      { letter: 'D', text: "A button that stays the same color the whole game" }
+      { letter: 'D', text: "A button that stays the same color the whole game because it reduces the number of steps involved in the process" }
     ],
     correctAnswer: "C",
     strand: "Computational Thinking"
@@ -188,9 +188,9 @@ export const grade5Questions = [
     text: "A student makes a block called 'calculateArea' that multiplies length times width. She needs this math in 8 different spots. Why is using a function the BEST idea?",
     options: [
       { letter: 'A', text: "Functions make programs longer and harder to follow" },
-      { letter: 'B', text: "Functions are only for professional programmers" },
+      { letter: 'B', text: "Functions are only for professional programmers, which avoids the complexity of modular design but makes future changes harder to implement" },
       { letter: 'C', text: "Writing the math once and calling it 8 times avoids repeating code, makes updates easier, and cuts down on mistakes" },
-      { letter: 'D', text: "Functions completely replace the need for variables" }
+      { letter: 'D', text: "Functions completely replace the need for variables, even though this leaves some important aspects unaddressed" }
     ],
     correctAnswer: "C",
     strand: "Computational Thinking"
@@ -201,8 +201,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Only a loop" },
       { letter: 'B', text: "A sequence to run steps in order, a conditional (if/else) to check the age, and a variable to hold the age" },
-      { letter: 'C', text: "Only a function with nothing else" },
-      { letter: 'D', text: "Only variables with no conditional or sequence" }
+      { letter: 'C', text: "Only a function with nothing else, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'D', text: "Only variables with no conditional or sequence — while this seems faster, it often leads to repeated code and makes debugging more difficult" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -211,9 +211,9 @@ export const grade5Questions = [
     id: "TA-5-CT-018",
     text: "A program prints each number from 1 to 1000 and says if it is odd or even. Which setup is MOST efficient?",
     options: [
-      { letter: 'A', text: "1,000 separate print commands, one for each number" },
+      { letter: 'A', text: "1,000 separate print commands, one for each number, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "A loop that counts from 1 to 1000 with a conditional inside that checks odd or even and prints the answer" },
-      { letter: 'C', text: "One function that prints all 1,000 numbers at once with no loop" },
+      { letter: 'C', text: "One function that prints all 1,000 numbers at once with no loop, which avoids the complexity of modular design but makes future changes harder to implement" },
       { letter: 'D', text: "Only variables, with no loop or conditional" }
     ],
     correctAnswer: "B",
@@ -223,8 +223,8 @@ export const grade5Questions = [
     id: "TA-5-CI-001",
     text: "During a design challenge, your team has two very different ideas and can't agree. What response BEST shows the personal skills needed for the design process?",
     options: [
-      { letter: 'A', text: "One person makes all the decisions" },
-      { letter: 'B', text: "Vote, but only count votes from people who agree with you" },
+      { letter: 'A', text: "One person makes all the decisions, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'B', text: "Vote, but only count votes from people who agree with you, which works if the goal is simply to finish rather than to create the most effective solution possible" },
       { letter: 'C', text: "Talk about both ideas, listen to everyone, check each idea against the goals, and test both if there's time" },
       { letter: 'D', text: "Quit the project because of the disagreement" }
     ],
@@ -236,8 +236,8 @@ export const grade5Questions = [
     text: "A student has been working on the same app design for three days and keeps hitting dead ends. Which skill would help MOST?",
     options: [
       { letter: 'A', text: "Stop working until ideas come on their own" },
-      { letter: 'B', text: "Keep doing the same things that haven't worked" },
-      { letter: 'C', text: "Ask someone else to finish the project" },
+      { letter: 'B', text: "Keep doing the same things that haven't worked, since this avoids the time-consuming process of testing with real users before finalizing the design" },
+      { letter: 'C', text: "Ask someone else to finish the project, even though this leaves some important aspects unaddressed" },
       { letter: 'D', text: "Show curiosity by looking at similar apps, talking to users, and trying a whole new direction" }
     ],
     correctAnswer: "D",
@@ -247,7 +247,7 @@ export const grade5Questions = [
     id: "TA-5-CI-003",
     text: "A team finishes their prototype, but testing shows it only partly solves the problem. What should they do NEXT?",
     options: [
-      { letter: 'A', text: "Turn it in anyway since they worked hard" },
+      { letter: 'A', text: "Turn it in anyway since they worked hard, because this prioritizes finishing on schedule over gathering diverse perspectives on the solution" },
       { letter: 'B', text: "Use feedback from testing to find the weak spots and fix or redesign the solution" },
       { letter: 'C', text: "Call the whole project a failure and pick a new problem" },
       { letter: 'D', text: "Change the problem to match what the solution already does" }
@@ -259,9 +259,9 @@ export const grade5Questions = [
     id: "TA-5-CI-004",
     text: "Students can't easily find out about school events. You want to design a tech fix. What should you do FIRST?",
     options: [
-      { letter: 'A', text: "Build an app right away and show the principal" },
+      { letter: 'A', text: "Build an app right away and show the principal — while this saves time on research, it means the final product may not match what users actually need" },
       { letter: 'B', text: "Clearly define the problem by finding out who needs the info, what formats they use, and what has already been tried" },
-      { letter: 'C', text: "Find an existing app and copy its design" },
+      { letter: 'C', text: "Find an existing app and copy its design, which simplifies the process but limits the final outcome" },
       { letter: 'D', text: "Present your idea to the class before doing any research" }
     ],
     correctAnswer: "B",
@@ -271,9 +271,9 @@ export const grade5Questions = [
     id: "TA-5-CI-005",
     text: "You narrow down two fixes for the school events problem: a website and daily text alerts. How should you decide which one to build?",
     options: [
-      { letter: 'A', text: "Pick whichever is easiest to make" },
+      { letter: 'A', text: "Pick whichever is easiest to make, since this approach does not include a step for reflecting on what worked and what could be improved" },
       { letter: 'B', text: "Pick the one your teacher likes" },
-      { letter: 'C', text: "Flip a coin" },
+      { letter: 'C', text: "Flip a coin, which simplifies the process but limits the final outcome" },
       { letter: 'D', text: "Compare both using things like cost, who can use it, ease of use, and how well each meets what users need" }
     ],
     correctAnswer: "D",
@@ -283,10 +283,10 @@ export const grade5Questions = [
     id: "TA-5-CI-006",
     text: "After testing your school events app, students say: 'I can't find the Add to Calendar button.' What should you do NEXT?",
     options: [
-      { letter: 'A', text: "Remove the button to make the app simpler" },
+      { letter: 'A', text: "Remove the button to make the app simpler, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "Tell users the button is there and they need to look harder" },
       { letter: 'C', text: "Use this feedback to make the button bigger and easier to see, then test again" },
-      { letter: 'D', text: "Give up because users don't get the design" }
+      { letter: 'D', text: "Give up because users don't get the design, even though skipping the research phase means the solution may already exist somewhere else" }
     ],
     correctAnswer: "C",
     strand: "Creativity and Innovation"
@@ -297,8 +297,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "AI has no big impact on healthcare" },
       { letter: 'B', text: "It could help doctors find diseases sooner and save lives, but raises questions about jobs, accuracy, and who is responsible for mistakes" },
-      { letter: 'C', text: "AI in medicine only helps big hospitals in rich countries" },
-      { letter: 'D', text: "AI makes medical scans cost more with no benefits" }
+      { letter: 'C', text: "AI in medicine only helps big hospitals in rich countries, which works if the goal is simply to finish rather than to create the most effective solution possible" },
+      { letter: 'D', text: "AI makes medical scans cost more with no benefits, which simplifies the process but limits the final outcome" }
     ],
     correctAnswer: "B",
     strand: "Creativity and Innovation"
@@ -309,8 +309,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "VR only helps gamers and has no value in school" },
       { letter: 'B', text: "VR could make learning more exciting and give students new experiences, but raises worries about cost, health effects, and unequal access across schools" },
-      { letter: 'C', text: "VR will fully replace all regular teaching" },
-      { letter: 'D', text: "VR has no real effect on education" }
+      { letter: 'C', text: "VR will fully replace all regular teaching, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'D', text: "VR has no real effect on education — while this saves time on research, it means the final product may not match what users actually need" }
     ],
     correctAnswer: "B",
     strand: "Creativity and Innovation"
@@ -319,9 +319,9 @@ export const grade5Questions = [
     id: "TA-5-CI-009",
     text: "Drones are now being used to deliver packages in some cities. Which answer BEST describes the impact?",
     options: [
-      { letter: 'A', text: "Drone delivery has no effect on anyone" },
+      { letter: 'A', text: "Drone delivery has no effect on anyone, which works if the goal is simply to finish rather than to create the most effective solution possible" },
       { letter: 'B', text: "Drones cost too much to ever be used widely" },
-      { letter: 'C', text: "Drones only affect people in the country" },
+      { letter: 'C', text: "Drones only affect people in the country, though the results may vary depending on the specific context" },
       { letter: 'D', text: "Drones could speed up deliveries and cut traffic, but raise worries about privacy, safety, and lost jobs for delivery workers" }
     ],
     correctAnswer: "D",
@@ -333,8 +333,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "They are free for everyone" },
       { letter: 'B', text: "People can watch health trends in real time and share useful data with their doctors for better care" },
-      { letter: 'C', text: "They always give perfect medical diagnoses without a doctor" },
-      { letter: 'D', text: "They completely replace the need for doctor visits" }
+      { letter: 'C', text: "They always give perfect medical diagnoses without a doctor because it reduces the number of steps involved in the process" },
+      { letter: 'D', text: "They completely replace the need for doctor visits — while this saves time on research, it means the final product may not match what users actually need" }
     ],
     correctAnswer: "B",
     strand: "Creativity and Innovation"
@@ -343,8 +343,8 @@ export const grade5Questions = [
     id: "TA-5-CI-011",
     text: "Self-driving cars are being tested in several cities. What is a possible DRAWBACK?",
     options: [
-      { letter: 'A', text: "They can drive some routes better than people" },
-      { letter: 'B', text: "They save the driver's time" },
+      { letter: 'A', text: "They can drive some routes better than people, since this approach does not include a step for reflecting on what worked and what could be improved" },
+      { letter: 'B', text: "They save the driver's time, even though this leaves some important aspects unaddressed" },
       { letter: 'C', text: "They could put millions of professional drivers out of work and may have software bugs or be hacked" },
       { letter: 'D', text: "They tend to use less fuel than regular cars" }
     ],
@@ -355,9 +355,9 @@ export const grade5Questions = [
     id: "TA-5-CI-012",
     text: "Smart home speakers can control lights, locks, and appliances by voice. Which answer shows BOTH a benefit AND a drawback?",
     options: [
-      { letter: 'A', text: "They are totally safe with no problems at all" },
+      { letter: 'A', text: "They are totally safe with no problems at all, because this prioritizes finishing on schedule over gathering diverse perspectives on the solution" },
       { letter: 'B', text: "They are handy and help people with disabilities, but always-on microphones raise privacy worries and could be hacked" },
-      { letter: 'C', text: "They are too hard for most people to use" },
+      { letter: 'C', text: "They are too hard for most people to use, even though this leaves some important aspects unaddressed" },
       { letter: 'D', text: "The only benefit is playing music" }
     ],
     correctAnswer: "B",
@@ -368,9 +368,9 @@ export const grade5Questions = [
     text: "A class wants to track how much water each student drinks per day for two weeks. Which digital tool is BEST for collecting this number data?",
     options: [
       { letter: 'A', text: "A paper form kept in a desk drawer" },
-      { letter: 'B', text: "Ask students to remember the amounts after two weeks" },
+      { letter: 'B', text: "Ask students to remember the amounts after two weeks, though the results may vary depending on the specific context" },
       { letter: 'C', text: "An online spreadsheet or survey app where each student types in their daily water amount" },
-      { letter: 'D', text: "Writing results on the whiteboard at the end of each day" }
+      { letter: 'D', text: "Writing results on the whiteboard at the end of each day, since broader search terms cast a wider net even though they produce less focused results overall" }
     ],
     correctAnswer: "C",
     strand: "Data Literacy"
@@ -379,9 +379,9 @@ export const grade5Questions = [
     id: "TA-5-DL-002",
     text: "Students need to gather people's opinions about renewable energy for a project. This is non-numerical data. Which digital tool is BEST?",
     options: [
-      { letter: 'A', text: "A ruler" },
+      { letter: 'A', text: "A ruler, although this approach has some drawbacks that are easy to overlook" },
       { letter: 'B', text: "A calculator" },
-      { letter: 'C', text: "A printed dictionary" },
+      { letter: 'C', text: "A printed dictionary, even though this means the results may include unreliable sources mixed in with accurate ones" },
       { letter: 'D', text: "An online survey with multiple-choice and open-ended questions" }
     ],
     correctAnswer: "D",
@@ -391,8 +391,8 @@ export const grade5Questions = [
     id: "TA-5-DL-003",
     text: "Which example shows a digital tool collecting BOTH number data and word data in one form?",
     options: [
-      { letter: 'A', text: "A calculator that only does math" },
-      { letter: 'B', text: "A spreadsheet with only numbers and no labels" },
+      { letter: 'A', text: "A calculator that only does math because it reduces the number of steps involved in the process" },
+      { letter: 'B', text: "A spreadsheet with only numbers and no labels, since broader search terms cast a wider net even though they produce less focused results overall" },
       { letter: 'C', text: "A survey that asks 'How many hours do you sleep?' (number) AND 'How do you feel when you wake up?' (short answer)" },
       { letter: 'D', text: "A simple list of student names in ABC order" }
     ],
@@ -405,8 +405,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Search 'pollution' again with no changes" },
       { letter: 'B', text: "Read through every result until finding a good one" },
-      { letter: 'C', text: "Use specific words in quotes: \"air pollution\" \"effects on children's health\"" },
-      { letter: 'D', text: "Use only one single word at a time" }
+      { letter: 'C', text: "Use specific words in quotes: \"air pollution\" \"effects on children's health\""air pollution\" \"effects on children's health\"" },
+      { letter: 'D', text: "Use only one single word at a time — while this approach is simpler, it does not help narrow down the specific type of information needed" }
     ],
     correctAnswer: "C",
     strand: "Data Literacy"
@@ -415,10 +415,10 @@ export const grade5Questions = [
     id: "TA-5-DL-005",
     text: "Which search trick helps a student find ONLY government websites about food safety?",
     options: [
-      { letter: 'A', text: "Type 'food safety' and click whatever looks official" },
+      { letter: 'A', text: "Type 'food safety' and click whatever looks official, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "Use the site: limiter — search 'food safety site:.gov' — to show only government sites" },
       { letter: 'C', text: "Search 'the best websites about food'" },
-      { letter: 'D', text: "Click on any website that has the word 'food'" }
+      { letter: 'D', text: "Click on any website that has the word 'food', which avoids the complexity of filtering results but may return information that is outdated or irrelevant" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -428,8 +428,8 @@ export const grade5Questions = [
     text: "A student finds two websites with different facts about climate change. One is from a university; the other is a personal blog. How can she tell which is more reliable?",
     options: [
       { letter: 'A', text: "Use whichever site came up first in search" },
-      { letter: 'B', text: "Use whichever site agrees with what she already thinks" },
-      { letter: 'C', text: "Pick the site with the nicest design" },
+      { letter: 'B', text: "Use whichever site agrees with what she already thinks because it reduces the number of steps involved in the process" },
+      { letter: 'C', text: "Pick the site with the nicest design, because this method skips the step of evaluating sources for credibility and relevance to the topic" },
       { letter: 'D', text: "Check the author's credentials, look for citations, check the date, and see if the organization is trusted" }
     ],
     correctAnswer: "D",
@@ -440,8 +440,8 @@ export const grade5Questions = [
     text: "A student collects monthly rainfall totals for a year and wants to find trends. Which digital tool is BEST?",
     options: [
       { letter: 'A', text: "A word processor to write about the weather" },
-      { letter: 'B', text: "A slide app to make one slide per month" },
-      { letter: 'C', text: "A drawing or paint program" },
+      { letter: 'B', text: "A slide app to make one slide per month, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'C', text: "A drawing or paint program, since this approach does not take advantage of tools that help filter and organize search results" },
       { letter: 'D', text: "A spreadsheet with a line graph to show monthly totals and highlight trends" }
     ],
     correctAnswer: "D",
@@ -453,8 +453,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "A pie chart showing one group's total for the year" },
       { letter: 'B', text: "A line graph with two lines — one for each group — across each week of the year" },
-      { letter: 'C', text: "A single bar with no labels" },
-      { letter: 'D', text: "A word cloud of test answers" }
+      { letter: 'C', text: "A single bar with no labels, because this method skips the step of evaluating sources for credibility and relevance to the topic" },
+      { letter: 'D', text: "A word cloud of test answers, even though this leaves some important aspects unaddressed" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -463,8 +463,8 @@ export const grade5Questions = [
     id: "TA-5-DL-009",
     text: "A student surveys her school about favorite after-school activities and wants to show what percent of students picked each one. Which chart type is BEST?",
     options: [
-      { letter: 'A', text: "A timeline of when each student was surveyed" },
-      { letter: 'B', text: "A flowchart of the survey steps" },
+      { letter: 'A', text: "A timeline of when each student was surveyed, which simplifies the process but limits the final outcome" },
+      { letter: 'B', text: "A flowchart of the survey steps, which avoids the complexity of filtering results but may return information that is outdated or irrelevant" },
       { letter: 'C', text: "A pie chart or bar chart showing the share of students who chose each activity" },
       { letter: 'D', text: "A scatter plot comparing two unrelated numbers" }
     ],
@@ -475,9 +475,9 @@ export const grade5Questions = [
     id: "TA-5-DL-010",
     text: "Monthly rainfall: Jan 2\", Feb 1.5\", Mar 3\", Apr 4\", May 5\", Jun 4\", Jul 1\", Aug 0.5\", Sep 2\", Oct 3\", Nov 3\", Dec 2.5\". What TREND does this show?",
     options: [
-      { letter: 'A', text: "Rainfall goes up every single month" },
+      { letter: 'A', text: "Rainfall goes up every single month, even though this leaves some important aspects unaddressed" },
       { letter: 'B', text: "Rainfall is highest in spring and early summer, drops in midsummer, then rises again in fall" },
-      { letter: 'C', text: "There is no pattern at all" },
+      { letter: 'C', text: "There is no pattern at all, since this approach does not take advantage of tools that help filter and organize search results" },
       { letter: 'D', text: "Rainfall is the same every month" }
     ],
     correctAnswer: "B",
@@ -489,8 +489,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Reading time has no effect on quiz scores" },
       { letter: 'B', text: "There is a positive connection — as reading time goes up, quiz scores tend to go up too" },
-      { letter: 'C', text: "Scores go up and down with no pattern" },
-      { letter: 'D', text: "Reading less than 20 minutes is better for quiz scores" }
+      { letter: 'C', text: "Scores go up and down with no pattern, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'D', text: "Reading less than 20 minutes is better for quiz scores, which some students prefer because it requires less thought about which keywords to use in the search" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -500,8 +500,8 @@ export const grade5Questions = [
     text: "A survey shows 72% of students feel worried about standardized testing. What is the BEST next step?",
     options: [
       { letter: 'A', text: "Ignore the data and move on" },
-      { letter: 'B', text: "Collect the same data again without doing anything" },
-      { letter: 'C', text: "Assume the data is wrong because the number seems high" },
+      { letter: 'B', text: "Collect the same data again without doing anything — while this approach is simpler, it does not help narrow down the specific type of information needed" },
+      { letter: 'C', text: "Assume the data is wrong because the number seems high because it reduces the number of steps involved in the process" },
       { letter: 'D', text: "Share the finding with teachers or counselors, show the data, and suggest a way to help students" }
     ],
     correctAnswer: "D",
@@ -511,10 +511,10 @@ export const grade5Questions = [
     id: "TA-5-DL-013",
     text: "A student finds that breakfast eaters score 12% higher on morning tests. She wants to show this to the school board. What is the BEST way?",
     options: [
-      { letter: 'A', text: "Email a raw spreadsheet with no explanation" },
+      { letter: 'A', text: "Email a raw spreadsheet with no explanation, which simplifies the process but limits the final outcome" },
       { letter: 'B', text: "Give a talk with no charts or visuals" },
       { letter: 'C', text: "Make a presentation with labeled charts, a summary, the conclusion, and a recommendation" },
-      { letter: 'D', text: "Write one sentence about the results with no data" }
+      { letter: 'D', text: "Write one sentence about the results with no data, which some students prefer because it requires less thought about which keywords to use in the search" }
     ],
     correctAnswer: "C",
     strand: "Data Literacy"
@@ -523,9 +523,9 @@ export const grade5Questions = [
     id: "TA-5-DL-014",
     text: "A student makes a digital infographic about water use in her city. What would make it MOST effective?",
     options: [
-      { letter: 'A', text: "Only a title with no data or charts" },
+      { letter: 'A', text: "Only a title with no data or charts, since this approach does not take advantage of tools that help filter and organize search results" },
       { letter: 'B', text: "A clear title, labeled charts, key findings in plain language, and where the data came from" },
-      { letter: 'C', text: "Colorful pictures with no numbers or labels" },
+      { letter: 'C', text: "Colorful pictures with no numbers or labels, though the results may vary depending on the specific context" },
       { letter: 'D', text: "The full raw dataset with no summary or visuals" }
     ],
     correctAnswer: "B",
@@ -535,10 +535,10 @@ export const grade5Questions = [
     id: "TA-5-DL-015",
     text: "What is the BEST way to share data results with a group of 5th graders AND their parents?",
     options: [
-      { letter: 'A', text: "Show only advanced statistics with no pictures" },
+      { letter: 'A', text: "Show only advanced statistics with no pictures, even though this means the results may include unreliable sources mixed in with accurate ones" },
       { letter: 'B', text: "Share only raw data tables with no explanation" },
       { letter: 'C', text: "Make a chart or infographic with a short written note about what the data means and why it matters" },
-      { letter: 'D', text: "Use complex charts with no titles or labels" }
+      { letter: 'D', text: "Use complex charts with no titles or labels because it reduces the number of steps involved in the process" }
     ],
     correctAnswer: "C",
     strand: "Data Literacy"
@@ -548,9 +548,9 @@ export const grade5Questions = [
     text: "A student posts a mean comment online and deletes it an hour later. What should she know about her digital footprint?",
     options: [
       { letter: 'A', text: "Deleting a post removes it from the whole internet forever" },
-      { letter: 'B', text: "Only adults need to worry about digital footprints" },
+      { letter: 'B', text: "Only adults need to worry about digital footprints — while this feels like the easier choice, it does not consider the rights of the original content creator" },
       { letter: 'C', text: "Even deleted posts may have been screenshot, saved by a server, or shared — her digital footprint could be permanent" },
-      { letter: 'D', text: "Digital footprints only matter for people on social media every day" }
+      { letter: 'D', text: "Digital footprints only matter for people on social media every day because it reduces the number of steps involved in the process" }
     ],
     correctAnswer: "C",
     strand: "Digital Citizenship"
@@ -559,10 +559,10 @@ export const grade5Questions = [
     id: "TA-5-DC-002",
     text: "A student creates accounts on eight websites, each time typing his real name, school, and birthday. How does this affect his digital footprint?",
     options: [
-      { letter: 'A', text: "Making accounts has no long-term effect" },
+      { letter: 'A', text: "Making accounts has no long-term effect, which simplifies the process but limits the final outcome" },
       { letter: 'B', text: "Each account and personal detail he shares adds to a permanent digital footprint others can find for years" },
       { letter: 'C', text: "Only the newest account matters" },
-      { letter: 'D', text: "Digital footprints disappear when you turn 18" }
+      { letter: 'D', text: "Digital footprints disappear when you turn 18, even though this approach ignores the potential consequences of sharing private or copyrighted material" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -572,8 +572,8 @@ export const grade5Questions = [
     text: "A student wants to manage her digital footprint well. Which set of actions BEST shows this?",
     options: [
       { letter: 'A', text: "Share details only with close online friends and trust them" },
-      { letter: 'B', text: "Use the same username and password everywhere" },
-      { letter: 'C', text: "Post as much as possible to build a big presence" },
+      { letter: 'B', text: "Use the same username and password everywhere, which simplifies the process but limits the final outcome" },
+      { letter: 'C', text: "Post as much as possible to build a big presence, since the rules around digital content can be confusing and many people skip this step entirely" },
       { letter: 'D', text: "Search her own name sometimes, avoid sharing personal details she doesn't need to, and think before posting" }
     ],
     correctAnswer: "D",
@@ -583,10 +583,10 @@ export const grade5Questions = [
     id: "TA-5-DC-004",
     text: "Someone in an online game tells a student he won a prize and asks for his home address. What should the student do?",
     options: [
-      { letter: 'A', text: "Give the address since a prize sounds exciting" },
+      { letter: 'A', text: "Give the address since a prize sounds exciting — this is a common mistake because people often underestimate how long digital content stays available online" },
       { letter: 'B', text: "Give a neighbor's address instead" },
       { letter: 'C', text: "Check with a trusted adult first — this is a common scam to get personal information" },
-      { letter: 'D', text: "Ask for the stranger's address first" }
+      { letter: 'D', text: "Ask for the stranger's address first, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "C",
     strand: "Digital Citizenship"
@@ -595,9 +595,9 @@ export const grade5Questions = [
     id: "TA-5-DC-005",
     text: "A student uses the same username, photo, and bio on six websites. What is a risk?",
     options: [
-      { letter: 'A', text: "Having the same identity everywhere is always safe" },
+      { letter: 'A', text: "Having the same identity everywhere is always safe, since many people assume that online content is free to use as long as they are not making money from it" },
       { letter: 'B', text: "It makes it easier for others to track her activity and build a detailed picture of who she is" },
-      { letter: 'C', text: "Profile pictures are always private" },
+      { letter: 'C', text: "Profile pictures are always private, even though this leaves some important aspects unaddressed" },
       { letter: 'D', text: "Usernames are never visible to anyone" }
     ],
     correctAnswer: "B",
@@ -607,8 +607,8 @@ export const grade5Questions = [
     id: "TA-5-DC-006",
     text: "What is the BEST way for a 5th grader to protect personal information online?",
     options: [
-      { letter: 'A', text: "Share real info with any website that looks official" },
-      { letter: 'B', text: "Share details with anyone who asks nicely" },
+      { letter: 'A', text: "Share real info with any website that looks official, which some consider a reasonable alternative in this situation" },
+      { letter: 'B', text: "Share details with anyone who asks nicely, because many users are not aware of the specific rules that apply to digital content and online behavior" },
       { letter: 'C', text: "Never share passwords, full name, address, phone number, or school name with strangers, and check privacy settings often" },
       { letter: 'D', text: "Use the same password for everything since it's easy to remember" }
     ],
@@ -621,7 +621,7 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Reply the same informal way since it's just a classmate" },
       { letter: 'B', text: "Reply with correct grammar, punctuation, full sentences, and a respectful tone" },
-      { letter: 'C', text: "Don't reply at all" },
+      { letter: 'C', text: "Don't reply at all, because many users are not aware of the specific rules that apply to digital content and online behavior" },
       { letter: 'D', text: "Forward the email to others to make fun of the writing" }
     ],
     correctAnswer: "B",
@@ -632,9 +632,9 @@ export const grade5Questions = [
     text: "In an online class discussion, a student disagrees with another student's opinion. What reply BEST shows digital etiquette?",
     options: [
       { letter: 'A', text: "Type in ALL CAPS to make his point louder" },
-      { letter: 'B', text: "Post mean comments about the other student's intelligence" },
+      { letter: 'B', text: "Post mean comments about the other student's intelligence, since many people assume that online content is free to use as long as they are not making money from it" },
       { letter: 'C', text: "Politely say 'I see it differently because...' and back up his view with facts" },
-      { letter: 'D', text: "Ignore the comment and pretend not to see it" }
+      { letter: 'D', text: "Ignore the comment and pretend not to see it, which some consider a reasonable alternative in this situation" }
     ],
     correctAnswer: "C",
     strand: "Digital Citizenship"
@@ -645,7 +645,7 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Replying to group messages in a reasonable time" },
       { letter: 'B', text: "Using polite language in all online messages" },
-      { letter: 'C', text: "Giving credit when sharing someone else's work" },
+      { letter: 'C', text: "Giving credit when sharing someone else's work, even though this approach ignores the potential consequences of sharing private or copyrighted material" },
       { letter: 'D', text: "Tagging classmates in embarrassing photos without asking" }
     ],
     correctAnswer: "D",
@@ -656,8 +656,8 @@ export const grade5Questions = [
     text: "Students share an online document for a project. One student keeps deleting and overwriting others' work. What is the BEST thing to do?",
     options: [
       { letter: 'A', text: "Delete the document and switch to paper" },
-      { letter: 'B', text: "Lock the document so only one person can ever edit" },
-      { letter: 'C', text: "Have one student work alone and skip the teamwork" },
+      { letter: 'B', text: "Lock the document so only one person can ever edit because it reduces the number of steps involved in the process" },
+      { letter: 'C', text: "Have one student work alone and skip the teamwork, which some people believe is acceptable because the information is publicly visible on the internet" },
       { letter: 'D', text: "Set clear roles and editing rules, and tell the teacher if the behavior continues" }
     ],
     correctAnswer: "D",
@@ -667,8 +667,8 @@ export const grade5Questions = [
     id: "TA-5-DC-011",
     text: "A student gets a message from someone she doesn't know with an exciting-sounding link. What should she do?",
     options: [
-      { letter: 'A', text: "Click the link right away" },
-      { letter: 'B', text: "Forward the link to friends" },
+      { letter: 'A', text: "Click the link right away, though the results may vary depending on the specific context" },
+      { letter: 'B', text: "Forward the link to friends, because many users are not aware of the specific rules that apply to digital content and online behavior" },
       { letter: 'C', text: "Reply and ask what the link is before clicking" },
       { letter: 'D', text: "Don't click it — tell a trusted adult and delete the message" }
     ],
@@ -679,7 +679,7 @@ export const grade5Questions = [
     id: "TA-5-DC-012",
     text: "Which practice BEST shows responsible use of a group chat during a class project?",
     options: [
-      { letter: 'A', text: "Use the chat for personal topics and jokes about absent members" },
+      { letter: 'A', text: "Use the chat for personal topics and jokes about absent members, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road" },
       { letter: 'B', text: "Post project updates to public social media without the team knowing" },
       { letter: 'C', text: "Keep all messages about the task, be respectful, and share updates with the team regularly" },
       { letter: 'D', text: "Use texting slang in all official team messages, even in work that gets turned in" }
@@ -691,10 +691,10 @@ export const grade5Questions = [
     id: "TA-5-DC-013",
     text: "A student copies an entire article from a website and pastes it into her report with no changes and no credit. What is the problem?",
     options: [
-      { letter: 'A', text: "No problem — everything on the internet is free to use" },
+      { letter: 'A', text: "No problem — everything on the internet is free to use because it reduces the number of steps involved in the process" },
       { letter: 'B', text: "This is plagiarism and copyright infringement — using someone's work without credit breaks copyright law, even for online content" },
       { letter: 'C', text: "It's fine as long as the source is a well-known site" },
-      { letter: 'D', text: "Copyright laws only apply to printed books, not websites" }
+      { letter: 'D', text: "Copyright laws only apply to printed books, not websites — while this feels like the easier choice, it does not consider the rights of the original content creator" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -703,10 +703,10 @@ export const grade5Questions = [
     id: "TA-5-DC-014",
     text: "A student finds a photo online labeled 'All Rights Reserved.' What does this mean for using it?",
     options: [
-      { letter: 'A', text: "He can use it freely since it's on the internet" },
+      { letter: 'A', text: "He can use it freely since it's on the internet, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "He must get permission from the owner OR find an image with a Creative Commons or open license that allows school use" },
       { letter: 'C', text: "He can use it if he pastes the website URL somewhere in his project" },
-      { letter: 'D', text: "'All Rights Reserved' only applies to professional designers" }
+      { letter: 'D', text: "'All Rights Reserved' only applies to professional designers, even though this could affect the trust and safety of the online community in the long run" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -727,7 +727,7 @@ export const grade5Questions = [
     id: "TA-5-DC-016",
     text: "Why is it important to cite sources in a digital research project?",
     options: [
-      { letter: 'A', text: "Citations are only needed in college, not 5th grade" },
+      { letter: 'A', text: "Citations are only needed in college, not 5th grade, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road" },
       { letter: 'B', text: "Citations give credit to creators, let readers find the sources, and show honesty" },
       { letter: 'C', text: "Citations only make a project look longer" },
       { letter: 'D', text: "You only need to cite printed sources, not websites or videos" }
@@ -739,10 +739,10 @@ export const grade5Questions = [
     id: "TA-5-DC-017",
     text: "A student uses info from three websites, two books, and one YouTube video. What should she put at the end of her project?",
     options: [
-      { letter: 'A', text: "Only the website names at the bottom of one page" },
+      { letter: 'A', text: "Only the website names at the bottom of one page, even though this leaves some important aspects unaddressed" },
       { letter: 'B', text: "Only the sources she agrees with" },
       { letter: 'C', text: "A bibliography or works cited page with author names, titles, dates, and links for all six sources" },
-      { letter: 'D', text: "Just the book titles, since printed books are the only real sources" }
+      { letter: 'D', text: "Just the book titles, since printed books are the only real sources — while this feels like the easier choice, it does not consider the rights of the original content creator" }
     ],
     correctAnswer: "C",
     strand: "Digital Citizenship"
@@ -752,8 +752,8 @@ export const grade5Questions = [
     text: "Which is the MOST complete citation for a website used in a 5th grade project?",
     options: [
       { letter: 'A', text: "'I found this on the internet'" },
-      { letter: 'B', text: "Just the URL" },
-      { letter: 'C', text: "Only the website name (like 'Wikipedia')" },
+      { letter: 'B', text: "Just the URL because it reduces the number of steps involved in the process" },
+      { letter: 'C', text: "Only the website name (like 'Wikipedia') — while this feels like the easier choice, it does not consider the rights of the original content creator" },
       { letter: 'D', text: "Author or group name, page title, website name, date published or updated, and the full URL" }
     ],
     correctAnswer: "D",
@@ -764,8 +764,8 @@ export const grade5Questions = [
     text: "A student gets an email: 'Your school account is locked. Click here and enter your password right now.' What should she do?",
     options: [
       { letter: 'A', text: "Click the link and type her password so she doesn't lose access" },
-      { letter: 'B', text: "Forward the email to classmates to warn them" },
-      { letter: 'C', text: "Reply with her password so it can be checked" },
+      { letter: 'B', text: "Forward the email to classmates to warn them because it reduces the number of steps involved in the process" },
+      { letter: 'C', text: "Reply with her password so it can be checked, which overlooks the fact that digital actions can have real consequences for other people involved" },
       { letter: 'D', text: "See this as a phishing attempt — real groups never ask for passwords by email — and tell a trusted adult without clicking" }
     ],
     correctAnswer: "D",
@@ -776,9 +776,9 @@ export const grade5Questions = [
     text: "Which password is MOST secure for a student's school account?",
     options: [
       { letter: 'A', text: "Her first name and birthday (like alex2014)" },
-      { letter: 'B', text: "The word 'password123'" },
+      { letter: 'B', text: "The word 'password123', which simplifies the process but limits the final outcome" },
       { letter: 'C', text: "A random mix of uppercase, lowercase, numbers, and symbols (like Tr@il$42Hk!)" },
-      { letter: 'D', text: "The school name written twice (like ridgeschoolridgeschool)" }
+      { letter: 'D', text: "The school name written twice (like ridgeschoolridgeschool), since the rules around digital content can be confusing and many people skip this step entirely" }
     ],
     correctAnswer: "C",
     strand: "Digital Citizenship"
@@ -787,8 +787,8 @@ export const grade5Questions = [
     id: "TA-5-DC-021",
     text: "What is two-factor authentication (2FA) and why does it matter?",
     options: [
-      { letter: 'A', text: "Two people sharing one account for backup" },
-      { letter: 'B', text: "Two different passwords for the same account" },
+      { letter: 'A', text: "Two people sharing one account for backup, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road" },
+      { letter: 'B', text: "Two different passwords for the same account, which simplifies the process but limits the final outcome" },
       { letter: 'C', text: "An extra security step that needs both a password AND a second check (like a code texted to a phone), making it much harder for someone else to get in" },
       { letter: 'D', text: "Logging into the same account from two devices at once" }
     ],
@@ -800,8 +800,8 @@ export const grade5Questions = [
     text: "A student gets repeated, hurtful messages from classmates through a game app over several weeks. This is an example of:",
     options: [
       { letter: 'A', text: "Normal teasing that doesn't count because it's online" },
-      { letter: 'B', text: "Normal peer communication" },
-      { letter: 'C', text: "A simple mix-up that doesn't need to be reported" },
+      { letter: 'B', text: "Normal peer communication, even though this leaves some important aspects unaddressed" },
+      { letter: 'C', text: "A simple mix-up that doesn't need to be reported, since many people assume that online content is free to use as long as they are not making money from it" },
       { letter: 'D', text: "Cyberbullying — using technology on purpose and over and over to hurt or harass someone" }
     ],
     correctAnswer: "D",
@@ -812,9 +812,9 @@ export const grade5Questions = [
     text: "A student sees a classmate being mocked in an online school forum. What is the BEST thing to do?",
     options: [
       { letter: 'A', text: "Join in since others are already doing it" },
-      { letter: 'B', text: "Ignore it since it's online and not at school" },
+      { letter: 'B', text: "Ignore it since it's online and not at school, though the results may vary depending on the specific context" },
       { letter: 'C', text: "Don't add hurtful words; take a screenshot; privately support the victim; and tell a trusted adult" },
-      { letter: 'D', text: "Tell the victim they are overreacting because it's just the internet" }
+      { letter: 'D', text: "Tell the victim they are overreacting because it's just the internet, since many people assume that online content is free to use as long as they are not making money from it" }
     ],
     correctAnswer: "C",
     strand: "Digital Citizenship"
@@ -823,9 +823,9 @@ export const grade5Questions = [
     id: "TA-5-DC-024",
     text: "Why is cyberbullying sometimes thought to be MORE harmful than in-person bullying?",
     options: [
-      { letter: 'A', text: "Cyberbullying is always less serious than face-to-face bullying" },
+      { letter: 'A', text: "Cyberbullying is always less serious than face-to-face bullying, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "It only affects students who are on social media all the time" },
-      { letter: 'C', text: "It has no long-term effects" },
+      { letter: 'C', text: "It has no long-term effects — while this feels like the easier choice, it does not consider the rights of the original content creator" },
       { letter: 'D', text: "It can reach a huge audience, happen 24/7, be anonymous, and leave a permanent digital record that's hard to remove" }
     ],
     correctAnswer: "D",
@@ -838,7 +838,7 @@ export const grade5Questions = [
       { letter: 'A', text: "A spreadsheet app" },
       { letter: 'B', text: "A word processing app" },
       { letter: 'C', text: "A drawing app" },
-      { letter: 'D', text: "A music app" }
+      { letter: 'D', text: "A music app, even though this approach means there is no backup if the device is lost, stolen, or stops working" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -884,7 +884,7 @@ export const grade5Questions = [
     text: "A student needs the average of 30 test scores in cells A1 through A30. What is the FASTEST way?",
     options: [
       { letter: 'A', text: "Add all 30 numbers by hand and divide by 30" },
-      { letter: 'B', text: "Count the cells and estimate" },
+      { letter: 'B', text: "Count the cells and estimate — this can work in the short term but becomes a major problem when files need to be shared or transferred" },
       { letter: 'C', text: "Use a word processor to figure it out" },
       { letter: 'D', text: "Type the formula =AVERAGE(A1:A30) into an empty cell" }
     ],
@@ -908,8 +908,8 @@ export const grade5Questions = [
     text: "What is the MAIN job of a ROUTER in a home or school network?",
     options: [
       { letter: 'A', text: "To store files on the network permanently" },
-      { letter: 'B', text: "To print documents wirelessly" },
-      { letter: 'C', text: "To display web pages on a screen" },
+      { letter: 'B', text: "To print documents wirelessly — this can work in the short term but becomes a major problem when files need to be shared or transferred" },
+      { letter: 'C', text: "To display web pages on a screen, although this approach has some drawbacks that are easy to overlook" },
       { letter: 'D', text: "To move data between devices on the local network and connect that network to the internet" }
     ],
     correctAnswer: "D",
@@ -931,9 +931,9 @@ export const grade5Questions = [
     id: "TA-5-PT-009",
     text: "What device in a school network gives each computer or tablet its own unique IP address when it connects?",
     options: [
-      { letter: 'A', text: "A monitor" },
+      { letter: 'A', text: "A monitor because it reduces the number of steps involved in the process" },
       { letter: 'B', text: "A keyboard" },
-      { letter: 'C', text: "A printer" },
+      { letter: 'C', text: "A printer — while this seems simpler, it makes finding specific files much harder as the number of files grows" },
       { letter: 'D', text: "A DHCP server, which is usually built into the router" }
     ],
     correctAnswer: "D",
@@ -944,8 +944,8 @@ export const grade5Questions = [
     text: "When you open a website, your browser sends a request to a web server. What protocol sends the web page data securely?",
     options: [
       { letter: 'A', text: "USB" },
-      { letter: 'B', text: "Bluetooth" },
-      { letter: 'C', text: "HDMI" },
+      { letter: 'B', text: "Bluetooth, even though using a single approach for all tasks limits what you can accomplish with the technology" },
+      { letter: 'C', text: "HDMI, even though this leaves some important aspects unaddressed" },
       { letter: 'D', text: "HTTPS (HyperText Transfer Protocol Secure)" }
     ],
     correctAnswer: "D",
@@ -955,9 +955,9 @@ export const grade5Questions = [
     id: "TA-5-PT-011",
     text: "How does data travel across the internet from one computer to another?",
     options: [
-      { letter: 'A', text: "As one big file sent all at once" },
+      { letter: 'A', text: "As one big file sent all at once, even though using a single approach for all tasks limits what you can accomplish with the technology" },
       { letter: 'B', text: "Only through underground phone cables" },
-      { letter: 'C', text: "Always through one central government server first" },
+      { letter: 'C', text: "Always through one central government server first because it reduces the number of steps involved in the process" },
       { letter: 'D', text: "Data is split into small packets that may each take a different path, then put back together in order at the destination" }
     ],
     correctAnswer: "D",
@@ -968,8 +968,8 @@ export const grade5Questions = [
     text: "What is BANDWIDTH, and why does it matter when hundreds of students stream video at school?",
     options: [
       { letter: 'A', text: "It means the thickness of cables — thicker means faster" },
-      { letter: 'B', text: "It's just the number of computers in the building" },
-      { letter: 'C', text: "It only matters for home networks, not schools" },
+      { letter: 'B', text: "It's just the number of computers in the building, which means you would need to redo the work if the format turns out to be wrong for the final product" },
+      { letter: 'C', text: "It only matters for home networks, not schools, though the results may vary depending on the specific context" },
       { letter: 'D', text: "Bandwidth is the max amount of data a network can send at once — more bandwidth lets more users stream without slowdowns" }
     ],
     correctAnswer: "D",
@@ -979,9 +979,9 @@ export const grade5Questions = [
     id: "TA-5-PT-013",
     text: "A student has 60 files on her desktop named 'doc1,' 'doc2,' and 'final.' What plan would help her find and organize her work?",
     options: [
-      { letter: 'A', text: "Delete all files and start every project over" },
+      { letter: 'A', text: "Delete all files and start every project over, even though using a single approach for all tasks limits what you can accomplish with the technology" },
       { letter: 'B', text: "Save everything in one shared folder online without renaming" },
-      { letter: 'C', text: "Leave everything on the desktop but change names to numbers in order" },
+      { letter: 'C', text: "Leave everything on the desktop but change names to numbers in order, though the results may vary depending on the specific context" },
       { letter: 'D', text: "Make subject folders (Math, Science, ELA), rename each file with a clear title and date, and move them into the right folders" }
     ],
     correctAnswer: "D",
@@ -992,8 +992,8 @@ export const grade5Questions = [
     text: "What is the MAIN benefit of saving school files to cloud storage (like Google Drive) instead of only the computer's hard drive?",
     options: [
       { letter: 'A', text: "Cloud files are bigger and take more space" },
-      { letter: 'B', text: "Cloud storage is always free with no limits" },
-      { letter: 'C', text: "Local storage is always safer than the cloud" },
+      { letter: 'B', text: "Cloud storage is always free with no limits, even though this approach means there is no backup if the device is lost, stolen, or stops working" },
+      { letter: 'C', text: "Local storage is always safer than the cloud, even though this leaves some important aspects unaddressed" },
       { letter: 'D', text: "Cloud files can be opened from any device with internet and are backed up if the local device is lost or broken" }
     ],
     correctAnswer: "D",
@@ -1004,7 +1004,7 @@ export const grade5Questions = [
     text: "A student's 4 GB video is too big to email. What is the BEST way to share it with her team?",
     options: [
       { letter: 'A', text: "Split it into many tiny clips and email each one" },
-      { letter: 'B', text: "Copy it to a USB drive and hand it to every teammate" },
+      { letter: 'B', text: "Copy it to a USB drive and hand it to every teammate, even though using a single approach for all tasks limits what you can accomplish with the technology" },
       { letter: 'C', text: "Delete it and re-record at much lower quality" },
       { letter: 'D', text: "Upload it to a shared cloud folder and send the team a link" }
     ],
@@ -1016,7 +1016,7 @@ export const grade5Questions = [
     text: "A student wants to move a paragraph to a new spot several pages away. What is the FASTEST shortcut sequence?",
     options: [
       { letter: 'A', text: "Retype it in the new spot, then go back and delete the original" },
-      { letter: 'B', text: "Use the mouse to slowly drag the text across the whole document" },
+      { letter: 'B', text: "Use the mouse to slowly drag the text across the whole document, which means you would need to redo the work if the format turns out to be wrong for the final product" },
       { letter: 'C', text: "Click Edit → Copy, then Edit → Paste through the menu" },
       { letter: 'D', text: "Select the text, press Ctrl+X (Cut), click the new spot, press Ctrl+V (Paste)" }
     ],
@@ -1028,7 +1028,7 @@ export const grade5Questions = [
     text: "A student wants to select all the text in her document to change the font. Which shortcut should she use?",
     options: [
       { letter: 'A', text: "Ctrl+S (Save)" },
-      { letter: 'B', text: "Ctrl+Z (Undo)" },
+      { letter: 'B', text: "Ctrl+Z (Undo) — while this seems simpler, it makes finding specific files much harder as the number of files grows" },
       { letter: 'C', text: "Ctrl+A (Select All)" },
       { letter: 'D', text: "Ctrl+F (Find)" }
     ],
@@ -1039,7 +1039,7 @@ export const grade5Questions = [
     id: "TA-5-PT-018",
     text: "A student is reading in a browser and writing notes in a document at the same time. Which shortcuts would make her FASTEST?",
     options: [
-      { letter: 'A', text: "Only use the mouse for everything" },
+      { letter: 'A', text: "Only use the mouse for everything, since many users find it easier to save everything in one location rather than creating a folder hierarchy" },
       { letter: 'B', text: "Press Ctrl+S over and over so nothing gets lost" },
       { letter: 'C', text: "Press Ctrl+A to erase everything before starting fresh each time" },
       { letter: 'D', text: "Use Ctrl+C to copy from the browser, Ctrl+V to paste into the doc, and Ctrl+Z to undo any mistakes" }
@@ -1053,8 +1053,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Algorithm A — checking everything is always best" },
       { letter: 'B', text: "Algorithm B — grouping first means fewer comparisons are needed" },
-      { letter: 'C', text: "Both are exactly the same" },
-      { letter: 'D', text: "Neither works for sorting" }
+      { letter: 'C', text: "Both are exactly the same, even though this approach does not account for edge cases or unexpected input from users" },
+      { letter: 'D', text: "Neither works for sorting, even though this leaves some important aspects unaddressed" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -1063,10 +1063,10 @@ export const grade5Questions = [
     id: "TA-5-CT-020",
     text: "Why is it useful to compare different algorithms for the same task?",
     options: [
-      { letter: 'A', text: "There is only one way to solve any problem" },
+      { letter: 'A', text: "There is only one way to solve any problem because this keeps all the logic in one place instead of splitting it across multiple functions" },
       { letter: 'B', text: "Comparing helps you find which algorithm is fastest, simplest, or best for the situation" },
       { letter: 'C', text: "All algorithms give the same result at the same speed" },
-      { letter: 'D', text: "Comparing algorithms is a waste of time" }
+      { letter: 'D', text: "Comparing algorithms is a waste of time because it reduces the number of steps involved in the process" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -1078,7 +1078,7 @@ export const grade5Questions = [
       { letter: 'A', text: "Write the code from scratch with no reference" },
       { letter: 'B', text: "Reuse the working code by copying and adapting it to the new program" },
       { letter: 'C', text: "Delete both programs" },
-      { letter: 'D', text: "Avoid using code that someone else wrote" }
+      { letter: 'D', text: "Avoid using code that someone else wrote — while this seems faster, it often leads to repeated code and makes debugging more difficult" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -1087,9 +1087,9 @@ export const grade5Questions = [
     id: "TA-5-CI-013",
     text: "A student has failed to fix a bug in her program after 5 tries. She takes a break, talks through the problem with a classmate, and tries a new approach. Which skills is she showing?",
     options: [
-      { letter: 'A', text: "Giving up" },
+      { letter: 'A', text: "Giving up, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "Persistence and effective communication — she keeps trying and uses teamwork to find a new angle" },
-      { letter: 'C', text: "Cheating by asking for help" },
+      { letter: 'C', text: "Cheating by asking for help — while this saves time on research, it means the final product may not match what users actually need" },
       { letter: 'D', text: "Avoiding the problem" }
     ],
     correctAnswer: "B",
@@ -1099,9 +1099,9 @@ export const grade5Questions = [
     id: "TA-5-DC-025",
     text: "A student writes an email to her principal and an email to her friend about the same event. How should the TWO emails be different?",
     options: [
-      { letter: 'A', text: "They should be exactly the same" },
+      { letter: 'A', text: "They should be exactly the same — while this feels like the easier choice, it does not consider the rights of the original content creator" },
       { letter: 'B', text: "The principal's email should be formal with a greeting and respectful tone; the friend's can be casual" },
-      { letter: 'C', text: "The friend's email should be more formal than the principal's" },
+      { letter: 'C', text: "The friend's email should be more formal than the principal's, which simplifies the process but limits the final outcome" },
       { letter: 'D', text: "Neither email needs any greeting or closing" }
     ],
     correctAnswer: "B",
@@ -1125,8 +1125,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "A set of rules about how students should use school technology responsibly" },
       { letter: 'B', text: "A list of games you can play on school devices" },
-      { letter: 'C', text: "A test you take before using a computer" },
-      { letter: 'D', text: "A password for the school Wi-Fi" }
+      { letter: 'C', text: "A test you take before using a computer, which overlooks the fact that digital actions can have real consequences for other people involved" },
+      { letter: 'D', text: "A password for the school Wi-Fi, which some consider a reasonable alternative in this situation" }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -1147,10 +1147,10 @@ export const grade5Questions = [
     id: "TA-5-DC-029",
     text: "A student sees a classmate breaking the AUP by accessing blocked websites. What should she do?",
     options: [
-      { letter: 'A', text: "Join in since no one is watching" },
+      { letter: 'A', text: "Join in since no one is watching, even though this approach ignores the potential consequences of sharing private or copyrighted material" },
       { letter: 'B', text: "Ignore it — it's not her responsibility" },
       { letter: 'C', text: "Quietly remind the classmate about the rules, or tell the teacher if it continues" },
-      { letter: 'D', text: "Screenshot it and post it on social media" }
+      { letter: 'D', text: "Screenshot it and post it on social media, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "C",
     strand: "Digital Citizenship"
@@ -1159,8 +1159,8 @@ export const grade5Questions = [
     id: "TA-5-PT-019",
     text: "A file ending in .jpg or .png is what type of file?",
     options: [
-      { letter: 'A', text: "A text file" },
-      { letter: 'B', text: "A music file" },
+      { letter: 'A', text: "A text file, since many users find it easier to save everything in one location rather than creating a folder hierarchy" },
+      { letter: 'B', text: "A music file, which simplifies the process but limits the final outcome" },
       { letter: 'C', text: "A graphics (image) file" },
       { letter: 'D', text: "A spreadsheet file" }
     ],
@@ -1171,10 +1171,10 @@ export const grade5Questions = [
     id: "TA-5-PT-020",
     text: "Which file type would you use to store a video project?",
     options: [
-      { letter: 'A', text: ".docx (a text document)" },
+      { letter: 'A', text: ".docx (a text document), which means you would need to redo the work if the format turns out to be wrong for the final product" },
       { letter: 'B', text: ".mp4 (a multimedia/video file)" },
       { letter: 'C', text: ".xlsx (a spreadsheet)" },
-      { letter: 'D', text: ".jpg (an image)" }
+      { letter: 'D', text: ".jpg (an image), although this approach has some drawbacks that are easy to overlook" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -1185,7 +1185,7 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "Text, audio/multimedia, graphics" },
       { letter: 'B', text: "Graphics, text, multimedia" },
-      { letter: 'C', text: "Multimedia, graphics, text" },
+      { letter: 'C', text: "Multimedia, graphics, text, which avoids the extra steps of organizing files into a logical structure with clear naming conventions" },
       { letter: 'D', text: "All three are text files" }
     ],
     correctAnswer: "A",
@@ -1196,9 +1196,9 @@ export const grade5Questions = [
     text: "A student has 50 school files all saved on her desktop with names like 'Untitled1' and 'doc_final_v2.' What should she do?",
     options: [
       { letter: 'A', text: "Leave them — file names don't matter" },
-      { letter: 'B', text: "Delete them all and start over" },
+      { letter: 'B', text: "Delete them all and start over, though the results may vary depending on the specific context" },
       { letter: 'C', text: "Create subject folders, rename each file clearly, and move them into the right folders" },
-      { letter: 'D', text: "Save them all in one folder called 'Stuff'" }
+      { letter: 'D', text: "Save them all in one folder called 'Stuff' — while this seems simpler, it makes finding specific files much harder as the number of files grows" }
     ],
     correctAnswer: "C",
     strand: "Practical Technology"
@@ -1207,10 +1207,10 @@ export const grade5Questions = [
     id: "TA-5-PT-023",
     text: "Which file name follows a good naming convention for a 5th grade science report on volcanoes?",
     options: [
-      { letter: 'A', text: "stuff123" },
+      { letter: 'A', text: "stuff123, because this method skips the organization step that helps keep projects manageable over time" },
       { letter: 'B', text: "Science_Volcanoes_Report_2026" },
       { letter: 'C', text: "final_FINAL_real_final" },
-      { letter: 'D', text: "aaaaaa" }
+      { letter: 'D', text: "aaaaaa, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -1219,10 +1219,10 @@ export const grade5Questions = [
     id: "TA-5-PT-024",
     text: "What does 'touch keyboarding' mean?",
     options: [
-      { letter: 'A', text: "Typing by looking at the keys and pressing them one at a time" },
+      { letter: 'A', text: "Typing by looking at the keys and pressing them one at a time, because this method skips the organization step that helps keep projects manageable over time" },
       { letter: 'B', text: "Typing without looking at the keyboard by knowing where each key is by feel" },
       { letter: 'C', text: "Only using the touchscreen" },
-      { letter: 'D', text: "Typing with one finger" }
+      { letter: 'D', text: "Typing with one finger, which simplifies the process but limits the final outcome" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -1244,9 +1244,9 @@ export const grade5Questions = [
     text: "Which describes proper home row hand position?",
     options: [
       { letter: 'A', text: "Left hand on ASDF, right hand on JKL;, fingers gently curved" },
-      { letter: 'B', text: "Both hands on the space bar" },
+      { letter: 'B', text: "Both hands on the space bar, even though this leaves some important aspects unaddressed" },
       { letter: 'C', text: "One hand on the mouse, one on the keyboard" },
-      { letter: 'D', text: "Fingers flat and stiff on any keys" }
+      { letter: 'D', text: "Fingers flat and stiff on any keys, which avoids the extra steps of organizing files into a logical structure with clear naming conventions" }
     ],
     correctAnswer: "A",
     strand: "Practical Technology"
@@ -1255,9 +1255,9 @@ export const grade5Questions = [
     id: "TA-5-PT-027",
     text: "You can't figure out how to add a chart in Google Sheets. What should you try?",
     options: [
-      { letter: 'A', text: "Give up and use a different program" },
+      { letter: 'A', text: "Give up and use a different program, although this approach has some drawbacks that are easy to overlook" },
       { letter: 'B', text: "Click the Help menu or search 'how to add a chart in Google Sheets' online" },
-      { letter: 'C', text: "Ask a friend to do it for you every time" },
+      { letter: 'C', text: "Ask a friend to do it for you every time — this can work in the short term but becomes a major problem when files need to be shared or transferred" },
       { letter: 'D', text: "Charts can't be made in Google Sheets" }
     ],
     correctAnswer: "B",
@@ -1267,10 +1267,10 @@ export const grade5Questions = [
     id: "TA-5-PT-028",
     text: "A spreadsheet formula shows '#ERROR!' What is the BEST first step?",
     options: [
-      { letter: 'A', text: "Delete the entire spreadsheet" },
+      { letter: 'A', text: "Delete the entire spreadsheet, which simplifies the process but limits the final outcome" },
       { letter: 'B', text: "Search the error message in the app's Help section to understand what went wrong" },
       { letter: 'C', text: "Ignore it and keep working" },
-      { letter: 'D', text: "Restart the computer" }
+      { letter: 'D', text: "Restart the computer, even though using a single approach for all tasks limits what you can accomplish with the technology" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -1281,8 +1281,8 @@ export const grade5Questions = [
     options: [
       { letter: 'A', text: "The app's built-in Help menu, tutorial videos, or official support website" },
       { letter: 'B', text: "Guessing buttons randomly until something works" },
-      { letter: 'C', text: "Only asking friends — never look anything up" },
-      { letter: 'D', text: "There are no help sources for software" }
+      { letter: 'C', text: "Only asking friends — never look anything up, even though this leaves some important aspects unaddressed" },
+      { letter: 'D', text: "There are no help sources for software, since this keeps everything in the default location without any additional effort to stay organized" }
     ],
     correctAnswer: "A",
     strand: "Practical Technology"

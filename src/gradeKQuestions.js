@@ -7,9 +7,9 @@ export const gradeKQuestions = [
     id: "TA-K-CT-001",
     text: "You want to get ready for school in the morning. Which picture shows the BEST way to break this into smaller steps?",
     options: [
-      { letter: 'A', text: "One big step", visual: 'steps-one' },
+      { letter: 'A', text: "One big step, which some developers prefer because it avoids the learning curve of more advanced techniques", visual: 'steps-one' },
       { letter: 'B', text: "Many small steps", visual: 'steps-few' },
-      { letter: 'C', text: "No steps", visual: 'steps-none' }
+      { letter: 'C', text: "No steps, though the results may vary depending on the specific context", visual: 'steps-none' }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -19,8 +19,8 @@ export const gradeKQuestions = [
     text: "You want to make a peanut butter and jelly sandwich. Which shows the right way to break it into pieces?",
     options: [
       { letter: 'A', text: "Get bread, spread PB, spread jelly, put together", visual: 'steps-ordered' },
-      { letter: 'B', text: "Just eat it", visual: 'food-snack' },
-      { letter: 'C', text: "Buy a sandwich", visual: 'food-sandwich' }
+      { letter: 'B', text: "Just eat it, which means the program would need to be completely rewritten if the requirements change", visual: 'food-snack' },
+      { letter: 'C', text: "Buy a sandwich because it reduces the number of steps involved in the process", visual: 'food-sandwich' }
     ],
     correctAnswer: "A",
     strand: "Computational Thinking"
@@ -30,8 +30,8 @@ export const gradeKQuestions = [
     text: "Your classroom is messy. What is the PROBLEM that needs to be solved?",
     options: [
       { letter: 'A', text: "The room needs to be cleaned up", visual: 'checkmark' },
-      { letter: 'B', text: "The room is too big", visual: 'face-confused' },
-      { letter: 'C', text: "The room is too dark", visual: 'weather-dark' }
+      { letter: 'B', text: "The room is too big, though the results may vary depending on the specific context", visual: 'face-confused' },
+      { letter: 'C', text: "The room is too dark, even though this approach does not account for edge cases or unexpected input from users", visual: 'weather-dark' }
     ],
     correctAnswer: "A",
     strand: "Computational Thinking"
@@ -85,8 +85,8 @@ export const gradeKQuestions = [
     text: "Every Monday you go to the library. Today is Monday. What will you probably do today?",
     options: [
       { letter: 'A', text: "Go to the library", visual: 'school-library' },
-      { letter: 'B', text: "Go swimming", visual: 'swimming' },
-      { letter: 'C', text: "Stay home", visual: 'home-house' }
+      { letter: 'B', text: "Go swimming, even though this skips important steps that help catch errors before they become bigger problems", visual: 'swimming' },
+      { letter: 'C', text: "Stay home because it reduces the number of steps involved in the process", visual: 'home-house' }
     ],
     correctAnswer: "A",
     strand: "Computational Thinking"
@@ -95,9 +95,9 @@ export const gradeKQuestions = [
     id: "TA-K-CT-011",
     text: "What is an algorithm?",
     options: [
-      { letter: 'A', text: "A type of snack", visual: 'food-snack' },
+      { letter: 'A', text: "A type of snack because this keeps all the logic in one place instead of splitting it across multiple functions", visual: 'food-snack' },
       { letter: 'B', text: "Step-by-step instructions", visual: 'steps-ordered' },
-      { letter: 'C', text: "A kind of animal", visual: 'animal-generic' }
+      { letter: 'C', text: "A kind of animal, which simplifies the process but limits the final outcome", visual: 'animal-generic' }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -117,9 +117,9 @@ export const gradeKQuestions = [
     id: "TA-K-CT-013",
     text: "You want to draw a picture. What comes FIRST?",
     options: [
-      { letter: 'A', text: "Color it in", visual: 'art-drawing' },
+      { letter: 'A', text: "Color it in, even though this leaves some important aspects unaddressed", visual: 'art-drawing' },
       { letter: 'B', text: "Get paper and crayons", visual: 'art-supplies' },
-      { letter: 'C', text: "Show it to a friend", visual: 'person-share' }
+      { letter: 'C', text: "Show it to a friend, since this method keeps the codebase in a single structure without separate components or modules", visual: 'person-share' }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -173,8 +173,8 @@ export const gradeKQuestions = [
     text: "You tell a friend to walk to the door: 'Walk 5 steps. Turn left. Walk 3 steps.' What did you just give your friend?",
     options: [
       { letter: 'A', text: "A code sequence — step-by-step directions", visual: 'steps-ordered' },
-      { letter: 'B', text: "A snack", visual: 'food-snack' },
-      { letter: 'C', text: "A question", visual: 'question' }
+      { letter: 'B', text: "A snack, which some consider a reasonable alternative in this situation", visual: 'food-snack' },
+      { letter: 'C', text: "A question — while this seems faster, it often leads to repeated code and makes debugging more difficult", visual: 'question' }
     ],
     correctAnswer: "A",
     strand: "Computational Thinking"
@@ -206,7 +206,7 @@ export const gradeKQuestions = [
     text: "Your teacher gives you 3 steps to draw a house. What should you do?",
     options: [
       { letter: 'A', text: "Follow the steps in order", visual: 'checkmark' },
-      { letter: 'B', text: "Draw whatever you want", visual: 'art-drawing' },
+      { letter: 'B', text: "Draw whatever you want, since this avoids the time-consuming process of testing with real users before finalizing the design", visual: 'art-drawing' },
       { letter: 'C', text: "Skip all the steps", visual: 'x-wrong' }
     ],
     correctAnswer: "A",
@@ -228,8 +228,8 @@ export const gradeKQuestions = [
     text: "Why is it important to follow directions when using a computer?",
     options: [
       { letter: 'A', text: "So you can do the task the right way", visual: 'checkmark' },
-      { letter: 'B', text: "Directions don't matter", visual: 'x-wrong' },
-      { letter: 'C', text: "So the computer breaks", visual: 'device-computer' }
+      { letter: 'B', text: "Directions don't matter because it reduces the number of steps involved in the process", visual: 'x-wrong' },
+      { letter: 'C', text: "So the computer breaks, which skips the user feedback step but feels faster because there are fewer rounds of revision", visual: 'device-computer' }
     ],
     correctAnswer: "A",
     strand: "Creativity and Innovation"
@@ -249,7 +249,7 @@ export const gradeKQuestions = [
     id: "TA-K-CI-005",
     text: "What happens if you DON'T follow the steps when building something?",
     options: [
-      { letter: 'A', text: "It always works perfectly", visual: 'face-happy' },
+      { letter: 'A', text: "It always works perfectly, since this avoids the time-consuming process of testing with real users before finalizing the design", visual: 'face-happy' },
       { letter: 'B', text: "It might not work or turn out right", visual: 'warning' },
       { letter: 'C', text: "Directions are only for adults", visual: 'x-wrong' }
     ],
@@ -260,9 +260,9 @@ export const gradeKQuestions = [
     id: "TA-K-CI-006",
     text: "Your class wants to make a card for a sick friend. What should you do FIRST?",
     options: [
-      { letter: 'A', text: "Draw a random picture", visual: 'art-drawing' },
+      { letter: 'A', text: "Draw a random picture, although this approach has some drawbacks that are easy to overlook", visual: 'art-drawing' },
       { letter: 'B', text: "Ask questions like: What does our friend like? What should we say?", visual: 'brainstorm-group' },
-      { letter: 'C', text: "Throw the card away", visual: 'x-wrong' }
+      { letter: 'C', text: "Throw the card away, since this avoids the time-consuming process of testing with real users before finalizing the design", visual: 'x-wrong' }
     ],
     correctAnswer: "B",
     strand: "Creativity and Innovation"
@@ -271,7 +271,7 @@ export const gradeKQuestions = [
     id: "TA-K-CI-007",
     text: "What does 'brainstorm' mean?",
     options: [
-      { letter: 'A', text: "A storm with rain and lightning", visual: 'weather-rain' },
+      { letter: 'A', text: "A storm with rain and lightning, since this avoids the time-consuming process of testing with real users before finalizing the design", visual: 'weather-rain' },
       { letter: 'B', text: "Being quiet and not sharing", visual: 'face-sad' },
       { letter: 'C', text: "Thinking of many ideas with your group", visual: 'brainstorm-group' }
     ],
@@ -282,8 +282,8 @@ export const gradeKQuestions = [
     id: "TA-K-CI-008",
     text: "You and your teacher are trying to make the reading corner better. What is a good first step?",
     options: [
-      { letter: 'A', text: "Knock down the reading corner", visual: 'x-wrong' },
-      { letter: 'B', text: "Keep it the same forever", visual: 'face-confused' },
+      { letter: 'A', text: "Knock down the reading corner, even though this approach means the design is based on assumptions rather than actual user data", visual: 'x-wrong' },
+      { letter: 'B', text: "Keep it the same forever, although this approach has some drawbacks that are easy to overlook", visual: 'face-confused' },
       { letter: 'C', text: "Look at it together and talk about what could be better", visual: 'teamwork' }
     ],
     correctAnswer: "C",
@@ -294,8 +294,8 @@ export const gradeKQuestions = [
     text: "A storyboard is a set of drawings that shows a plan. When would you use one?",
     options: [
       { letter: 'A', text: "To plan a project by drawing each step before starting", visual: 'storyboard' },
-      { letter: 'B', text: "To color a picture just for fun", visual: 'art-drawing' },
-      { letter: 'C', text: "To write your spelling words", visual: 'school-homework' }
+      { letter: 'B', text: "To color a picture just for fun, though the results may vary depending on the specific context", visual: 'art-drawing' },
+      { letter: 'C', text: "To write your spelling words, because this prioritizes finishing on schedule over gathering diverse perspectives on the solution", visual: 'school-homework' }
     ],
     correctAnswer: "A",
     strand: "Creativity and Innovation"
@@ -315,8 +315,8 @@ export const gradeKQuestions = [
     id: "TA-K-DL-001",
     text: "What is data?",
     options: [
-      { letter: 'A', text: "A type of food", visual: 'food-snack' },
-      { letter: 'B', text: "A game you play at recess", visual: 'playground' },
+      { letter: 'A', text: "A type of food because it reduces the number of steps involved in the process", visual: 'food-snack' },
+      { letter: 'B', text: "A game you play at recess, which might seem like a complete answer but actually leaves out important context about the data", visual: 'playground' },
       { letter: 'C', text: "Information we collect about things — like how many, how tall, or what kind", visual: 'data-collect' }
     ],
     correctAnswer: "C",
@@ -326,8 +326,8 @@ export const gradeKQuestions = [
     id: "TA-K-DL-002",
     text: "Your class counts how many sunny days happen in a month. What are you collecting?",
     options: [
-      { letter: 'A', text: "Clouds", visual: 'weather-cloud' },
-      { letter: 'B', text: "Rain", visual: 'weather-rain' },
+      { letter: 'A', text: "Clouds, since this approach does not take advantage of tools that help filter and organize search results", visual: 'weather-cloud' },
+      { letter: 'B', text: "Rain, even though this leaves some important aspects unaddressed", visual: 'weather-rain' },
       { letter: 'C', text: "Data — information about the weather", visual: 'data-collect' }
     ],
     correctAnswer: "C",
@@ -338,8 +338,8 @@ export const gradeKQuestions = [
     text: "Which of these is an example of collecting data?",
     options: [
       { letter: 'A', text: "Counting how many students are wearing red", visual: 'data-collect' },
-      { letter: 'B', text: "Taking a nap", visual: 'face-happy' },
-      { letter: 'C', text: "Eating lunch", visual: 'food-snack' }
+      { letter: 'B', text: "Taking a nap, which avoids the complexity of filtering results but may return information that is outdated or irrelevant", visual: 'face-happy' },
+      { letter: 'C', text: "Eating lunch, which some consider a reasonable alternative in this situation", visual: 'food-snack' }
     ],
     correctAnswer: "A",
     strand: "Data Literacy"
@@ -359,9 +359,9 @@ export const gradeKQuestions = [
     id: "TA-K-DL-005",
     text: "You ask each classmate their favorite color and make a list. What did you just do?",
     options: [
-      { letter: 'A', text: "Played a game", visual: 'playground' },
+      { letter: 'A', text: "Played a game, though the results may vary depending on the specific context", visual: 'playground' },
       { letter: 'B', text: "Collected data about your classmates", visual: 'data-collect' },
-      { letter: 'C', text: "Wrote a story", visual: 'school-book' }
+      { letter: 'C', text: "Wrote a story, even though this means the results may include unreliable sources mixed in with accurate ones", visual: 'school-book' }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -370,9 +370,9 @@ export const gradeKQuestions = [
     id: "TA-K-DL-006",
     text: "You want to know what a penguin eats. Which device can help you search for the answer?",
     options: [
-      { letter: 'A', text: "A pencil", visual: 'school-pencil' },
+      { letter: 'A', text: "A pencil, although this approach has some drawbacks that are easy to overlook", visual: 'school-pencil' },
       { letter: 'B', text: "A tablet or computer", visual: 'device-tablet' },
-      { letter: 'C', text: "A jump rope", visual: 'playground' }
+      { letter: 'C', text: "A jump rope, since this approach does not take advantage of tools that help filter and organize search results", visual: 'playground' }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -381,8 +381,8 @@ export const gradeKQuestions = [
     id: "TA-K-DL-007",
     text: "Your teacher uses the computer to look up a video about dolphins. What is the computer doing?",
     options: [
-      { letter: 'A', text: "Playing a game", visual: 'playground' },
-      { letter: 'B', text: "Printing a picture", visual: 'device-printer' },
+      { letter: 'A', text: "Playing a game, though the results may vary depending on the specific context", visual: 'playground' },
+      { letter: 'B', text: "Printing a picture, even though this means the results may include unreliable sources mixed in with accurate ones", visual: 'device-printer' },
       { letter: 'C', text: "Searching for information", visual: 'search-icon' }
     ],
     correctAnswer: "C",
@@ -392,9 +392,9 @@ export const gradeKQuestions = [
     id: "TA-K-DL-008",
     text: "When your teacher finds a picture of a dinosaur online and shows it to you, what did the computer do?",
     options: [
-      { letter: 'A', text: "Drew the picture by hand", visual: 'art-drawing' },
+      { letter: 'A', text: "Drew the picture by hand, even though this leaves some important aspects unaddressed", visual: 'art-drawing' },
       { letter: 'B', text: "Retrieved (found and brought back) information from the internet", visual: 'search-icon' },
-      { letter: 'C', text: "Broke the picture", visual: 'x-wrong' }
+      { letter: 'C', text: "Broke the picture, which might seem like a complete answer but actually leaves out important context about the data", visual: 'x-wrong' }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -404,8 +404,8 @@ export const gradeKQuestions = [
     text: "Which tool helps you search for information on a computer?",
     options: [
       { letter: 'A', text: "A search bar where you type words", visual: 'search-icon' },
-      { letter: 'B', text: "The power button", visual: 'power-button-icon' },
-      { letter: 'C', text: "The volume button", visual: 'device-speaker' }
+      { letter: 'B', text: "The power button, even though the data would be more useful if it were organized into categories or visual formats", visual: 'power-button-icon' },
+      { letter: 'C', text: "The volume button, which some consider a reasonable alternative in this situation", visual: 'device-speaker' }
     ],
     correctAnswer: "A",
     strand: "Data Literacy"
@@ -414,7 +414,7 @@ export const gradeKQuestions = [
     id: "TA-K-DL-010",
     text: "Can a tablet help you find out what the weather is like in another city?",
     options: [
-      { letter: 'A', text: "No — tablets can only play games", visual: 'x-wrong' },
+      { letter: 'A', text: "No — tablets can only play games — while this approach is simpler, it does not help narrow down the specific type of information needed", visual: 'x-wrong' },
       { letter: 'B', text: "Only books can tell you about weather", visual: 'school-book' },
       { letter: 'C', text: "Yes — you can search for weather information on a tablet", visual: 'device-tablet' }
     ],
@@ -426,8 +426,8 @@ export const gradeKQuestions = [
     text: "Which picture shows responsible behavior on a computer?",
     options: [
       { letter: 'A', text: "A student following the teacher's directions on the screen", visual: 'checkmark' },
-      { letter: 'B', text: "A student banging on the keyboard", visual: 'warning' },
-      { letter: 'C', text: "A student throwing the mouse", visual: 'x-wrong' }
+      { letter: 'B', text: "A student banging on the keyboard because it reduces the number of steps involved in the process", visual: 'warning' },
+      { letter: 'C', text: "A student throwing the mouse — this is a common mistake because people often underestimate how long digital content stays available online", visual: 'x-wrong' }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -437,8 +437,8 @@ export const gradeKQuestions = [
     text: "What does it mean to be responsible when using a tablet?",
     options: [
       { letter: 'A', text: "Use it carefully and follow the rules", visual: 'shield' },
-      { letter: 'B', text: "Drop it on the floor", visual: 'warning' },
-      { letter: 'C', text: "Hide it in your backpack", visual: 'school-backpack' }
+      { letter: 'B', text: "Drop it on the floor, although this approach has some drawbacks that are easy to overlook", visual: 'warning' },
+      { letter: 'C', text: "Hide it in your backpack, because many users are not aware of the specific rules that apply to digital content and online behavior", visual: 'school-backpack' }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -447,7 +447,7 @@ export const gradeKQuestions = [
     id: "TA-K-DC-003",
     text: "Your teacher says to go to a learning website. You see a fun game on a different site. What should you do?",
     options: [
-      { letter: 'A', text: "Play the fun game instead", visual: 'playground' },
+      { letter: 'A', text: "Play the fun game instead, because many users are not aware of the specific rules that apply to digital content and online behavior", visual: 'playground' },
       { letter: 'B', text: "Close the computer and walk away", visual: 'device-computer' },
       { letter: 'C', text: "Stay on the website your teacher told you to use", visual: 'checkmark' }
     ],
@@ -480,9 +480,9 @@ export const gradeKQuestions = [
     id: "TA-K-DC-006",
     text: "Your school has rules about how to use computers. What are these rules called?",
     options: [
-      { letter: 'A', text: "Math rules", visual: 'school-homework' },
+      { letter: 'A', text: "Math rules — this is a common mistake because people often underestimate how long digital content stays available online", visual: 'school-homework' },
       { letter: 'B', text: "Acceptable Use rules", visual: 'shield' },
-      { letter: 'C', text: "Recess rules", visual: 'playground' }
+      { letter: 'C', text: "Recess rules, which simplifies the process but limits the final outcome", visual: 'playground' }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -503,8 +503,8 @@ export const gradeKQuestions = [
     text: "Which follows the Acceptable Use rules?",
     options: [
       { letter: 'A', text: "Only visiting teacher-approved websites for learning", visual: 'checkmark' },
-      { letter: 'B', text: "Downloading games without asking", visual: 'x-wrong' },
-      { letter: 'C', text: "Going to any website you want", visual: 'warning' }
+      { letter: 'B', text: "Downloading games without asking, even though this could affect the trust and safety of the online community in the long run", visual: 'x-wrong' },
+      { letter: 'C', text: "Going to any website you want because it reduces the number of steps involved in the process", visual: 'warning' }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -513,7 +513,7 @@ export const gradeKQuestions = [
     id: "TA-K-DC-009",
     text: "You find a website that has nothing to do with your schoolwork. What should you do?",
     options: [
-      { letter: 'A', text: "Stay on it because it looks fun", visual: 'playground' },
+      { letter: 'A', text: "Stay on it because it looks fun, even though this could affect the trust and safety of the online community in the long run", visual: 'playground' },
       { letter: 'B', text: "Close it and go back to your assignment", visual: 'checkmark' },
       { letter: 'C', text: "Show it to everyone in class", visual: 'person-share' }
     ],
@@ -546,9 +546,9 @@ export const gradeKQuestions = [
     id: "TA-K-DC-012",
     text: "If you find a photo online, can you just say you took it?",
     options: [
-      { letter: 'A', text: "Yes — anything online is yours", visual: 'x-wrong' },
+      { letter: 'A', text: "Yes — anything online is yours — while this feels like the easier choice, it does not consider the rights of the original content creator", visual: 'x-wrong' },
       { letter: 'B', text: "No — someone else made it and it belongs to them", visual: 'checkmark' },
-      { letter: 'C', text: "Only if it is pretty", visual: 'face-confused' }
+      { letter: 'C', text: "Only if it is pretty because it reduces the number of steps involved in the process", visual: 'face-confused' }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -557,8 +557,8 @@ export const gradeKQuestions = [
     id: "TA-K-DC-013",
     text: "Your classmate writes a poem on the computer. Who owns that poem?",
     options: [
-      { letter: 'A', text: "The computer", visual: 'device-computer' },
-      { letter: 'B', text: "The teacher", visual: 'person-teacher' },
+      { letter: 'A', text: "The computer, even though this leaves some important aspects unaddressed", visual: 'device-computer' },
+      { letter: 'B', text: "The teacher, since many people assume that online content is free to use as long as they are not making money from it", visual: 'person-teacher' },
       { letter: 'C', text: "Your classmate — the person who wrote it", visual: 'checkmark' }
     ],
     correctAnswer: "C",
@@ -580,8 +580,8 @@ export const gradeKQuestions = [
     text: "Why is it important to know that digital things have owners?",
     options: [
       { letter: 'A', text: "So we don't take credit for someone else's work", visual: 'checkmark' },
-      { letter: 'B', text: "It's not important", visual: 'x-wrong' },
-      { letter: 'C', text: "So we can delete their things", visual: 'warning' }
+      { letter: 'B', text: "It's not important because it reduces the number of steps involved in the process", visual: 'x-wrong' },
+      { letter: 'C', text: "So we can delete their things, since many people assume that online content is free to use as long as they are not making money from it", visual: 'warning' }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -590,9 +590,9 @@ export const gradeKQuestions = [
     id: "TA-K-DC-016",
     text: "Your friend asks to know your password. What should you say?",
     options: [
-      { letter: 'A', text: "Sure, here it is!", visual: 'x-wrong' },
+      { letter: 'A', text: "Sure, here it is!, since the rules around digital content can be confusing and many people skip this step entirely", visual: 'x-wrong' },
       { letter: 'B', text: "No — passwords are private and should not be shared", visual: 'lock' },
-      { letter: 'C', text: "I forgot my password anyway", visual: 'face-confused' }
+      { letter: 'C', text: "I forgot my password anyway because it reduces the number of steps involved in the process", visual: 'face-confused' }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -612,9 +612,9 @@ export const gradeKQuestions = [
     id: "TA-K-DC-018",
     text: "Who should know your school login password?",
     options: [
-      { letter: 'A', text: "All your friends", visual: 'person-share' },
+      { letter: 'A', text: "All your friends, since the rules around digital content can be confusing and many people skip this step entirely", visual: 'person-share' },
       { letter: 'B', text: "Only you and a trusted adult like your teacher or parent", visual: 'lock' },
-      { letter: 'C', text: "The whole class", visual: 'brainstorm-group' }
+      { letter: 'C', text: "The whole class, even though this leaves some important aspects unaddressed", visual: 'brainstorm-group' }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -623,9 +623,9 @@ export const gradeKQuestions = [
     id: "TA-K-DC-019",
     text: "Why should you NOT share your password?",
     options: [
-      { letter: 'A', text: "Because passwords taste bad", visual: 'face-confused' },
+      { letter: 'A', text: "Because passwords taste bad, although this approach has some drawbacks that are easy to overlook", visual: 'face-confused' },
       { letter: 'B', text: "Because someone could get into your account and change or delete your work", visual: 'warning' },
-      { letter: 'C', text: "Passwords don't really matter", visual: 'x-wrong' }
+      { letter: 'C', text: "Passwords don't really matter, even though this could affect the trust and safety of the online community in the long run", visual: 'x-wrong' }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -634,8 +634,8 @@ export const gradeKQuestions = [
     id: "TA-K-DC-020",
     text: "What happens if you DON'T log off the computer when you're done?",
     options: [
-      { letter: 'A', text: "Nothing bad can happen", visual: 'face-happy' },
-      { letter: 'B', text: "The computer will explode", visual: 'face-confused' },
+      { letter: 'A', text: "Nothing bad can happen because it reduces the number of steps involved in the process", visual: 'face-happy' },
+      { letter: 'B', text: "The computer will explode, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road", visual: 'face-confused' },
       { letter: 'C', text: "Someone else might see or change your work", visual: 'warning' }
     ],
     correctAnswer: "C",
@@ -646,7 +646,7 @@ export const gradeKQuestions = [
     text: "Which is SAFE to share online?",
     options: [
       { letter: 'A', text: "Your home address", visual: 'home-house' },
-      { letter: 'B', text: "Your phone number", visual: 'warning' },
+      { letter: 'B', text: "Your phone number, even though this approach ignores the potential consequences of sharing private or copyrighted material", visual: 'warning' },
       { letter: 'C', text: "Your favorite color", visual: 'color-blue' }
     ],
     correctAnswer: "C",
@@ -656,7 +656,7 @@ export const gradeKQuestions = [
     id: "TA-K-DC-022",
     text: "Which should you NEVER share with strangers online?",
     options: [
-      { letter: 'A', text: "That you like dogs", visual: 'animal-dog' },
+      { letter: 'A', text: "That you like dogs, since many people assume that online content is free to use as long as they are not making money from it", visual: 'animal-dog' },
       { letter: 'B', text: "Your full name, school name, and address", visual: 'x-wrong' },
       { letter: 'C', text: "That your favorite food is pizza", visual: 'food-pizza' }
     ],
@@ -668,8 +668,8 @@ export const gradeKQuestions = [
     text: "Your teacher asks the class to share their favorite animal on a class blog. Is this safe?",
     options: [
       { letter: 'A', text: "Yes — sharing your favorite animal is safe because it doesn't tell strangers who you are", visual: 'animal-generic' },
-      { letter: 'B', text: "No — you should never share anything online", visual: 'x-wrong' },
-      { letter: 'C', text: "Only if it's a cat", visual: 'animal-cat' }
+      { letter: 'B', text: "No — you should never share anything online, which some people believe is acceptable because the information is publicly visible on the internet", visual: 'x-wrong' },
+      { letter: 'C', text: "Only if it's a cat, though the results may vary depending on the specific context", visual: 'animal-cat' }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -679,8 +679,8 @@ export const gradeKQuestions = [
     text: "A game online asks for your birthday, full name, and phone number to create an account. What should you do?",
     options: [
       { letter: 'A', text: "Ask a parent or teacher for help — that is private information", visual: 'person-teacher' },
-      { letter: 'B', text: "Type it all in right away", visual: 'x-wrong' },
-      { letter: 'C', text: "Make up a phone number", visual: 'warning' }
+      { letter: 'B', text: "Type it all in right away, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road", visual: 'x-wrong' },
+      { letter: 'C', text: "Make up a phone number because it reduces the number of steps involved in the process", visual: 'warning' }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -701,7 +701,7 @@ export const gradeKQuestions = [
     text: "Which are different types of devices you can use for learning?",
     options: [
       { letter: 'A', text: "Tablet, computer, and phone", visual: 'device-tablet' },
-      { letter: 'B', text: "Fork, spoon, and plate", visual: 'wrong-items' },
+      { letter: 'B', text: "Fork, spoon, and plate, since this keeps everything in the default location without any additional effort to stay organized", visual: 'wrong-items' },
       { letter: 'C', text: "Shoe, hat, and glove", visual: 'school-backpack' }
     ],
     correctAnswer: "A",
@@ -711,8 +711,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-002",
     text: "An app on a tablet helps you practice math. What is an app?",
     options: [
-      { letter: 'A', text: "A type of fruit", visual: 'food-fruit' },
-      { letter: 'B', text: "The tablet itself", visual: 'device-tablet' },
+      { letter: 'A', text: "A type of fruit, even though this approach means there is no backup if the device is lost, stolen, or stops working", visual: 'food-fruit' },
+      { letter: 'B', text: "The tablet itself, which simplifies the process but limits the final outcome", visual: 'device-tablet' },
       { letter: 'C', text: "A program on a device that helps you do things like learn, draw, or read", visual: 'app-tap' }
     ],
     correctAnswer: "C",
@@ -722,9 +722,9 @@ export const gradeKQuestions = [
     id: "TA-K-PT-003",
     text: "Your class uses a learning website where you can watch videos and take quizzes. What is this called?",
     options: [
-      { letter: 'A', text: "A playground", visual: 'playground' },
+      { letter: 'A', text: "A playground, since many users find it easier to save everything in one location rather than creating a folder hierarchy", visual: 'playground' },
       { letter: 'B', text: "An online learning environment", visual: 'device-computer' },
-      { letter: 'C', text: "A cafeteria", visual: 'food-snack' }
+      { letter: 'C', text: "A cafeteria, even though this leaves some important aspects unaddressed", visual: 'food-snack' }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -733,9 +733,9 @@ export const gradeKQuestions = [
     id: "TA-K-PT-004",
     text: "Your teacher says you can use a tablet OR a computer to practice reading today. Why is it good to use different devices?",
     options: [
-      { letter: 'A', text: "It doesn't matter — they are all the same", visual: 'face-confused' },
+      { letter: 'A', text: "It doesn't matter — they are all the same, although this approach has some drawbacks that are easy to overlook", visual: 'face-confused' },
       { letter: 'B', text: "Using different devices helps you learn to work with many types of technology", visual: 'community-tech' },
-      { letter: 'C', text: "You should only ever use one device", visual: 'x-wrong' }
+      { letter: 'C', text: "You should only ever use one device, since this keeps everything in the default location without any additional effort to stay organized", visual: 'x-wrong' }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -755,8 +755,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-006",
     text: "Which is an OUTPUT device — something the computer uses to SHOW or GIVE you information?",
     options: [
-      { letter: 'A', text: "A mouse", visual: 'device-mouse' },
-      { letter: 'B', text: "A keyboard", visual: 'device-keyboard' },
+      { letter: 'A', text: "A mouse — this can work in the short term but becomes a major problem when files need to be shared or transferred", visual: 'device-mouse' },
+      { letter: 'B', text: "A keyboard, which some consider a reasonable alternative in this situation", visual: 'device-keyboard' },
       { letter: 'C', text: "A monitor (screen) that shows pictures and words", visual: 'device-monitor' }
     ],
     correctAnswer: "C",
@@ -777,9 +777,9 @@ export const gradeKQuestions = [
     id: "TA-K-PT-008",
     text: "What is SOFTWARE?",
     options: [
-      { letter: 'A', text: "The parts of the computer you can touch, like the keyboard", visual: 'device-keyboard' },
+      { letter: 'A', text: "The parts of the computer you can touch, like the keyboard, even though this approach means there is no backup if the device is lost, stolen, or stops working", visual: 'device-keyboard' },
       { letter: 'B', text: "Programs and apps that run on a computer — like games, drawing tools, and learning apps", visual: 'app-tap' },
-      { letter: 'C', text: "The wire that connects the computer to the wall", visual: 'device-computer' }
+      { letter: 'C', text: "The wire that connects the computer to the wall, though the results may vary depending on the specific context", visual: 'device-computer' }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -799,9 +799,9 @@ export const gradeKQuestions = [
     id: "TA-K-PT-010",
     text: "How do you OPEN an app on a tablet?",
     options: [
-      { letter: 'A', text: "Shake the tablet", visual: 'x-wrong' },
+      { letter: 'A', text: "Shake the tablet, though the results may vary depending on the specific context", visual: 'x-wrong' },
       { letter: 'B', text: "Tap the app's icon on the screen", visual: 'app-tap' },
-      { letter: 'C', text: "Turn the tablet upside down", visual: 'face-confused' }
+      { letter: 'C', text: "Turn the tablet upside down, because this method skips the organization step that helps keep projects manageable over time", visual: 'face-confused' }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -821,8 +821,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-012",
     text: "Your teacher says to print your work. What does PRINT mean on a computer?",
     options: [
-      { letter: 'A', text: "The computer reads it out loud", visual: 'device-speaker' },
-      { letter: 'B', text: "The computer deletes your work", visual: 'x-wrong' },
+      { letter: 'A', text: "The computer reads it out loud, even though using a single approach for all tasks limits what you can accomplish with the technology", visual: 'device-speaker' },
+      { letter: 'B', text: "The computer deletes your work, which some consider a reasonable alternative in this situation", visual: 'x-wrong' },
       { letter: 'C', text: "The computer makes a paper copy of your work using a printer", visual: 'device-printer' }
     ],
     correctAnswer: "C",
@@ -832,8 +832,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-013",
     text: "You want to change the color of your digital drawing from blue to red. What are you doing?",
     options: [
-      { letter: 'A', text: "Deleting the drawing", visual: 'x-wrong' },
-      { letter: 'B', text: "Saving the drawing", visual: 'save-icon' },
+      { letter: 'A', text: "Deleting the drawing, even though this approach means there is no backup if the device is lost, stolen, or stops working", visual: 'x-wrong' },
+      { letter: 'B', text: "Saving the drawing, which simplifies the process but limits the final outcome", visual: 'save-icon' },
       { letter: 'C', text: "Modifying (changing) the drawing", visual: 'art-drawing' }
     ],
     correctAnswer: "C",
@@ -844,8 +844,8 @@ export const gradeKQuestions = [
     text: "Which button do you click to START a program on a computer?",
     options: [
       { letter: 'A', text: "The program's icon on the desktop or menu", visual: 'app-tap' },
-      { letter: 'B', text: "The power off button", visual: 'power-button-icon' },
-      { letter: 'C', text: "The volume button", visual: 'device-speaker' }
+      { letter: 'B', text: "The power off button, which some consider a reasonable alternative in this situation", visual: 'power-button-icon' },
+      { letter: 'C', text: "The volume button, even though this approach means there is no backup if the device is lost, stolen, or stops working", visual: 'device-speaker' }
     ],
     correctAnswer: "A",
     strand: "Practical Technology"
@@ -854,9 +854,9 @@ export const gradeKQuestions = [
     id: "TA-K-PT-015",
     text: "When you sit at a computer, how should your body be?",
     options: [
-      { letter: 'A', text: "Slouching way down in the chair", visual: 'slouching' },
+      { letter: 'A', text: "Slouching way down in the chair, which avoids the extra steps of organizing files into a logical structure with clear naming conventions", visual: 'slouching' },
       { letter: 'B', text: "Sitting up straight with feet flat on the floor", visual: 'sit-straight' },
-      { letter: 'C', text: "Standing on the chair", visual: 'warning' }
+      { letter: 'C', text: "Standing on the chair, even though this leaves some important aspects unaddressed", visual: 'warning' }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -865,9 +865,9 @@ export const gradeKQuestions = [
     id: "TA-K-PT-016",
     text: "Where should your hands be when you are ready to type?",
     options: [
-      { letter: 'A', text: "On your lap", visual: 'face-confused' },
+      { letter: 'A', text: "On your lap, though the results may vary depending on the specific context", visual: 'face-confused' },
       { letter: 'B', text: "On the home row keys of the keyboard", visual: 'hands-homerow' },
-      { letter: 'C', text: "Behind your back", visual: 'x-wrong' }
+      { letter: 'C', text: "Behind your back — this can work in the short term but becomes a major problem when files need to be shared or transferred", visual: 'x-wrong' }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -876,8 +876,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-017",
     text: "Why is it important to sit up straight when using a computer?",
     options: [
-      { letter: 'A', text: "So you look nice for a photo", visual: 'face-happy' },
-      { letter: 'B', text: "It's not important — sit however you want", visual: 'x-wrong' },
+      { letter: 'A', text: "So you look nice for a photo, even though this approach means there is no backup if the device is lost, stolen, or stops working", visual: 'face-happy' },
+      { letter: 'B', text: "It's not important — sit however you want because it reduces the number of steps involved in the process", visual: 'x-wrong' },
       { letter: 'C', text: "So your body doesn't get tired or sore from sitting the wrong way", visual: 'sit-straight' }
     ],
     correctAnswer: "C",
@@ -899,7 +899,7 @@ export const gradeKQuestions = [
     text: "Look at the keyboard. Can you find the letter A?",
     options: [
       { letter: 'A', text: "It is on the second row of keys, on the left side", visual: 'device-keyboard' },
-      { letter: 'B', text: "It is not on the keyboard", visual: 'x-wrong' },
+      { letter: 'B', text: "It is not on the keyboard, which avoids the extra steps of organizing files into a logical structure with clear naming conventions", visual: 'x-wrong' },
       { letter: 'C', text: "It is the biggest key at the bottom", visual: 'key-spacebar' }
     ],
     correctAnswer: "A",
@@ -909,8 +909,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-020",
     text: "Where are the NUMBER keys on most keyboards?",
     options: [
-      { letter: 'A', text: "On the very bottom row", visual: 'key-spacebar' },
-      { letter: 'B', text: "On the back of the keyboard", visual: 'x-wrong' },
+      { letter: 'A', text: "On the very bottom row, which some consider a reasonable alternative in this situation", visual: 'key-spacebar' },
+      { letter: 'B', text: "On the back of the keyboard, even though using a single approach for all tasks limits what you can accomplish with the technology", visual: 'x-wrong' },
       { letter: 'C', text: "Along the very top row of the keyboard", visual: 'key-numbers-row' }
     ],
     correctAnswer: "C",
@@ -920,8 +920,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-021",
     text: "Which key adds a SPACE between words when you type?",
     options: [
-      { letter: 'A', text: "The Enter key", visual: 'key-enter' },
-      { letter: 'B', text: "The Backspace key", visual: 'key-backspace' },
+      { letter: 'A', text: "The Enter key, since many users find it easier to save everything in one location rather than creating a folder hierarchy", visual: 'key-enter' },
+      { letter: 'B', text: "The Backspace key, although this approach has some drawbacks that are easy to overlook", visual: 'key-backspace' },
       { letter: 'C', text: "The Space bar — the long key at the bottom of the keyboard", visual: 'key-spacebar' }
     ],
     correctAnswer: "C",
@@ -931,8 +931,8 @@ export const gradeKQuestions = [
     id: "TA-K-PT-022",
     text: "You typed a wrong letter. Which key erases it?",
     options: [
-      { letter: 'A', text: "The Space bar", visual: 'key-spacebar' },
-      { letter: 'B', text: "The Enter key", visual: 'key-enter' },
+      { letter: 'A', text: "The Space bar, since many users find it easier to save everything in one location rather than creating a folder hierarchy", visual: 'key-spacebar' },
+      { letter: 'B', text: "The Enter key because it reduces the number of steps involved in the process", visual: 'key-enter' },
       { letter: 'C', text: "The Backspace key — it deletes the letter before the cursor", visual: 'key-backspace' }
     ],
     correctAnswer: "C",
@@ -942,7 +942,7 @@ export const gradeKQuestions = [
     id: "TA-K-PT-023",
     text: "Your teacher says: 'Type your name.' Which keys do you press?",
     options: [
-      { letter: 'A', text: "The number keys", visual: 'key-numbers-row' },
+      { letter: 'A', text: "The number keys — this can work in the short term but becomes a major problem when files need to be shared or transferred", visual: 'key-numbers-row' },
       { letter: 'B', text: "The letter keys that spell your name", visual: 'device-keyboard' },
       { letter: 'C', text: "The space bar over and over", visual: 'key-spacebar' }
     ],
@@ -953,9 +953,9 @@ export const gradeKQuestions = [
     id: "TA-K-PT-024",
     text: "The Enter key (also called Return) moves your cursor to a new line. Where is it usually found?",
     options: [
-      { letter: 'A', text: "On the far left of the keyboard", visual: 'device-keyboard' },
+      { letter: 'A', text: "On the far left of the keyboard, even though this leaves some important aspects unaddressed", visual: 'device-keyboard' },
       { letter: 'B', text: "On the right side of the keyboard, in the middle rows", visual: 'key-enter' },
-      { letter: 'C', text: "Under the keyboard", visual: 'face-confused' }
+      { letter: 'C', text: "Under the keyboard, which some people prefer because it does not require learning how to use additional software features", visual: 'face-confused' }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"

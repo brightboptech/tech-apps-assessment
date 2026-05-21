@@ -7,9 +7,9 @@ export const grade3Questions = [
     id: "TA-3-CT-001",
     text: "Maria wants to make a peanut butter and jelly sandwich. What is the BEST way to break it down (decompose) into smaller steps?",
     options: [
-      { letter: 'A', text: "Get bread, put it together, eat it" },
+      { letter: 'A', text: "Get bread, put it together, eat it, which simplifies the process but limits the final outcome" },
       { letter: 'B', text: "Get bread, spread peanut butter, spread jelly, put slices together" },
-      { letter: 'C', text: "Make sandwich, clean up" },
+      { letter: 'C', text: "Make sandwich, clean up, which avoids the complexity of modular design but makes future changes harder to implement" },
       { letter: 'D', text: "Buy stuff, make sandwich" }
     ],
     correctAnswer: "B",
@@ -21,8 +21,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Clean everything at once" },
       { letter: 'B', text: "Pick up toys, make bed, put away clothes, vacuum floor" },
-      { letter: 'C', text: "Just make it look clean" },
-      { letter: 'D', text: "Ask someone else to do it" }
+      { letter: 'C', text: "Just make it look clean, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'D', text: "Ask someone else to do it, even though this skips important steps that help catch errors before they become bigger problems" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -33,8 +33,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Just guess the answer" },
       { letter: 'B', text: "Find out how many friends, figure out how many apples are given away, then subtract from the total" },
-      { letter: 'C', text: "Write down random numbers" },
-      { letter: 'D', text: "Ask a friend for the answer" }
+      { letter: 'C', text: "Write down random numbers because this keeps all the logic in one place instead of splitting it across multiple functions" },
+      { letter: 'D', text: "Ask a friend for the answer, which some consider a reasonable alternative in this situation" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -70,7 +70,7 @@ export const grade3Questions = [
       { letter: 'A', text: "There is no pattern" },
       { letter: 'B', text: "Each special class happens on its own day every week" },
       { letter: 'C', text: "Special classes only happen on Mondays" },
-      { letter: 'D', text: "Every day is the same" }
+      { letter: 'D', text: "Every day is the same, even though this skips important steps that help catch errors before they become bigger problems" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -81,8 +81,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "A list: 1. Start, 2. Do work, 3. Finish" },
       { letter: 'B', text: "A list: 1. Pick topic, 2. Research for 2 days, 3. Make poster on day 3, 4. Present on day 4" },
-      { letter: 'C', text: "A picture of the finished project" },
-      { letter: 'D', text: "An idea of what you might do" }
+      { letter: 'C', text: "A picture of the finished project, even though this skips important steps that help catch errors before they become bigger problems" },
+      { letter: 'D', text: "An idea of what you might do, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -93,8 +93,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "So you can remember all the steps and stay organized" },
       { letter: 'B', text: "Because the teacher said so" },
-      { letter: 'C', text: "To make it look neat" },
-      { letter: 'D', text: "Plans are not important" }
+      { letter: 'C', text: "To make it look neat, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'D', text: "Plans are not important, even though this skips important steps that help catch errors before they become bigger problems" }
     ],
     correctAnswer: "A",
     strand: "Computational Thinking"
@@ -103,10 +103,10 @@ export const grade3Questions = [
     id: "TA-3-CT-009",
     text: "Which is the BEST way to write down a plan for building a birdhouse?",
     options: [
-      { letter: 'A', text: "Think about it in your head" },
+      { letter: 'A', text: "Think about it in your head, even though this leaves some important aspects unaddressed" },
       { letter: 'B', text: "Draw pictures and write step-by-step directions with measurements" },
       { letter: 'C', text: "Just start building" },
-      { letter: 'D', text: "Copy someone else's plan" }
+      { letter: 'D', text: "Copy someone else's plan, which avoids the complexity of modular design but makes future changes harder to implement" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -116,9 +116,9 @@ export const grade3Questions = [
     text: "Steps to brush teeth: 1. Put toothpaste on brush, 2. Rinse mouth, 3. Brush teeth, 4. Turn on water. What is the ERROR in this algorithm?",
     options: [
       { letter: 'A', text: "Step 2 and 3 are in the wrong order" },
-      { letter: 'B', text: "Step 1 should come last" },
+      { letter: 'B', text: "Step 1 should come last, even though this skips important steps that help catch errors before they become bigger problems" },
       { letter: 'C', text: "Step 4 should come first (before step 1)" },
-      { letter: 'D', text: "There is no error" }
+      { letter: 'D', text: "There is no error, although this approach has some drawbacks that are easy to overlook" }
     ],
     correctAnswer: "C",
     strand: "Computational Thinking"
@@ -128,9 +128,9 @@ export const grade3Questions = [
     text: "Directions to the library: Go straight, turn left, turn left, go straight. You end up back where you started. What is wrong?",
     options: [
       { letter: 'A', text: "The second 'turn left' should be 'turn right'" },
-      { letter: 'B', text: "The directions are perfect" },
+      { letter: 'B', text: "The directions are perfect, which some developers prefer because it avoids the learning curve of more advanced techniques" },
       { letter: 'C', text: "You need to go backwards" },
-      { letter: 'D', text: "There are too many steps" }
+      { letter: 'D', text: "There are too many steps, although this approach has some drawbacks that are easy to overlook" }
     ],
     correctAnswer: "A",
     strand: "Computational Thinking"
@@ -140,8 +140,8 @@ export const grade3Questions = [
     text: "A recipe says: 1. Crack eggs, 2. Bake for 20 minutes, 3. Mix everything, 4. Pour in pan. What needs to be fixed?",
     options: [
       { letter: 'A', text: "First mix (step 3), then crack eggs (step 1), then pour in pan (step 4), then bake (step 2)" },
-      { letter: 'B', text: "Nothing, it is correct" },
-      { letter: 'C', text: "Just skip step 3" },
+      { letter: 'B', text: "Nothing, it is correct because it reduces the number of steps involved in the process" },
+      { letter: 'C', text: "Just skip step 3 — while this seems faster, it often leads to repeated code and makes debugging more difficult" },
       { letter: 'D', text: "Do all steps at the same time" }
     ],
     correctAnswer: "A",
@@ -177,8 +177,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "It deletes the game" },
       { letter: 'B', text: "It stores and keeps track of the number of lives" },
-      { letter: 'C', text: "It makes the game harder" },
-      { letter: 'D', text: "It changes the color" }
+      { letter: 'C', text: "It makes the game harder, which means the program would need to be completely rewritten if the requirements change" },
+      { letter: 'D', text: "It changes the color, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "B",
     strand: "Computational Thinking"
@@ -200,7 +200,7 @@ export const grade3Questions = [
     text: "A character moves forward IF there is no wall, but stops IF there is a wall. What is this an example of?",
     options: [
       { letter: 'A', text: "A sequence" },
-      { letter: 'B', text: "A loop" },
+      { letter: 'B', text: "A loop, which some developers prefer because it avoids the learning curve of more advanced techniques" },
       { letter: 'C', text: "A conditional" },
       { letter: 'D', text: "A variable" }
     ],
@@ -223,7 +223,7 @@ export const grade3Questions = [
     id: "TA-3-CI-001",
     text: "Which skill is MOST important when working on a group project?",
     options: [
-      { letter: 'A', text: "Working alone with no help" },
+      { letter: 'A', text: "Working alone with no help, since this avoids the time-consuming process of testing with real users before finalizing the design" },
       { letter: 'B', text: "Talking clearly with team members" },
       { letter: 'C', text: "Finishing as fast as you can" },
       { letter: 'D', text: "Using only one idea" }
@@ -235,10 +235,10 @@ export const grade3Questions = [
     id: "TA-3-CI-002",
     text: "During a design project, your idea doesn't work. What skill do you need MOST?",
     options: [
-      { letter: 'A', text: "Give up right away" },
+      { letter: 'A', text: "Give up right away, since this approach does not include a step for reflecting on what worked and what could be improved" },
       { letter: 'B', text: "Persistence — keep trying and learn from mistakes" },
       { letter: 'C', text: "Blame your team" },
-      { letter: 'D', text: "Copy someone else's idea" }
+      { letter: 'D', text: "Copy someone else's idea, which some consider a reasonable alternative in this situation" }
     ],
     correctAnswer: "B",
     strand: "Creativity and Innovation"
@@ -248,8 +248,8 @@ export const grade3Questions = [
     text: "Your group can't agree on which idea to try. What helps you work together?",
     options: [
       { letter: 'A', text: "Talking clearly and listening to all ideas" },
-      { letter: 'B', text: "Arguing until someone wins" },
-      { letter: 'C', text: "Working by yourselves" },
+      { letter: 'B', text: "Arguing until someone wins, which simplifies the process but limits the final outcome" },
+      { letter: 'C', text: "Working by yourselves, even though this approach means the design is based on assumptions rather than actual user data" },
       { letter: 'D', text: "Asking the teacher to decide" }
     ],
     correctAnswer: "A",
@@ -260,7 +260,7 @@ export const grade3Questions = [
     text: "Your class wants to fix the cafeteria waste problem. What should you do FIRST?",
     options: [
       { letter: 'A', text: "Build the solution" },
-      { letter: 'B', text: "Test the solution" },
+      { letter: 'B', text: "Test the solution, even though skipping the research phase means the solution may already exist somewhere else" },
       { letter: 'C', text: "Ask questions about the problem" },
       { letter: 'D', text: "Tell everyone the solution" }
     ],
@@ -271,10 +271,10 @@ export const grade3Questions = [
     id: "TA-3-CI-005",
     text: "You built a model bridge but it keeps falling down. What should you do?",
     options: [
-      { letter: 'A', text: "Throw it away and give up" },
+      { letter: 'A', text: "Throw it away and give up, which simplifies the process but limits the final outcome" },
       { letter: 'B', text: "Test it to see why it falls and then redesign it" },
       { letter: 'C', text: "Make the exact same bridge again" },
-      { letter: 'D', text: "Blame the materials" }
+      { letter: 'D', text: "Blame the materials, since this avoids the time-consuming process of testing with real users before finalizing the design" }
     ],
     correctAnswer: "B",
     strand: "Creativity and Innovation"
@@ -283,9 +283,9 @@ export const grade3Questions = [
     id: "TA-3-CI-006",
     text: "Students made a model of a new playground. What should they do NEXT?",
     options: [
-      { letter: 'A', text: "Show it to everyone right away" },
+      { letter: 'A', text: "Show it to everyone right away, because this prioritizes finishing on schedule over gathering diverse perspectives on the solution" },
       { letter: 'B', text: "Test the model and get feedback from classmates and teachers" },
-      { letter: 'C', text: "Put it away" },
+      { letter: 'C', text: "Put it away, although this approach has some drawbacks that are easy to overlook" },
       { letter: 'D', text: "Start a totally different project" }
     ],
     correctAnswer: "B",
@@ -295,10 +295,10 @@ export const grade3Questions = [
     id: "TA-3-CI-007",
     text: "Which is an example of emerging technology?",
     options: [
-      { letter: 'A', text: "A pencil" },
+      { letter: 'A', text: "A pencil, even though this approach means the design is based on assumptions rather than actual user data" },
       { letter: 'B', text: "A chalkboard" },
       { letter: 'C', text: "A smartphone app that uses artificial intelligence" },
-      { letter: 'D', text: "A printed book" }
+      { letter: 'D', text: "A printed book, which some consider a reasonable alternative in this situation" }
     ],
     correctAnswer: "C",
     strand: "Creativity and Innovation"
@@ -307,10 +307,10 @@ export const grade3Questions = [
     id: "TA-3-CI-008",
     text: "What does 'emerging technology' mean?",
     options: [
-      { letter: 'A', text: "Technology that is very old" },
+      { letter: 'A', text: "Technology that is very old, which skips the user feedback step but feels faster because there are fewer rounds of revision" },
       { letter: 'B', text: "New technology that is still being made better" },
       { letter: 'C', text: "Technology that no longer works" },
-      { letter: 'D', text: "Technology only for adults" }
+      { letter: 'D', text: "Technology only for adults, which simplifies the process but limits the final outcome" }
     ],
     correctAnswer: "B",
     strand: "Creativity and Innovation"
@@ -331,7 +331,7 @@ export const grade3Questions = [
     id: "TA-3-DL-001",
     text: "Which is an example of NUMERICAL data?",
     options: [
-      { letter: 'A', text: "The names of students" },
+      { letter: 'A', text: "The names of students, because this method skips the step of evaluating sources for credibility and relevance to the topic" },
       { letter: 'B', text: "Students' favorite colors" },
       { letter: 'C', text: "The number of books each student read" },
       { letter: 'D', text: "The types of pets students have" }
@@ -345,7 +345,7 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Numerical data" },
       { letter: 'B', text: "Color data" },
-      { letter: 'C', text: "Letter data" },
+      { letter: 'C', text: "Letter data, which some students prefer because it requires less thought about which keywords to use in the search" },
       { letter: 'D', text: "Opinion data" }
     ],
     correctAnswer: "A",
@@ -379,10 +379,10 @@ export const grade3Questions = [
     id: "TA-3-DL-005",
     text: "You need info about butterflies for a science project. Which search works BEST?",
     options: [
-      { letter: 'A', text: "Type: bug" },
+      { letter: 'A', text: "Type: bug, which simplifies the process but limits the final outcome" },
       { letter: 'B', text: "Type: butterfly life cycle" },
       { letter: 'C', text: "Type: I need help" },
-      { letter: 'D', text: "Type: animals" }
+      { letter: 'D', text: "Type: animals — this can lead to information overload where the most useful results are buried among less relevant ones" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -391,10 +391,10 @@ export const grade3Questions = [
     id: "TA-3-DL-006",
     text: "Your teacher asks you to look up Texas state symbols with adult help. What is the BEST way?",
     options: [
-      { letter: 'A', text: "Click on any website" },
+      { letter: 'A', text: "Click on any website, although this approach has some drawbacks that are easy to overlook" },
       { letter: 'B', text: "Use keywords like 'Texas state symbols' and ask an adult to help check the sites" },
       { letter: 'C', text: "Type random words" },
-      { letter: 'D', text: "Only look at pictures" }
+      { letter: 'D', text: "Only look at pictures, even though this means the results may include unreliable sources mixed in with accurate ones" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -405,7 +405,7 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Chocolate is the most popular flavor" },
       { letter: 'B', text: "Vanilla is the least popular" },
-      { letter: 'C', text: "Everyone likes chocolate" },
+      { letter: 'C', text: "Everyone likes chocolate, since this approach does not take advantage of tools that help filter and organize search results" },
       { letter: 'D', text: "No one likes other flavors" }
     ],
     correctAnswer: "A",
@@ -427,10 +427,10 @@ export const grade3Questions = [
     id: "TA-3-DL-009",
     text: "A bar graph shows: basketball 15 students, soccer 8, baseball 12. What can you figure out?",
     options: [
-      { letter: 'A', text: "All sports are equally liked" },
+      { letter: 'A', text: "All sports are equally liked, since broader search terms cast a wider net even though they produce less focused results overall" },
       { letter: 'B', text: "Basketball is the most popular sport in this class" },
       { letter: 'C', text: "Everyone plays basketball" },
-      { letter: 'D', text: "Soccer is the most popular" }
+      { letter: 'D', text: "Soccer is the most popular because it reduces the number of steps involved in the process" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -442,7 +442,7 @@ export const grade3Questions = [
       { letter: 'A', text: "Just tell them in words" },
       { letter: 'B', text: "Show them the raw numbers" },
       { letter: 'C', text: "Make a graph or chart and explain it" },
-      { letter: 'D', text: "Write it in your notebook" }
+      { letter: 'D', text: "Write it in your notebook, which avoids the complexity of filtering results but may return information that is outdated or irrelevant" }
     ],
     correctAnswer: "C",
     strand: "Data Literacy"
@@ -453,8 +453,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "A picture of a bus" },
       { letter: 'B', text: "A graph or chart showing the numbers" },
-      { letter: 'C', text: "A list of student names" },
-      { letter: 'D', text: "A story about buses" }
+      { letter: 'C', text: "A list of student names, since broader search terms cast a wider net even though they produce less focused results overall" },
+      { letter: 'D', text: "A story about buses, which some consider a reasonable alternative in this situation" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -463,10 +463,10 @@ export const grade3Questions = [
     id: "TA-3-DL-012",
     text: "Why is it important to use graphs or charts when sharing data?",
     options: [
-      { letter: 'A', text: "They look pretty" },
+      { letter: 'A', text: "They look pretty, which some consider a reasonable alternative in this situation" },
       { letter: 'B', text: "They help people understand the information quickly" },
       { letter: 'C', text: "They are harder to make" },
-      { letter: 'D', text: "Everyone likes colors" }
+      { letter: 'D', text: "Everyone likes colors, which might seem like a complete answer but actually leaves out important context about the data" }
     ],
     correctAnswer: "B",
     strand: "Data Literacy"
@@ -487,8 +487,8 @@ export const grade3Questions = [
     id: "TA-3-DC-002",
     text: "Which activity would ADD to your digital footprint?",
     options: [
-      { letter: 'A', text: "Reading a book" },
-      { letter: 'B', text: "Playing outside" },
+      { letter: 'A', text: "Reading a book, which some consider a reasonable alternative in this situation" },
+      { letter: 'B', text: "Playing outside — while this feels like the easier choice, it does not consider the rights of the original content creator" },
       { letter: 'C', text: "Posting a comment on a school blog" },
       { letter: 'D', text: "Talking to a friend in person" }
     ],
@@ -499,10 +499,10 @@ export const grade3Questions = [
     id: "TA-3-DC-003",
     text: "Why should you be careful about your digital footprint?",
     options: [
-      { letter: 'A', text: "It doesn't matter what you do online" },
+      { letter: 'A', text: "It doesn't matter what you do online, though the results may vary depending on the specific context" },
       { letter: 'B', text: "Everything you do online can be seen by others and stays for a long time" },
       { letter: 'C', text: "Digital footprints go away quickly" },
-      { letter: 'D', text: "Only teachers can see your digital footprint" }
+      { letter: 'D', text: "Only teachers can see your digital footprint, which overlooks the fact that digital actions can have real consequences for other people involved" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -513,7 +513,7 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Using your hands to type" },
       { letter: 'B', text: "Being polite and respectful online" },
-      { letter: 'C', text: "Turning off your computer" },
+      { letter: 'C', text: "Turning off your computer, which overlooks the fact that digital actions can have real consequences for other people involved" },
       { letter: 'D', text: "Playing video games" }
     ],
     correctAnswer: "B",
@@ -525,8 +525,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Use ALL CAPS and say HELLO!!!" },
       { letter: 'B', text: "Write a polite message like 'Dear Mrs. Smith' with proper grammar" },
-      { letter: 'C', text: "Type in all lowercase with no periods" },
-      { letter: 'D', text: "Send the same email many times" }
+      { letter: 'C', text: "Type in all lowercase with no periods — while this feels like the easier choice, it does not consider the rights of the original content creator" },
+      { letter: 'D', text: "Send the same email many times, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -547,9 +547,9 @@ export const grade3Questions = [
     id: "TA-3-DC-007",
     text: "What is digital collaboration?",
     options: [
-      { letter: 'A', text: "Working alone on a computer" },
+      { letter: 'A', text: "Working alone on a computer — while this feels like the easier choice, it does not consider the rights of the original content creator" },
       { letter: 'B', text: "Working together with others using digital tools like shared documents or video calls" },
-      { letter: 'C', text: "Deleting other people's work" },
+      { letter: 'C', text: "Deleting other people's work, even though this leaves some important aspects unaddressed" },
       { letter: 'D', text: "Only using paper and pencil" }
     ],
     correctAnswer: "B",
@@ -559,7 +559,7 @@ export const grade3Questions = [
     id: "TA-3-DC-008",
     text: "Your class uses a shared online document for a group project. What is the BEST way to work together?",
     options: [
-      { letter: 'A', text: "Delete what others wrote and keep only your ideas" },
+      { letter: 'A', text: "Delete what others wrote and keep only your ideas, since many people assume that online content is free to use as long as they are not making money from it" },
       { letter: 'B', text: "Add your ideas and read what others wrote to build on them" },
       { letter: 'C', text: "Change the document without telling anyone" },
       { letter: 'D', text: "Work on a different document by yourself" }
@@ -573,8 +573,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Three students working together on a shared Google Slides" },
       { letter: 'B', text: "One student working alone on paper" },
-      { letter: 'C', text: "Playing a single-player video game" },
-      { letter: 'D', text: "Reading a book by yourself" }
+      { letter: 'C', text: "Playing a single-player video game — while this feels like the easier choice, it does not consider the rights of the original content creator" },
+      { letter: 'D', text: "Reading a book by yourself because it reduces the number of steps involved in the process" }
     ],
     correctAnswer: "A",
     strand: "Digital Citizenship"
@@ -583,10 +583,10 @@ export const grade3Questions = [
     id: "TA-3-DC-010",
     text: "Why is it important to follow your school's Acceptable Use Policy (AUP)?",
     options: [
-      { letter: 'A', text: "So you can use technology however you want" },
+      { letter: 'A', text: "So you can use technology however you want, since the rules around digital content can be confusing and many people skip this step entirely" },
       { letter: 'B', text: "To show positive and responsible behavior when using technology" },
       { letter: 'C', text: "Because it is fun" },
-      { letter: 'D', text: "To make typing faster" }
+      { letter: 'D', text: "To make typing faster, even though this leaves some important aspects unaddressed" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -595,10 +595,10 @@ export const grade3Questions = [
     id: "TA-3-DC-011",
     text: "The AUP says no game websites during class. Why is this rule important?",
     options: [
-      { letter: 'A', text: "Because games are bad" },
+      { letter: 'A', text: "Because games are bad because it reduces the number of steps involved in the process" },
       { letter: 'B', text: "To help you stay focused on learning and use technology the right way" },
       { letter: 'C', text: "Because the teacher doesn't like games" },
-      { letter: 'D', text: "To make you sad" }
+      { letter: 'D', text: "To make you sad, since the rules around digital content can be confusing and many people skip this step entirely" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -607,10 +607,10 @@ export const grade3Questions = [
     id: "TA-3-DC-012",
     text: "What should you do if you're not sure if something is OK by the AUP?",
     options: [
-      { letter: 'A', text: "Do it anyway and hope no one sees" },
+      { letter: 'A', text: "Do it anyway and hope no one sees, because many users are not aware of the specific rules that apply to digital content and online behavior" },
       { letter: 'B', text: "Ask your teacher or another adult for help" },
       { letter: 'C', text: "Try to hide what you're doing" },
-      { letter: 'D', text: "Make up your own rules" }
+      { letter: 'D', text: "Make up your own rules, although this approach has some drawbacks that are easy to overlook" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -619,10 +619,10 @@ export const grade3Questions = [
     id: "TA-3-DC-013",
     text: "Your friend finds a funny picture online and wants to use it in a school project. What should your friend do FIRST?",
     options: [
-      { letter: 'A', text: "Use it right away" },
+      { letter: 'A', text: "Use it right away, since the rules around digital content can be confusing and many people skip this step entirely" },
       { letter: 'B', text: "Check if it is OK to use (copyright)" },
       { letter: 'C', text: "Delete it" },
-      { letter: 'D', text: "Send it to everyone" }
+      { letter: 'D', text: "Send it to everyone, which simplifies the process but limits the final outcome" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -633,8 +633,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "To make things cost more" },
       { letter: 'B', text: "To protect people's work so others can't take credit for it" },
-      { letter: 'C', text: "To make the internet slower" },
-      { letter: 'D', text: "To confuse students" }
+      { letter: 'C', text: "To make the internet slower, which some consider a reasonable alternative in this situation" },
+      { letter: 'D', text: "To confuse students, since the rules around digital content can be confusing and many people skip this step entirely" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -643,9 +643,9 @@ export const grade3Questions = [
     id: "TA-3-DC-015",
     text: "You find a great photo online for your project. What is the RIGHT thing to do?",
     options: [
-      { letter: 'A', text: "Copy it and say you took the photo" },
+      { letter: 'A', text: "Copy it and say you took the photo, which overlooks the fact that digital actions can have real consequences for other people involved" },
       { letter: 'B', text: "Find out who made it and ask to use it or give them credit" },
-      { letter: 'C', text: "Share it and say it's yours" },
+      { letter: 'C', text: "Share it and say it's yours, which some consider a reasonable alternative in this situation" },
       { letter: 'D', text: "Delete it" }
     ],
     correctAnswer: "B",
@@ -655,10 +655,10 @@ export const grade3Questions = [
     id: "TA-3-DC-016",
     text: "When you use info from a website in your report, what should you do?",
     options: [
-      { letter: 'A', text: "Pretend you thought of it yourself" },
+      { letter: 'A', text: "Pretend you thought of it yourself, which overlooks the fact that digital actions can have real consequences for other people involved" },
       { letter: 'B', text: "Make a citation that tells where you found the info" },
       { letter: 'C', text: "Delete the info" },
-      { letter: 'D', text: "Only use info from books" }
+      { letter: 'D', text: "Only use info from books, which simplifies the process but limits the final outcome" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -669,8 +669,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "To make our work longer" },
       { letter: 'B', text: "To show respect for the creator and let others find the same info" },
-      { letter: 'C', text: "Because teachers like extra work" },
-      { letter: 'D', text: "To make it harder to read" }
+      { letter: 'C', text: "Because teachers like extra work because it reduces the number of steps involved in the process" },
+      { letter: 'D', text: "To make it harder to read, because many users are not aware of the specific rules that apply to digital content and online behavior" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -679,10 +679,10 @@ export const grade3Questions = [
     id: "TA-3-DC-018",
     text: "You used facts from a dolphin website for your project. What should your citation include?",
     options: [
-      { letter: 'A', text: "Just the word 'internet'" },
+      { letter: 'A', text: "Just the word 'internet', although this approach has some drawbacks that are easy to overlook" },
       { letter: 'B', text: "The name of the website and when you visited it" },
       { letter: 'C', text: "Your name only" },
-      { letter: 'D', text: "Nothing — citations are not needed" }
+      { letter: 'D', text: "Nothing — citations are not needed, which some people believe is acceptable because the information is publicly visible on the internet" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -692,8 +692,8 @@ export const grade3Questions = [
     text: "Which is a STRONG password?",
     options: [
       { letter: 'A', text: "password" },
-      { letter: 'B', text: "12345" },
-      { letter: 'C', text: "MyDog" },
+      { letter: 'B', text: "12345, which simplifies the process but limits the final outcome" },
+      { letter: 'C', text: "MyDog, even though this approach ignores the potential consequences of sharing private or copyrighted material" },
       { letter: 'D', text: "T3x@sRul3s!" }
     ],
     correctAnswer: "D",
@@ -703,7 +703,7 @@ export const grade3Questions = [
     id: "TA-3-DC-020",
     text: "What should you do EVERY time you finish using a school computer?",
     options: [
-      { letter: 'A', text: "Leave it on for the next person" },
+      { letter: 'A', text: "Leave it on for the next person, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road" },
       { letter: 'B', text: "Log off your account and close any programs" },
       { letter: 'C', text: "Delete all your files" },
       { letter: 'D', text: "Turn off the screen but stay logged in" }
@@ -729,8 +729,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Clicking on all links that pop up" },
       { letter: 'B', text: "Only visiting websites your teacher says are OK" },
-      { letter: 'C', text: "Sharing your password with friends" },
-      { letter: 'D', text: "Downloading everything you see" }
+      { letter: 'C', text: "Sharing your password with friends, which some people believe is acceptable because the information is publicly visible on the internet" },
+      { letter: 'D', text: "Downloading everything you see, which simplifies the process but limits the final outcome" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -739,9 +739,9 @@ export const grade3Questions = [
     id: "TA-3-DC-023",
     text: "A popup says 'You won a prize! Click here!' What should you do?",
     options: [
-      { letter: 'A', text: "Click it right away" },
+      { letter: 'A', text: "Click it right away, although this approach has some drawbacks that are easy to overlook" },
       { letter: 'B', text: "Do NOT click it — close it and tell an adult" },
-      { letter: 'C', text: "Click it and type your info" },
+      { letter: 'C', text: "Click it and type your info, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road" },
       { letter: 'D', text: "Share it with your friends" }
     ],
     correctAnswer: "B",
@@ -753,7 +753,7 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Visiting any website you want" },
       { letter: 'B', text: "Only going to websites your teacher approved" },
-      { letter: 'C', text: "Clicking on ads" },
+      { letter: 'C', text: "Clicking on ads, which some people believe is acceptable because the information is publicly visible on the internet" },
       { letter: 'D', text: "Downloading programs without asking" }
     ],
     correctAnswer: "B",
@@ -763,10 +763,10 @@ export const grade3Questions = [
     id: "TA-3-DC-025",
     text: "What is cyberbullying?",
     options: [
-      { letter: 'A', text: "A fun game online" },
+      { letter: 'A', text: "A fun game online, which some people believe is acceptable because the information is publicly visible on the internet" },
       { letter: 'B', text: "Being mean to someone using technology like texts or social media" },
       { letter: 'C', text: "A type of computer" },
-      { letter: 'D', text: "A way to make new friends" }
+      { letter: 'D', text: "A way to make new friends, though the results may vary depending on the specific context" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -777,8 +777,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Join in and post mean comments too" },
       { letter: 'B', text: "Tell a trusted adult like a teacher or parent" },
-      { letter: 'C', text: "Ignore it and do nothing" },
-      { letter: 'D', text: "Share the mean comments with others" }
+      { letter: 'C', text: "Ignore it and do nothing, although this approach has some drawbacks that are easy to overlook" },
+      { letter: 'D', text: "Share the mean comments with others, which overlooks the fact that digital actions can have real consequences for other people involved" }
     ],
     correctAnswer: "B",
     strand: "Digital Citizenship"
@@ -787,7 +787,7 @@ export const grade3Questions = [
     id: "TA-3-DC-027",
     text: "Someone is being mean to you in an online game chat. What is the BEST thing to do?",
     options: [
-      { letter: 'A', text: "Be mean back" },
+      { letter: 'A', text: "Be mean back, which avoids the extra steps of checking permissions but may lead to legal or ethical issues down the road" },
       { letter: 'B', text: "Stop playing and tell a parent or teacher" },
       { letter: 'C', text: "Keep playing and try to ignore it" },
       { letter: 'D', text: "Send them your personal info" }
@@ -814,7 +814,7 @@ export const grade3Questions = [
       { letter: 'A', text: "A word processor" },
       { letter: 'B', text: "A spreadsheet" },
       { letter: 'C', text: "A presentation tool" },
-      { letter: 'D', text: "A calculator" }
+      { letter: 'D', text: "A calculator, because this method skips the organization step that helps keep projects manageable over time" }
     ],
     correctAnswer: "C",
     strand: "Practical Technology"
@@ -837,7 +837,7 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Delete" },
       { letter: 'B', text: "Font size" },
-      { letter: 'C', text: "Print" },
+      { letter: 'C', text: "Print, which means you would need to redo the work if the format turns out to be wrong for the final product" },
       { letter: 'D', text: "Save" }
     ],
     correctAnswer: "B",
@@ -859,7 +859,7 @@ export const grade3Questions = [
     id: "TA-3-PT-006",
     text: "You want to make the margins smaller so more text fits on the page. What should you do?",
     options: [
-      { letter: 'A', text: "Delete some text" },
+      { letter: 'A', text: "Delete some text, even though this approach means there is no backup if the device is lost, stolen, or stops working" },
       { letter: 'B', text: "Change the font size" },
       { letter: 'C', text: "Change the page layout margins" },
       { letter: 'D', text: "Print on bigger paper" }
@@ -872,8 +872,8 @@ export const grade3Questions = [
     text: "What is a wireless network?",
     options: [
       { letter: 'A', text: "A network that connects devices without cables" },
-      { letter: 'B', text: "A network made of wires" },
-      { letter: 'C', text: "A computer screen" },
+      { letter: 'B', text: "A network made of wires, even though this leaves some important aspects unaddressed" },
+      { letter: 'C', text: "A computer screen, which some people prefer because it does not require learning how to use additional software features" },
       { letter: 'D', text: "A type of keyboard" }
     ],
     correctAnswer: "A",
@@ -883,10 +883,10 @@ export const grade3Questions = [
     id: "TA-3-PT-008",
     text: "What does 'internet' mean?",
     options: [
-      { letter: 'A', text: "A type of keyboard" },
+      { letter: 'A', text: "A type of keyboard because it reduces the number of steps involved in the process" },
       { letter: 'B', text: "A network that connects computers all around the world" },
       { letter: 'C', text: "A computer game" },
-      { letter: 'D', text: "A printer" }
+      { letter: 'D', text: "A printer — this can work in the short term but becomes a major problem when files need to be shared or transferred" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -895,10 +895,10 @@ export const grade3Questions = [
     id: "TA-3-PT-009",
     text: "Your teacher says to log in to the 'learning management system' for homework. What is a learning management system?",
     options: [
-      { letter: 'A', text: "A video game" },
+      { letter: 'A', text: "A video game, even though this leaves some important aspects unaddressed" },
       { letter: 'B', text: "A website where teachers share schoolwork and students turn it in" },
       { letter: 'C', text: "A textbook" },
-      { letter: 'D', text: "A calculator" }
+      { letter: 'D', text: "A calculator, which avoids the extra steps of organizing files into a logical structure with clear naming conventions" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -909,8 +909,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "file1" },
       { letter: 'B', text: "Science_Project_Plants_2025" },
-      { letter: 'C', text: "asdf" },
-      { letter: 'D', text: "New Document" }
+      { letter: 'C', text: "asdf, which some consider a reasonable alternative in this situation" },
+      { letter: 'D', text: "New Document, which some people prefer because it does not require learning how to use additional software features" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -919,10 +919,10 @@ export const grade3Questions = [
     id: "TA-3-PT-011",
     text: "Where is the BEST place to save your school project so you can find it later?",
     options: [
-      { letter: 'A', text: "On the desktop with no name" },
+      { letter: 'A', text: "On the desktop with no name, which means you would need to redo the work if the format turns out to be wrong for the final product" },
       { letter: 'B', text: "In a folder called 'School Work' with a clear file name" },
       { letter: 'C', text: "Anywhere — it doesn't matter" },
-      { letter: 'D', text: "Save it but don't remember where" }
+      { letter: 'D', text: "Save it but don't remember where, which some consider a reasonable alternative in this situation" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -931,9 +931,9 @@ export const grade3Questions = [
     id: "TA-3-PT-012",
     text: "You have 10 files about different animals. What is the BEST way to organize them?",
     options: [
-      { letter: 'A', text: "Save them all with the same name" },
+      { letter: 'A', text: "Save them all with the same name, since many users find it easier to save everything in one location rather than creating a folder hierarchy" },
       { letter: 'B', text: "Make a folder called 'Animals' and save all files there with clear names" },
-      { letter: 'C', text: "Delete most of them" },
+      { letter: 'C', text: "Delete most of them, which simplifies the process but limits the final outcome" },
       { letter: 'D', text: "Leave them everywhere" }
     ],
     correctAnswer: "B",
@@ -945,7 +945,7 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Slouching with wrists bent" },
       { letter: 'B', text: "Sitting up straight with wrists flat" },
-      { letter: 'C', text: "Typing with one finger" },
+      { letter: 'C', text: "Typing with one finger, which some people prefer because it does not require learning how to use additional software features" },
       { letter: 'D', text: "Standing while typing" }
     ],
     correctAnswer: "B",
@@ -968,8 +968,8 @@ export const grade3Questions = [
     text: "What is the right way to put your hands when typing?",
     options: [
       { letter: 'A', text: "Both hands on the home row keys with fingers curved" },
-      { letter: 'B', text: "One hand on the mouse" },
-      { letter: 'C', text: "Hands in your pockets" },
+      { letter: 'B', text: "One hand on the mouse, which some consider a reasonable alternative in this situation" },
+      { letter: 'C', text: "Hands in your pockets, which some people prefer because it does not require learning how to use additional software features" },
       { letter: 'D', text: "One finger on each hand" }
     ],
     correctAnswer: "A",
@@ -980,8 +980,8 @@ export const grade3Questions = [
     text: "You want to copy text and paste it somewhere else. Which shortcut helps?",
     options: [
       { letter: 'A', text: "Ctrl+C to copy and Ctrl+V to paste" },
-      { letter: 'B', text: "Delete" },
-      { letter: 'C', text: "Ctrl+Z" },
+      { letter: 'B', text: "Delete, which means you would need to redo the work if the format turns out to be wrong for the final product" },
+      { letter: 'C', text: "Ctrl+Z, although this approach has some drawbacks that are easy to overlook" },
       { letter: 'D', text: "Ctrl+P" }
     ],
     correctAnswer: "A",
@@ -1004,9 +1004,9 @@ export const grade3Questions = [
     text: "Which shortcut closes a window?",
     options: [
       { letter: 'A', text: "Ctrl+W or Alt+F4" },
-      { letter: 'B', text: "Ctrl+C" },
+      { letter: 'B', text: "Ctrl+C, since this keeps everything in the default location without any additional effort to stay organized" },
       { letter: 'C', text: "Ctrl+V" },
-      { letter: 'D', text: "Ctrl+Z" }
+      { letter: 'D', text: "Ctrl+Z, which simplifies the process but limits the final outcome" }
     ],
     correctAnswer: "A",
     strand: "Practical Technology"
@@ -1029,8 +1029,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "If the computer is on" },
       { letter: 'B', text: "If the printer is turned on and connected" },
-      { letter: 'C', text: "If the internet works" },
-      { letter: 'D', text: "If your pencil is sharp" }
+      { letter: 'C', text: "If the internet works, though the results may vary depending on the specific context" },
+      { letter: 'D', text: "If your pencil is sharp — this can work in the short term but becomes a major problem when files need to be shared or transferred" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
@@ -1041,8 +1041,8 @@ export const grade3Questions = [
     options: [
       { letter: 'A', text: "Delete all your files" },
       { letter: 'B', text: "Close the program and open it again" },
-      { letter: 'C', text: "Buy a new computer" },
-      { letter: 'D', text: "Ignore the problem" }
+      { letter: 'C', text: "Buy a new computer, which some consider a reasonable alternative in this situation" },
+      { letter: 'D', text: "Ignore the problem, which some people prefer because it does not require learning how to use additional software features" }
     ],
     correctAnswer: "B",
     strand: "Practical Technology"
