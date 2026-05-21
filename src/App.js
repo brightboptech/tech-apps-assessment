@@ -805,7 +805,6 @@ const LANDING_HTML = `
   </button>
   <div class="nav-links">
     <a href="#how">How it works</a>
-    <a href="#report">Sample report</a>
     <a href="#pricing">Pricing</a>
     <a href="#" class="btn btn-green" data-cta="1">Log in</a>
   </div>
@@ -814,7 +813,7 @@ const LANDING_HTML = `
 <section class="hero" id="top">
   <div class="hero-badge">Rewarding educator excellence in Texas</div>
   <h1>Helping educators get <em>rewarded for excellence</em> in Texas</h1>
-  <p>Pre/post assessments aligned to the Technology Applications TEKS that make it easy to demonstrate student growth for the Teacher Incentive Allotment (TIA). Grades K&ndash;8. Set up in minutes.</p>
+  <p>Assessments aligned to the Technology Applications TEKS that make it easy to demonstrate student growth for the Teacher Incentive Allotment (TIA). Grades K&ndash;8. Set up in minutes.</p>
   <div class="hero-cta">
     <a href="#" class="btn btn-green" data-cta="1">Get started &#8594;</a>
     <a href="#how" class="btn btn-outline-white">See how it works</a>
@@ -864,38 +863,22 @@ const LANDING_HTML = `
       <div class="step">
         <div class="step-num">1</div>
         <h3>Build your assessment</h3>
-        <p>Choose your grade level and select which Technology Applications TEKS standards to assess. Customize the number of questions to fit your instructional time and schedule.</p>
+        <p>Choose your grade level and the Technology Applications TEKS you want to focus on.</p>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <h3>Generate student passes</h3>
-        <p>Purchase passes for your students. Each student receives a unique pre-test and post-test passcode with a printable QR code &mdash; ready to hand out.</p>
+        <h3>Set up your class</h3>
+        <p>Add your students and get them started in minutes.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <h3>Students take assessments</h3>
-        <p>Students scan their QR code or type their passcode. The pre-test happens before instruction, the post-test after. No student accounts needed.</p>
+        <p>Students complete short, engaging assessments on any device. No student accounts needed.</p>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <h3>View your growth report</h3>
-        <p>See every student&apos;s pre- and post-test scores side by side. Measure growth and download a report in CSV or PDF format for TIA.</p>
-      </div>
-    </div>
-    <div class="flex-cards">
-      <div class="flex-card">
-        <h3>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          Multi-grade flexibility
-        </h3>
-        <p>Teach multiple grade levels? Mix and match grades in a single class. Build assessments that reflect the students you actually have &mdash; not just one grade band.</p>
-      </div>
-      <div class="flex-card">
-        <h3>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Fits your schedule
-        </h3>
-        <p>Choose which standards to include and how many questions per standard. Build a 15-minute check-in or a full-period assessment &mdash; whatever fits your instructional time.</p>
+        <h3>See your growth data</h3>
+        <p>Review student growth data designed for TIA designation evidence.</p>
       </div>
     </div>
   </div>
@@ -910,115 +893,40 @@ const LANDING_HTML = `
       <div class="feature-icon" style="background:var(--green-light);color:var(--green-dark)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       </div>
-      <h3>TEKS-aligned question bank</h3>
-      <p>Every question maps directly to a specific Technology Applications TEKS standard. No guessing about alignment.</p>
+      <h3>TEKS-aligned assessments</h3>
+      <p>Fully aligned to the Technology Applications TEKS. No guessing about alignment.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:var(--lavender-light);color:var(--lavender)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
       </div>
       <h3>Student growth measurement</h3>
-      <p>Pre-test and post-test scores are compared automatically &mdash; measuring growth at the individual student level, exactly how TIA requires.</p>
+      <p>Measure growth at the individual student level, aligned with TIA requirements.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:var(--gold-light);color:var(--gold)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
       </div>
-      <h3>TIA-ready growth reports</h3>
-      <p>Download a growth report with student-level data in CSV or PDF format, ready for your district&apos;s TIA submission. No extra data wrangling.</p>
+      <h3>Growth reports designed for TIA</h3>
+      <p>Student growth reports ready for your district&apos;s TIA submission process.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:var(--green-light);color:var(--green-dark)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       </div>
-      <h3>Secure and anonymous</h3>
-      <p>Students use anonymous passcodes &mdash; no accounts, no personal data collected. Assessment integrity stays protected.</p>
+      <h3>Secure assessment delivery</h3>
+      <p>No student accounts needed. No personal data collected. Assessment integrity stays protected.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:var(--lavender-light);color:var(--lavender)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       </div>
       <h3>Grades K&ndash;8 coverage</h3>
-      <p>Full question sets across every grade band. Elementary and middle school Technology Applications TEKS &mdash; all covered.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:var(--gold-light);color:var(--gold)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      </div>
-      <h3>Custom class management</h3>
-      <p>Create classes, add students anytime, and manage multiple periods &mdash; all from your teacher dashboard.</p>
+      <p>Comprehensive coverage across elementary and middle school Technology Applications TEKS.</p>
     </div>
   </div>
 </section>
 
-<section class="sample-report" id="report">
-  <div class="report-inner">
-    <div class="section-label" style="text-align:center">Sample report</div>
-    <h2 class="section-title" style="text-align:center">See what your growth data looks like</h2>
-    <p class="report-subtitle">Here&apos;s a preview of the TIA Growth Report you&apos;ll be able to generate and download.</p>
-    <div class="report-preview">
-      <div class="report-header">
-        <h4>TIA Growth Report &mdash; Technology Applications</h4>
-        <span class="badge">Sample</span>
-      </div>
-      <div class="class-summary">
-        <h5>Class Summary</h5>
-        <div class="summary-grid">
-          <div class="summary-box">
-            <div class="box-label">Students (Both)</div>
-            <div class="box-value">24</div>
-          </div>
-          <div class="summary-box">
-            <div class="box-label">Avg Pre-Score</div>
-            <div class="box-value">42.3%</div>
-          </div>
-          <div class="summary-box">
-            <div class="box-label">Avg Post-Score</div>
-            <div class="box-value">76.8%</div>
-          </div>
-          <div class="summary-box highlight-box">
-            <div class="box-label">Avg Growth</div>
-            <div class="box-value" style="color:var(--green-dark)">+34.5%</div>
-          </div>
-          <div class="summary-box">
-            <div class="box-label">Students Grew</div>
-            <div class="box-value">23 / 24</div>
-            <div class="box-sub">95.8%</div>
-          </div>
-        </div>
-      </div>
-      <div class="student-data">
-        <h5>Student-Level Data</h5><span class="sort-note">Sorted by Growth</span>
-        <div class="privacy-note">
-          <strong>i</strong>&ensp;Student names are optional and for print purposes only. No student names are saved or retained by TechGrowth Check.
-        </div>
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Pre-Score</th>
-              <th>Post-Score</th>
-              <th>Points of Growth</th>
-              <th>Met Growth Goal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="student-label">Student 1</td><td>38.0%</td><td>82.0%</td><td class="growth-pos">+44.0%</td><td><span class="met-yes">Yes</span></td></tr>
-            <tr><td class="student-label">Student 2</td><td>41.0%</td><td>83.0%</td><td class="growth-pos">+42.0%</td><td><span class="met-yes">Yes</span></td></tr>
-            <tr><td class="student-label">Student 3</td><td>35.0%</td><td>74.0%</td><td class="growth-pos">+39.0%</td><td><span class="met-yes">Yes</span></td></tr>
-            <tr><td class="student-label">Student 4</td><td>44.0%</td><td>79.0%</td><td class="growth-pos">+35.0%</td><td><span class="met-yes">Yes</span></td></tr>
-            <tr><td class="student-label">Student 5</td><td>52.0%</td><td>78.0%</td><td class="growth-pos">+26.0%</td><td><span class="met-yes">Yes</span></td></tr>
-            <tr><td style="color:var(--text-muted);font-style:italic" colspan="5">&hellip; 19 more students</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="report-footer">
-        <span>Generated by TechGrowth Check</span>
-        <span class="btn btn-green" style="pointer-events:none;opacity:0.7">Download CSV / PDF</span>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section class="pricing" id="pricing">
   <div class="pricing-inner">
@@ -1027,15 +935,13 @@ const LANDING_HTML = `
     <p class="pricing-subtitle">No subscriptions. No contracts. Pay only for what you need.</p>
     <div class="price-card">
       <div class="price-amount">$2 <span>/ student</span></div>
-      <p class="price-desc">One-time purchase per student. Includes both pre-test and post-test.</p>
+      <p class="price-desc">One-time purchase per student.</p>
       <ul class="price-features">
-        <li><span class="check">&#10003;</span> Pre-test and post-test passes included</li>
-        <li><span class="check">&#10003;</span> Printable QR codes for each student</li>
-        <li><span class="check">&#10003;</span> TIA-ready growth report with CSV and PDF download</li>
-        <li><span class="check">&#10003;</span> Custom assessment builder &mdash; choose your standards</li>
-        <li><span class="check">&#10003;</span> Read-aloud support for younger students</li>
-        <li><span class="check">&#10003;</span> Add more students to any class anytime</li>
-        <li><span class="check">&#10003;</span> Mix and match grades for multi-grade classes</li>
+        <li><span class="check">&#10003;</span> Complete assessment access per student</li>
+        <li><span class="check">&#10003;</span> Growth data designed for TIA</li>
+        <li><span class="check">&#10003;</span> Grades K&ndash;8 Technology Applications TEKS</li>
+        <li><span class="check">&#10003;</span> Audio support for younger students</li>
+        <li><span class="check">&#10003;</span> Set up in minutes</li>
       </ul>
       <a href="#" class="btn btn-green" style="width:100%;justify-content:center;font-size:1rem;padding:0.85rem" data-cta="1">Get started &#8594;</a>
     </div>
@@ -1073,7 +979,7 @@ const LANDING_HTML = `
 </section>
 
 <footer>
-  <p>&copy; 2025 BrightBop Tech. All rights reserved. <a href="mailto:brightboptech@gmail.com">Contact us</a></p>
+  <p>&copy; 2026 BrightBop Tech. All rights reserved. <a href="mailto:brightboptech@gmail.com">Contact us</a></p>
 </footer>
 `;
 
