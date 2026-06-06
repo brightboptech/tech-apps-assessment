@@ -6317,12 +6317,26 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
     }
     setSignupLoading(true);
     setSignupError('');
-    const { data, error: authError } = await supabase.auth.signUp({ email: email.trim(), password });
+    let data, authError;
+    try {
+      ({ data, error: authError } = await supabase.auth.signUp({ email: email.trim(), password }));
+    } catch (thrown) {
+      console.error('[Signup] signUp threw an exception (not an AuthError):', thrown);
+      setSignupError(thrown?.message || 'Unexpected signup error.');
+      setSignupLoading(false);
+      return;
+    }
     if (authError) {
+      console.error('[Signup] authError object:', authError);
+      console.error('[Signup] message:', authError.message);
+      console.error('[Signup] status:', authError.status);
+      console.error('[Signup] code:', authError.code);
+      console.error('[Signup] name:', authError.name);
       setSignupError(authError.message);
       setSignupLoading(false);
       return;
     }
+    console.log('[Signup] success — session:', !!data?.session, 'user id:', data?.user?.id);
     fetch('/api/signup-notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
