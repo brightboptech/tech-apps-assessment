@@ -3785,6 +3785,11 @@ function FeedbackPanel({ profile, section, open, onClose }) {
           {/* ── Feedback view ── */}
           {panelView === 'feedback' && (
             <>
+              {/* Welcome message */}
+              <p style={{ margin: '0 0 18px', fontSize: '14px', color: '#374151', lineHeight: 1.6 }}>
+                We'd love to hear from you! Share your thoughts as you go — every comment helps us build a better product for Texas Technology Applications teachers.
+              </p>
+
               <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#94a3b8' }}>
                 Current page: <strong style={{ color: '#64748b' }}>{section}</strong>
               </p>
@@ -4672,6 +4677,24 @@ function ResultsDashboard({ profile, onBack }) {
 }
 
 
+const DASHBOARD_QUOTES = [
+  { quote: "The illiterate of the 21st century will not be those who cannot read and write, but those who cannot learn, unlearn, and relearn.", author: "Alvin Toffler" },
+  { quote: "Technology will never replace great teachers, but technology in the hands of great teachers can be transformational.", author: "George Couros" },
+  { quote: "One child, one teacher, one book, one pen can change the world.", author: "Malala Yousafzai" },
+  { quote: "Education is not preparation for life; education is life itself.", author: "John Dewey" },
+  { quote: "A teacher affects eternity; he can never tell where his influence stops.", author: "Henry Adams" },
+  { quote: "I touch the future. I teach.", author: "Christa McAuliffe" },
+  { quote: "Children must be taught how to think, not what to think.", author: "Margaret Mead" },
+  { quote: "Do the best you can until you know better. Then when you know better, do better.", author: "Maya Angelou" },
+  { quote: "Becoming is better than being.", author: "Carol Dweck" },
+  { quote: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+  { quote: "We need technology in every classroom and in every student and teacher's hand, because it is the pen and paper of our time.", author: "David Warlick" },
+  { quote: "Teachers need to integrate technology seamlessly into the curriculum instead of viewing it as an add-on or an afterthought.", author: "Heidi Hayes Jacobs" },
+  { quote: "Education is what survives when what has been learned has been forgotten.", author: "B.F. Skinner" },
+  { quote: "The function of education is to teach one to think intensively and to think critically.", author: "Martin Luther King Jr." },
+  { quote: "Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.", author: "Albert Einstein" },
+];
+
 function Dashboard({ profile, onLogout }) {
   const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report', 'new-class-wizard', 'class-manage', 'access-windows-editor', 'admin'];
 
@@ -4696,6 +4719,7 @@ function Dashboard({ profile, onLogout }) {
   const [confirmArchive, setConfirmArchive] = useState(null);
   const [dashGuideOpen, setDashGuideOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen]   = useState(false);
+  const [quoteIdx]                        = useState(() => Math.floor(Math.random() * DASHBOARD_QUOTES.length));
   const isAdmin = profile.email === ADMIN_EMAIL;
 
   useEffect(() => {
@@ -4984,9 +5008,9 @@ function Dashboard({ profile, onLogout }) {
           <button
             onClick={() => setFeedbackOpen(v => !v)}
             title="Share feedback"
-            style={{ padding: '6px 12px', borderRadius: '7px', flexShrink: 0, border: '1.5px solid #e2e8f0', background: feedbackOpen ? '#EAF1F8' : 'transparent', color: '#64748b', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#EAF1F8'; e.currentTarget.style.color = '#3D6B8A'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = feedbackOpen ? '#EAF1F8' : 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+            style={{ padding: '7px 16px', borderRadius: '7px', flexShrink: 0, border: 'none', background: feedbackOpen ? '#1e6b6e' : 'linear-gradient(135deg, #2E7F84 0%, #3A9BA0 100%)', color: 'white', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(46,127,132,0.35)' }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
           >💬 Feedback</button>
           <button
             onClick={() => setDashGuideOpen(v => !v)}
@@ -5098,6 +5122,14 @@ function Dashboard({ profile, onLogout }) {
               onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
               onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
             >+ New Class & Assessment</button>
+          </div>
+
+          {/* Rotating quote */}
+          <div style={{ marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>
+            <p style={{ fontStyle: 'italic', color: '#94a3b8', fontSize: '13px', lineHeight: 1.75, margin: '0 auto 4px', maxWidth: '640px' }}>
+              &ldquo;{DASHBOARD_QUOTES[quoteIdx].quote}&rdquo;
+            </p>
+            <p style={{ color: '#b0bec8', fontSize: '12px', margin: 0 }}>— {DASHBOARD_QUOTES[quoteIdx].author}</p>
           </div>
 
           {dashClasses.length === 0 && archivedNames.size === 0 ? (
