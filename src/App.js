@@ -3993,6 +3993,7 @@ function Dashboard({ profile, onLogout }) {
   const [initialClass, setInitialClass] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null); // class-manage section context
   const [startGPInAddMode, setStartGPInAddMode] = useState(false); // add-students flow
+  const [backTarget, setBackTarget] = useState('my-classes'); // where back buttons return to
   const [archivedNames, setArchivedNames] = useState(new Set());
   const [showArchived, setShowArchived] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState(null);
@@ -4252,7 +4253,7 @@ function Dashboard({ profile, onLogout }) {
             return (
               <button
                 key={id}
-                onClick={() => setSection(id)}
+                onClick={() => { setBackTarget('my-classes'); setSection(id); }}
                 style={{
                   padding: '14px 16px', fontSize: '14px',
                   fontWeight: active ? 700 : 500,
@@ -4319,10 +4320,10 @@ function Dashboard({ profile, onLogout }) {
         </div>
       )}
 
-      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => selectedClass ? setSection('class-manage') : setSection('my-classes')} paymentSessionId={paymentSessionId} initialClass={initialClass} startInAddMode={startGPInAddMode} />}
+      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection(backTarget)} paymentSessionId={paymentSessionId} initialClass={initialClass} startInAddMode={startGPInAddMode} />}
       {section === 'create-assessment' && <CreateAssessment  profile={profile} onBack={() => setSection('my-classes')} />}
-      {section === 'results'           && <ResultsDashboard  profile={profile} onBack={() => setSection('my-classes')} />}
-      {section === 'tia-report'        && <TIAGrowthReport   profile={profile} onBack={() => setSection('my-classes')} />}
+      {section === 'results'           && <ResultsDashboard  profile={profile} onBack={() => setSection(backTarget)} />}
+      {section === 'tia-report'        && <TIAGrowthReport   profile={profile} onBack={() => setSection(backTarget)} />}
       {section === 'new-class-wizard'  && (
         <NewClassWizard
           profile={profile}
@@ -4343,6 +4344,7 @@ function Dashboard({ profile, onLogout }) {
           classData={selectedClass}
           onBack={() => setSection('my-classes')}
           onNavigate={(action) => {
+            setBackTarget('class-manage');
             if (action === 'passes') {
               setInitialClass(selectedClass);
               setStartGPInAddMode(false);
