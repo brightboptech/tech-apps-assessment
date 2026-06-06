@@ -4796,8 +4796,8 @@ function Dashboard({ profile, onLogout }) {
     {
       category: 'Getting Started',
       items: [
-        { q: 'How do I create my first assessment?', a: 'Go to Create Custom Assessment from the dashboard. Select your grade level (K-8), choose which TEKS standards to include, set 1-3 questions per standard, and click Generate Student Passes.' },
-        { q: 'How do I create a class?', a: 'Go to Generate Student Passes. Enter a class name, select the grade level, enter the number of students, and click Generate. This creates your class with pre-test and post-test passes for each student.' },
+        { q: 'How do I create my first assessment?', a: 'Click + New Class & Assessment in the nav bar. Step 1: enter a class name and grade level. Step 2: enter the number of students (and optionally apply a promo code). Step 3: choose which TEKS strands to include and how many questions per standard (1–3), then click Generate.' },
+        { q: 'How do I create a class?', a: 'Click + New Class & Assessment in the nav bar. Work through the 3-step wizard — class name and grade, number of students, then assessment setup. This creates your class with pre-test and post-test passes for each student.' },
         { q: 'How do students log in?', a: 'Students go to techgrowthcheck.com and enter their 8-character pass code, then click Begin Assessment. You can print pass sheets or display QR codes for students to scan.' },
       ],
     },
@@ -6323,6 +6323,11 @@ function TeacherLoginScreen({ onBack, serverError, onClearServerError }) {
       setSignupLoading(false);
       return;
     }
+    fetch('/api/signup-notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), signed_up_at: new Date().toISOString() }),
+    }).catch(() => {});
     if (data.session) {
       // Email verification disabled — onAuthStateChange will log them in automatically
     } else {
