@@ -1087,7 +1087,7 @@ const TIMEZONES = [
 
 const SCHED_DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null }) {
+function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null, startInAddMode = false }) {
   const [className, setClassName] = useState('');
   const [grade, setGrade] = useState('');
   const [studentCount, setStudentCount] = useState('');
@@ -1236,7 +1236,12 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     if (initialClass && !paymentSessionId) {
       setClassName(initialClass.class_name);
       setGrade(String(initialClass.grade_level));
-      loadClassPasses(initialClass.class_name);
+      if (startInAddMode) {
+        // Skip pass view — go straight to creation form pre-filled for adding students
+        loadExistingClasses();
+      } else {
+        loadClassPasses(initialClass.class_name);
+      }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1567,15 +1572,15 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         style={{
           background: 'none', border: 'none', color: '#5B8DB8',
           fontSize: '14px', cursor: 'pointer', padding: '0',
-          marginBottom: '20px',
+          marginBottom: '20px', fontWeight: 600,
         }}
       >
-        ← Back to Dashboard
+        {initialClass ? `← ${startInAddMode ? 'Cancel' : 'Back to Class'}` : '← Back to My Classes'}
       </button>
 
       <h2 style={{ margin: '0 0 24px', color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <KeyRound size={22} color="#3D6B8A" strokeWidth={1.75} />
-        Generate Student Passes
+        {startInAddMode ? `Add Students — ${initialClass?.class_name ?? ''}` : 'Student Passes'}
       </h2>
 
       {/* Form */}
@@ -3505,6 +3510,128 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   );
 }
 
+// ── Class Management Page ─────────────────────────────────────────────────────
+
+function ClassManagePage({ profile, classData, onBack, onNavigate }) {
+  const [showAnswerKey, setShowAnswerKey] = useState(false);
+  const [answerKeyData, setAnswerKeyData] = useState({ questions: [], title: '', subtitle: '' });
+
+  const isExpired = classData.expires_at && new Date(classData.expires_at) < new Date();
+  const expLabel = classData.expires_at
+    ? new Date(classData.expires_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : null;
+
+  const handleAnswerKey = () => {
+    const qs = getQuestionsForGrade(Number(classData.grade_level));
+    setAnswerKeyData({ questions: qs, title: gradeDisplay(classData.grade_level), subtitle: classData.class_name });
+    setShowAnswerKey(true);
+  };
+
+  const tiles = [
+    {
+      id: 'passes',
+      Icon: Printer,
+      title: 'Passes & QR Codes',
+      desc: 'View, print, and distribute student pass codes and QR codes for both the pre-test and post-test.',
+      color: '#3D6B8A', bg: '#EAF1F8',
+      onClick: () => onNavigate('passes'),
+      disabled: false,
+    },
+    {
+      id: 'answer-key',
+      Icon: BookOpen,
+      title: 'Answer Key',
+      desc: 'View all assessment questions with correct answers highlighted. Only available while passes are active.',
+      color: '#4B3F82', bg: '#EDEAF6',
+      onClick: handleAnswerKey,
+      disabled: isExpired,
+    },
+    {
+      id: 'results',
+      Icon: BarChart2,
+      title: 'My Results',
+      desc: 'View pre- and post-test scores for this class and track student growth over time.',
+      color: '#6B5F9B', bg: '#EDEAF6',
+      onClick: () => onNavigate('results'),
+      disabled: false,
+    },
+    {
+      id: 'add-students',
+      Icon: ClipboardList,
+      title: 'Add Students',
+      desc: 'Generate additional pre-test and post-test passes for new students joining this class.',
+      color: '#3D7A5E', bg: '#D4EEE3',
+      onClick: () => onNavigate('add-students'),
+      disabled: isExpired,
+    },
+  ];
+
+  return (
+    <div style={{ maxWidth: '960px', margin: '36px auto', padding: '0 24px' }}>
+      {showAnswerKey && (
+        <AnswerKeyOverlay
+          questions={answerKeyData.questions}
+          title={answerKeyData.title}
+          subtitle={answerKeyData.subtitle}
+          onClose={() => setShowAnswerKey(false)}
+          email={profile.email}
+        />
+      )}
+
+      {/* Back + header */}
+      <button
+        onClick={onBack}
+        style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '14px', cursor: 'pointer', padding: 0, marginBottom: '20px', fontWeight: 600 }}
+      >← My Classes</button>
+
+      <div style={{ marginBottom: '28px' }}>
+        <h2 style={{ margin: '0 0 4px', color: '#1e293b', fontSize: '24px', fontWeight: 800 }}>
+          {classData.class_name}
+        </h2>
+        <p style={{ margin: 0, color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <span>{gradeDisplay(classData.grade_level)} &nbsp;·&nbsp; {classData.count} student{classData.count !== 1 ? 's' : ''}</span>
+          {expLabel && (
+            <span style={{ fontSize: '12px', fontWeight: 600, color: isExpired ? '#dc2626' : '#D97706' }}>
+              {isExpired ? '⊘ Passes expired' : `Passes expire ${expLabel}`}
+            </span>
+          )}
+        </p>
+      </div>
+
+      {/* Action tiles */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+        {tiles.map(({ id, Icon, title, desc, color, bg, onClick, disabled }) => (
+          <div
+            key={id}
+            onClick={disabled ? undefined : onClick}
+            style={{
+              background: 'white', borderRadius: '12px', padding: '24px 22px',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #eef2f7',
+              display: 'flex', flexDirection: 'column', gap: '10px',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              opacity: disabled ? 0.5 : 1,
+              transition: 'box-shadow 0.15s, transform 0.12s',
+            }}
+            onMouseEnter={e => { if (!disabled) { e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.11)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.07)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon size={20} color={color} strokeWidth={1.75} />
+            </div>
+            <div>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', marginBottom: '5px' }}>{title}</div>
+              <div style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.55 }}>{desc}</div>
+            </div>
+            <div style={{ marginTop: 'auto', fontSize: '13px', fontWeight: 700, color: disabled ? '#94a3b8' : color }}>
+              {disabled ? 'Unavailable' : `Open ${title} →`}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Results Dashboard ─────────────────────────────────────────────────────────
 
 function ResultsDashboard({ profile, onBack }) {
@@ -3849,7 +3976,7 @@ function ResultsDashboard({ profile, onBack }) {
 
 
 function Dashboard({ profile, onLogout }) {
-  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report', 'new-class-wizard'];
+  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report', 'new-class-wizard', 'class-manage'];
 
   const [section, setSection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -3864,6 +3991,8 @@ function Dashboard({ profile, onLogout }) {
   });
   const [dashClasses, setDashClasses] = useState([]);
   const [initialClass, setInitialClass] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null); // class-manage section context
+  const [startGPInAddMode, setStartGPInAddMode] = useState(false); // add-students flow
   const [archivedNames, setArchivedNames] = useState(new Set());
   const [showArchived, setShowArchived] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState(null);
@@ -3935,10 +4064,13 @@ function Dashboard({ profile, onLogout }) {
   // Prevent GeneratePasses from acting as a creation entry point —
   // it is only valid when viewing an existing class (initialClass set).
   useEffect(() => {
-    if (section === 'generate-passes' && !initialClass) {
-      setSection('my-classes');
-    }
+    if (section === 'generate-passes' && !initialClass) setSection('my-classes');
   }, [section, initialClass]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // class-manage requires a selected class; fall back to My Classes without one.
+  useEffect(() => {
+    if (section === 'class-manage' && !selectedClass) setSection('my-classes');
+  }, [section, selectedClass]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
 
@@ -4187,7 +4319,7 @@ function Dashboard({ profile, onLogout }) {
         </div>
       )}
 
-      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('my-classes')} paymentSessionId={paymentSessionId} initialClass={initialClass} />}
+      {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => selectedClass ? setSection('class-manage') : setSection('my-classes')} paymentSessionId={paymentSessionId} initialClass={initialClass} startInAddMode={startGPInAddMode} />}
       {section === 'create-assessment' && <CreateAssessment  profile={profile} onBack={() => setSection('my-classes')} />}
       {section === 'results'           && <ResultsDashboard  profile={profile} onBack={() => setSection('my-classes')} />}
       {section === 'tia-report'        && <TIAGrowthReport   profile={profile} onBack={() => setSection('my-classes')} />}
@@ -4205,6 +4337,26 @@ function Dashboard({ profile, onLogout }) {
           }}
         />
       )}
+      {section === 'class-manage' && selectedClass && (
+        <ClassManagePage
+          profile={profile}
+          classData={selectedClass}
+          onBack={() => setSection('my-classes')}
+          onNavigate={(action) => {
+            if (action === 'passes') {
+              setInitialClass(selectedClass);
+              setStartGPInAddMode(false);
+              setSection('generate-passes');
+            } else if (action === 'results') {
+              setSection('results');
+            } else if (action === 'add-students') {
+              setInitialClass(selectedClass);
+              setStartGPInAddMode(true);
+              setSection('generate-passes');
+            }
+          }}
+        />
+      )}
 
       {section === 'my-classes' && (
         <div style={{ maxWidth: '960px', margin: '36px auto', padding: '0 24px' }}>
@@ -4215,7 +4367,7 @@ function Dashboard({ profile, onLogout }) {
                 My Classes
               </h2>
               <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
-                Click "View Passes" to reprint passes or QR codes for any class.
+                Click any class to view passes, answer keys, results, and more.
               </p>
             </div>
             <button
@@ -4250,18 +4402,24 @@ function Dashboard({ profile, onLogout }) {
                     const expLabel = c.expires_at ? new Date(c.expires_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : null;
                     const expiryColor = isExpired ? '#dc2626' : daysLeft !== null && daysLeft <= 30 ? '#D97706' : '#94a3b8';
                     return (
-                    <div key={c.class_name} style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: `1px solid ${isExpired ? '#fecaca' : '#eef2f7'}`, display: 'flex', flexDirection: 'column', opacity: isExpired ? 0.72 : 1 }}>
+                    <div
+                      key={c.class_name}
+                      onClick={() => { setSelectedClass(c); setSection('class-manage'); }}
+                      style={{ background: 'white', borderRadius: '12px', padding: '20px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: `1px solid ${isExpired ? '#fecaca' : '#eef2f7'}`, display: 'flex', flexDirection: 'column', opacity: isExpired ? 0.72 : 1, cursor: 'pointer', transition: 'box-shadow 0.15s, transform 0.12s' }}
+                      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.11)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.07)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3px' }}>
                         <div style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b' }}>{c.class_name}</div>
                         {confirmArchive === c.class_name ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
                             <span style={{ fontSize: '11px', color: '#64748b' }}>Archive?</span>
                             <button onClick={() => handleArchive(c.class_name)} style={{ padding: '3px 9px', fontSize: '11px', fontWeight: 700, border: 'none', borderRadius: '4px', background: '#f59e0b', color: 'white', cursor: 'pointer' }}>Yes</button>
                             <button onClick={() => setConfirmArchive(null)} style={{ padding: '3px 7px', fontSize: '11px', fontWeight: 600, border: '1px solid #e2e8f0', borderRadius: '4px', background: 'white', color: '#64748b', cursor: 'pointer' }}>No</button>
                           </div>
                         ) : (
                           <button
-                            onClick={() => setConfirmArchive(c.class_name)}
+                            onClick={e => { e.stopPropagation(); setConfirmArchive(c.class_name); }}
                             title="Archive this class"
                             style={{ padding: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
                             onMouseEnter={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = '#f1f5f9'; }}
@@ -4269,27 +4427,19 @@ function Dashboard({ profile, onLogout }) {
                           ><Archive size={14} strokeWidth={2} /></button>
                         )}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: expLabel ? '4px' : '16px' }}>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: expLabel ? '4px' : '0' }}>
                         {gradeDisplay(c.grade_level)} &nbsp;·&nbsp; {c.count} student{c.count !== 1 ? 's' : ''}
                       </div>
                       {expLabel && (
-                        <div style={{ marginBottom: '16px' }}>
+                        <div style={{ marginTop: '6px' }}>
                           <div style={{ fontSize: '11px', color: expiryColor, fontWeight: isExpired || (daysLeft !== null && daysLeft <= 30) ? 700 : 400 }}>
                             {isExpired ? '⊘ Expired' : `Expires ${expLabel}`}
                           </div>
-                          {isExpired && (
-                            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px', lineHeight: 1.4 }}>
-                              Answer key &amp; teacher script unavailable
-                            </div>
-                          )}
                         </div>
                       )}
-                      <button
-                        onClick={() => { setInitialClass(c); setSection('generate-passes'); }}
-                        style={{ marginTop: 'auto', padding: '8px 16px', fontSize: '13px', fontWeight: 700, background: '#D4EEE3', color: '#3D7A5E', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
-                        onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-                        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-                      >View Passes →</button>
+                      <div style={{ marginTop: 'auto', paddingTop: '14px', fontSize: '12px', fontWeight: 600, color: '#5B8DB8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        Manage Class →
+                      </div>
                     </div>
                     );
                   })}
