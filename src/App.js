@@ -1269,7 +1269,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
 
       const allRows = [];
       const byClass = {};
-      const newExpiresAt = (() => { const d = new Date(); d.setMonth(d.getMonth() + 13); return d.toISOString(); })();
+      const newExpiresAt = (() => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d.toISOString(); })();
 
       for (const cls of classes) {
         const n = parseInt(cls.studentCount, 10);
@@ -1417,7 +1417,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
 
       const rows = [];
       const passData = [];
-      const betaExpiresAt = (() => { const d = new Date(); d.setMonth(d.getMonth() + 13); return d.toISOString(); })();
+      const betaExpiresAt = (() => { const d = new Date(); d.setDate(d.getDate() + 60); return d.toISOString(); })();
       for (let i = 0; i < count; i++) {
         const studentNum = startingStudentNumber + i;
         const pre  = makeToken();
@@ -1433,6 +1433,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       if (insertError) { setBetaCodeError('Could not save passes: ' + insertError.message); setGenerating(false); return; }
 
       await supabase.from('beta_codes').update({ used_students: (codeData.used_students || 0) + count }).eq('code', codeData.code);
+      await supabase.from('teachers').update({ beta_code: codeData.code }).eq('id', profile.id);
       setExpiresAt(betaExpiresAt);
       setPasses(passData);
     } catch (err) {
@@ -2257,7 +2258,11 @@ function CreateAssessment({ profile, onBack }) {
 
     const assessmentConfigId = acData.id;
     const primaryGrade = sortedGrades.length > 0 ? Number(sortedGrades[0]) : null;
-    const caExpiresAt = (() => { const d = new Date(); d.setMonth(d.getMonth() + 13); return d.toISOString(); })();
+    const caExpiresAt = (() => {
+      const d = new Date();
+      if (profile.beta_code) { d.setDate(d.getDate() + 60); } else { d.setFullYear(d.getFullYear() + 1); }
+      return d.toISOString();
+    })();
     const rows = [];
     const configRows = [];
     const passData = [];
@@ -3107,7 +3112,11 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
 
     const count    = parseInt(studentCount, 10);
     const gradeNum = Number(grade);
-    const expiresAt = (() => { const d = new Date(); d.setMonth(d.getMonth() + 13); return d.toISOString(); })();
+    const expiresAt = (() => {
+      const d = new Date();
+      if (validatedBeta) { d.setDate(d.getDate() + 60); } else { d.setFullYear(d.getFullYear() + 1); }
+      return d.toISOString();
+    })();
 
     // Build standards_config for assessment record
     const standardsConfig = {};
@@ -3183,6 +3192,7 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
       await supabase.from('beta_codes').update({
         used_students: (validatedBeta.used_students || 0) + count,
       }).eq('code', validatedBeta.code);
+      await supabase.from('teachers').update({ beta_code: validatedBeta.code }).eq('id', profile.id);
     }
 
     setGeneratedExpiresAt(expiresAt);
