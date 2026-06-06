@@ -16,7 +16,7 @@ import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, ClipboardList, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, Archive, RotateCcw, ChevronDown, ChevronRight,
-  BookOpen, HelpCircle,
+  BookOpen, HelpCircle, MessageCircle,
 } from 'lucide-react';
 
 
@@ -4999,13 +4999,6 @@ function Dashboard({ profile, onLogout }) {
             onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
           >+ New Class & Assessment</button>
           <button
-            onClick={() => setFeedbackOpen(v => !v)}
-            title="Share feedback"
-            style={{ padding: '7px 16px', borderRadius: '7px', flexShrink: 0, border: '2px solid #2E7F84', background: feedbackOpen ? '#2E7F84' : 'white', color: feedbackOpen ? 'white' : '#2E7F84', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap', transition: 'background 0.15s, color 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#2E7F84'; e.currentTarget.style.color = 'white'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = feedbackOpen ? '#2E7F84' : 'white'; e.currentTarget.style.color = feedbackOpen ? 'white' : '#2E7F84'; }}
-          >💬 Feedback</button>
-          <button
             onClick={() => setDashGuideOpen(v => !v)}
             title="Getting started guide"
             style={{
@@ -5099,22 +5092,14 @@ function Dashboard({ profile, onLogout }) {
 
       {section === 'my-classes' && (
         <div style={{ maxWidth: '960px', margin: '36px auto', padding: '0 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', gap: '16px', flexWrap: 'wrap' }}>
-            <div>
-              <h2 style={{ margin: '0 0 4px', color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Layers size={22} color="#3D6B8A" strokeWidth={1.75} />
-                My Classes
-              </h2>
-              <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
-                Click any class to view passes, answer keys, results, and more.
-              </p>
-            </div>
-            <button
-              onClick={() => setSection('new-class-wizard')}
-              style={{ padding: '10px 22px', background: 'linear-gradient(135deg, #3D7A5E 0%, #4E9A7A 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(61,122,94,0.25)' }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-            >+ New Class & Assessment</button>
+          <div style={{ marginBottom: '24px' }}>
+            <h2 style={{ margin: '0 0 4px', color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Layers size={22} color="#3D6B8A" strokeWidth={1.75} />
+              My Classes
+            </h2>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
+              Click any class to view passes, answer keys, results, and more.
+            </p>
           </div>
 
           {/* Rotating quote */}
@@ -5543,6 +5528,31 @@ function Dashboard({ profile, onLogout }) {
             </div>
           );
         })()}
+
+        {/* Floating Feedback button */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+          <button
+            onClick={() => setFeedbackOpen(v => !v)}
+            title="Share feedback"
+            style={{
+              width: '58px', height: '58px', borderRadius: '50%',
+              background: feedbackOpen ? '#236468' : '#2E7F84',
+              border: 'none', cursor: 'pointer',
+              boxShadow: feedbackOpen ? '0 2px 10px rgba(0,0,0,0.25)' : '0 4px 18px rgba(46,127,132,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'transform 0.15s, background 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.07)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            <MessageCircle size={26} color="white" strokeWidth={2.5} />
+          </button>
+          <span style={{
+            fontSize: '11px', fontWeight: 700, color: '#0e6469',
+            letterSpacing: '0.05em', userSelect: 'none',
+            textShadow: '0 1px 2px rgba(255,255,255,0.8)',
+          }}>FEEDBACK</span>
+        </div>
 
         {/* Floating Help button */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
