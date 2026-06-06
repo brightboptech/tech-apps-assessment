@@ -3638,6 +3638,411 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   );
 }
 
+// ── Feedback Panel ────────────────────────────────────────────────────────────
+
+const ADMIN_EMAIL = 'brightboptech@gmail.com';
+
+function FeedbackPanel({ profile, section, open, onClose }) {
+  const [panelView, setPanelView]       = useState('feedback'); // 'feedback' | 'survey'
+  const [tag, setTag]                   = useState(null);
+  const [message, setMessage]           = useState('');
+  const [submitting, setSubmitting]     = useState(false);
+  const [submitted, setSubmitted]       = useState(false);
+  const [submitError, setSubmitError]   = useState('');
+  const [surveyCompleted, setSurveyCompleted] = useState(false);
+  const [survey, setSurvey]             = useState({ q1: 0, q2: '', q3: '', q4: '', q5: '', q6: '', q7: '', q8: '', q9: 0, q10: '' });
+  const [surveySubmitting, setSurveySubmitting] = useState(false);
+  const [surveyError, setSurveyError]   = useState('');
+
+  useEffect(() => {
+    if (!open || !profile?.id) return;
+    supabase.from('survey_responses').select('id').eq('teacher_id', profile.id).maybeSingle()
+      .then(({ data }) => { if (data) setSurveyCompleted(true); });
+  }, [open, profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleClose = () => {
+    onClose();
+    setPanelView('feedback');
+    setSubmitError('');
+    setSurveyError('');
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!message.trim()) return;
+    setSubmitting(true);
+    setSubmitError('');
+    const { error } = await supabase.from('feedback').insert({
+      teacher_id: profile.id,
+      page_context: section,
+      tag: tag || null,
+      message: message.trim(),
+    });
+    setSubmitting(false);
+    if (error) { setSubmitError('Could not send — please try again.'); return; }
+    setSubmitted(true);
+    setTimeout(() => {
+      handleClose();
+      setMessage(''); setTag(null); setSubmitted(false);
+    }, 2000);
+  };
+
+  const setSurveyQ = (key, val) => setSurvey(prev => ({ ...prev, [key]: val }));
+
+  const handleSurveySubmit = async () => {
+    if (!survey.q1) { setSurveyError('Please rate how easy setup was (Q1).'); return; }
+    if (!survey.q9) { setSurveyError('Please rate your likelihood to recommend (Q9).'); return; }
+    setSurveySubmitting(true);
+    setSurveyError('');
+    const { error } = await supabase.from('survey_responses').insert({
+      teacher_id: profile.id,
+      setup_ease: survey.q1,
+      setup_confusing: survey.q2 || null,
+      questions_appropriate: survey.q3 || null,
+      questions_feedback: survey.q4 || null,
+      student_response: survey.q5 || null,
+      completion_time: survey.q6 || null,
+      tia_helpful: survey.q7 || null,
+      tia_improvement: survey.q8 || null,
+      recommend_likelihood: survey.q9,
+      anything_else: survey.q10 || null,
+    });
+    setSurveySubmitting(false);
+    if (error) { setSurveyError('Could not submit — please try again.'); return; }
+    setSurveyCompleted(true);
+    setPanelView('feedback');
+  };
+
+  const Stars = ({ value, onChange, label }) => (
+    <div style={{ marginBottom: '18px' }}>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{label}</div>
+      <div style={{ display: 'flex', gap: '6px' }}>
+        {[1, 2, 3, 4, 5].map(n => (
+          <button key={n} type="button" onClick={() => onChange(n)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '26px', lineHeight: 1, padding: '2px', color: n <= value ? '#F59E0B' : '#e2e8f0' }}>
+            {n <= value ? '★' : '☆'}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const ToggleGroup = ({ value, options, onChange, label }) => (
+    <div style={{ marginBottom: '18px' }}>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{label}</div>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {options.map(opt => (
+          <button key={opt} type="button" onClick={() => onChange(opt)}
+            style={{ padding: '7px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '6px', cursor: 'pointer', border: `1.5px solid ${value === opt ? '#3D6B8A' : '#e2e8f0'}`, background: value === opt ? '#EAF1F8' : 'white', color: value === opt ? '#3D6B8A' : '#64748b' }}>
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const OpenText = ({ value, onChange, label, placeholder }) => (
+    <div style={{ marginBottom: '18px' }}>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{label}</div>
+      <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder || 'Your answer…'}
+        style={{ width: '100%', minHeight: '72px', padding: '8px 10px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '7px', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none', lineHeight: 1.55 }}
+        onFocus={e => { e.target.style.borderColor = '#3D6B8A'; }}
+        onBlur={e => { e.target.style.borderColor = '#e2e8f0'; }}
+      />
+    </div>
+  );
+
+  const panelW = 380;
+
+  return (
+    <>
+      {/* Backdrop */}
+      {open && <div onClick={handleClose} style={{ position: 'fixed', inset: 0, zIndex: 8400, background: 'rgba(0,0,0,0.18)' }} />}
+
+      {/* Panel */}
+      <div style={{
+        position: 'fixed', top: 0, right: open ? 0 : -panelW - 20,
+        width: panelW, height: '100vh', zIndex: 8500,
+        background: 'white', boxShadow: '-4px 0 24px rgba(0,0,0,0.16)',
+        display: 'flex', flexDirection: 'column',
+        transition: 'right 0.25s cubic-bezier(.4,0,.2,1)',
+      }}>
+        {/* Header */}
+        <div style={{ flexShrink: 0, padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {panelView === 'survey' ? (
+            <button onClick={() => { setPanelView('feedback'); setSurveyError(''); }} style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0 }}>← Back</button>
+          ) : (
+            <div style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '7px' }}>
+              💬 <span>Share Feedback</span>
+            </div>
+          )}
+          {panelView === 'survey' && <div style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b' }}>End-of-Beta Survey</div>}
+          <button onClick={handleClose} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '20px', cursor: 'pointer', lineHeight: 1, padding: '2px 6px' }}>×</button>
+        </div>
+
+        {/* Scrollable content */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+
+          {/* ── Feedback view ── */}
+          {panelView === 'feedback' && (
+            <>
+              <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#94a3b8' }}>
+                Current page: <strong style={{ color: '#64748b' }}>{section}</strong>
+              </p>
+
+              {/* Tag row */}
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Category (optional)</div>
+                <div style={{ display: 'flex', gap: '7px', flexWrap: 'wrap' }}>
+                  {['Bug', 'Suggestion', 'Question', 'Compliment'].map(t => (
+                    <button key={t} type="button" onClick={() => setTag(tag === t ? null : t)}
+                      style={{ padding: '6px 13px', fontSize: '13px', fontWeight: 600, borderRadius: '20px', cursor: 'pointer', border: `1.5px solid ${tag === t ? '#3D6B8A' : '#e2e8f0'}`, background: tag === t ? '#EAF1F8' : 'white', color: tag === t ? '#3D6B8A' : '#64748b', transition: 'all 0.12s' }}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Message field */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>What's on your mind?</label>
+                <textarea
+                  value={message}
+                  onChange={e => { setMessage(e.target.value); setSubmitError(''); }}
+                  placeholder="Tell us what you think, what's broken, or what would make this better…"
+                  style={{ width: '100%', minHeight: '110px', padding: '10px 12px', fontSize: '14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none', lineHeight: 1.55 }}
+                  onFocus={e => { e.target.style.borderColor = '#3D6B8A'; }}
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; }}
+                />
+              </div>
+
+              {submitError && <p style={{ color: '#ef4444', fontSize: '12px', marginBottom: '12px' }}>{submitError}</p>}
+
+              {submitted ? (
+                <div style={{ textAlign: 'center', padding: '12px 0', color: '#3D7A5E', fontSize: '15px', fontWeight: 700 }}>✓ Sent! Thanks for the feedback.</div>
+              ) : (
+                <button onClick={handleFeedbackSubmit} disabled={submitting || !message.trim()}
+                  style={{ width: '100%', padding: '11px', fontSize: '14px', fontWeight: 700, border: 'none', borderRadius: '8px', cursor: submitting || !message.trim() ? 'not-allowed' : 'pointer', background: submitting || !message.trim() ? '#94a3b8' : 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)', color: 'white', marginBottom: '16px' }}>
+                  {submitting ? 'Sending…' : 'Submit'}
+                </button>
+              )}
+
+              {/* Survey link */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '14px', textAlign: 'center' }}>
+                {surveyCompleted ? (
+                  <span style={{ fontSize: '13px', color: '#3D7A5E', fontWeight: 600 }}>✓ Survey completed — thank you!</span>
+                ) : (
+                  <button onClick={() => setPanelView('survey')} style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                    Take the full beta survey →
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ── Survey view ── */}
+          {panelView === 'survey' && (
+            <>
+              <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#64748b', lineHeight: 1.6 }}>
+                Help us improve TechGrowth Check. This takes about 5 minutes and your input directly shapes what we build next.
+              </p>
+
+              <Stars value={survey.q1} onChange={v => setSurveyQ('q1', v)} label="1. How easy was it to set up your first class? *" />
+              <OpenText value={survey.q2} onChange={v => setSurveyQ('q2', v)} label="2. Was anything confusing or unclear during setup?" />
+              <ToggleGroup value={survey.q3} options={['Yes', 'Some', 'No']} onChange={v => setSurveyQ('q3', v)} label="3. Did the questions feel appropriate for your grade level?" />
+              <OpenText value={survey.q4} onChange={v => setSurveyQ('q4', v)} label="4. Were there any questions that seemed too hard, too easy, or off-topic?" />
+              <OpenText value={survey.q5} onChange={v => setSurveyQ('q5', v)} label="5. How did your students respond to the assessment?" />
+              <OpenText value={survey.q6} onChange={v => setSurveyQ('q6', v)} label="6. Approximately how long did it take students to complete?" placeholder="e.g. 30–40 minutes" />
+              <ToggleGroup value={survey.q7} options={['Yes', 'Maybe', 'No']} onChange={v => setSurveyQ('q7', v)} label="7. Do you feel this platform would help you document growth for TIA?" />
+              <OpenText value={survey.q8} onChange={v => setSurveyQ('q8', v)} label="8. What would make it more useful for TIA documentation?" />
+              <Stars value={survey.q9} onChange={v => setSurveyQ('q9', v)} label="9. How likely are you to recommend TechGrowth Check to another Technology Applications teacher? *" />
+              <OpenText value={survey.q10} onChange={v => setSurveyQ('q10', v)} label="10. Anything else you'd like us to know?" />
+
+              {surveyError && <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>{surveyError}</p>}
+
+              <button onClick={handleSurveySubmit} disabled={surveySubmitting}
+                style={{ width: '100%', padding: '12px', fontSize: '14px', fontWeight: 700, border: 'none', borderRadius: '8px', cursor: surveySubmitting ? 'not-allowed' : 'pointer', background: surveySubmitting ? '#94a3b8' : 'linear-gradient(135deg, #3D7A5E 0%, #4E9A7A 100%)', color: 'white', marginBottom: '12px' }}>
+                {surveySubmitting ? 'Submitting…' : 'Submit Survey'}
+              </button>
+              <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', textAlign: 'center' }}>Questions marked * are required.</p>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Admin Dashboard ────────────────────────────────────────────────────────────
+
+function AdminDashboard({ profile }) {
+  const [adminTab, setAdminTab]           = useState('teachers'); // 'teachers' | 'feedback' | 'surveys'
+  const [teachers, setTeachers]           = useState([]);
+  const [feedbackRows, setFeedbackRows]   = useState([]);
+  const [surveyRows, setSurveyRows]       = useState([]);
+  const [loading, setLoading]             = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const [{ data: tData }, { data: tokData }, { data: fbData }, { data: svData }] = await Promise.all([
+        supabase.from('teachers').select('id, email, full_name, created_at').order('created_at', { ascending: false }),
+        supabase.from('tokens').select('teacher_id, class_name').eq('test_type', 'pre'),
+        supabase.from('feedback').select('id, teacher_id, page_context, tag, message, created_at, teacher:teacher_id(email)').order('created_at', { ascending: false }),
+        supabase.from('survey_responses').select('id, teacher_id, setup_ease, questions_appropriate, tia_helpful, recommend_likelihood, created_at, teacher:teacher_id(email)').order('created_at', { ascending: false }),
+      ]);
+
+      const classMap = {};
+      (tokData || []).forEach(({ teacher_id, class_name }) => {
+        if (!classMap[teacher_id]) classMap[teacher_id] = new Set();
+        classMap[teacher_id].add(class_name);
+      });
+      setTeachers((tData || []).map(t => ({ ...t, classCount: classMap[t.id]?.size ?? 0 })));
+      setFeedbackRows(fbData || []);
+      setSurveyRows(svData || []);
+      setLoading(false);
+    };
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+  const downloadCSV = (headers, rows, filename) => {
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const thStyle = { padding: '10px 14px', fontSize: '12px', fontWeight: 700, color: '#475569', textAlign: 'left', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' };
+  const tdStyle = { padding: '10px 14px', fontSize: '13px', color: '#374151', borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' };
+
+  return (
+    <div style={{ maxWidth: '1060px', margin: '36px auto', padding: '0 24px' }}>
+      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <h2 style={{ margin: '0 0 4px', color: '#1e293b', fontSize: '22px', fontWeight: 800 }}>Admin Dashboard</h2>
+          <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>Logged in as {profile.email}</p>
+        </div>
+      </div>
+
+      {/* Admin tabs */}
+      <div style={{ display: 'flex', borderBottom: '2px solid #e2e8f0', marginBottom: '24px', gap: '0' }}>
+        {[
+          { id: 'teachers', label: `Teachers (${teachers.length})` },
+          { id: 'feedback', label: `Feedback (${feedbackRows.length})` },
+          { id: 'surveys',  label: `Surveys (${surveyRows.length})` },
+        ].map(({ id, label }) => (
+          <button key={id} onClick={() => setAdminTab(id)} style={{ padding: '10px 18px', fontSize: '14px', fontWeight: adminTab === id ? 700 : 500, background: 'none', border: 'none', borderBottom: `2px solid ${adminTab === id ? '#3D6B8A' : 'transparent'}`, color: adminTab === id ? '#3D6B8A' : '#64748b', cursor: 'pointer', marginBottom: '-2px' }}>{label}</button>
+        ))}
+      </div>
+
+      {loading ? (
+        <p style={{ color: '#94a3b8', fontSize: '14px' }}>Loading…</p>
+      ) : (
+        <>
+          {/* Teachers */}
+          {adminTab === 'teachers' && (
+            <>
+              <button onClick={() => downloadCSV(
+                ['Name', 'Email', 'Date Joined', 'Classes Created'],
+                teachers.map(t => [t.full_name || '', t.email || '', fmtDate(t.created_at), t.classCount])
+              , 'teachers.csv')} style={{ marginBottom: '16px', padding: '7px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
+                Export CSV
+              </button>
+              <div style={{ overflowX: 'auto', background: 'white', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead><tr>
+                    <th style={thStyle}>Name</th><th style={thStyle}>Email</th>
+                    <th style={thStyle}>Date Joined</th><th style={thStyle}>Classes</th>
+                  </tr></thead>
+                  <tbody>
+                    {teachers.map(t => (
+                      <tr key={t.id}>
+                        <td style={tdStyle}>{t.full_name || '—'}</td>
+                        <td style={tdStyle}>{t.email || '—'}</td>
+                        <td style={tdStyle}>{fmtDate(t.created_at)}</td>
+                        <td style={tdStyle}>{t.classCount}</td>
+                      </tr>
+                    ))}
+                    {teachers.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, color: '#94a3b8', textAlign: 'center', padding: '32px' }}>No teachers yet</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {/* Feedback */}
+          {adminTab === 'feedback' && (
+            <>
+              <button onClick={() => downloadCSV(
+                ['Teacher Email', 'Page Context', 'Tag', 'Message', 'Date'],
+                feedbackRows.map(f => [f.teacher?.email || f.teacher_id, f.page_context || '', f.tag || '', f.message, fmtDate(f.created_at)])
+              , 'feedback.csv')} style={{ marginBottom: '16px', padding: '7px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
+                Export CSV
+              </button>
+              <div style={{ overflowX: 'auto', background: 'white', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead><tr>
+                    <th style={thStyle}>Date</th><th style={thStyle}>Teacher</th>
+                    <th style={thStyle}>Tag</th><th style={thStyle}>Page</th><th style={thStyle}>Message</th>
+                  </tr></thead>
+                  <tbody>
+                    {feedbackRows.map(f => (
+                      <tr key={f.id}>
+                        <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>{fmtDate(f.created_at)}</td>
+                        <td style={tdStyle}>{f.teacher?.email || '—'}</td>
+                        <td style={tdStyle}>{f.tag ? <span style={{ background: '#EAF1F8', color: '#3D6B8A', padding: '2px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: 600 }}>{f.tag}</span> : '—'}</td>
+                        <td style={{ ...tdStyle, fontSize: '12px', color: '#94a3b8' }}>{f.page_context || '—'}</td>
+                        <td style={{ ...tdStyle, maxWidth: '360px' }}>{f.message}</td>
+                      </tr>
+                    ))}
+                    {feedbackRows.length === 0 && <tr><td colSpan={5} style={{ ...tdStyle, color: '#94a3b8', textAlign: 'center', padding: '32px' }}>No feedback yet</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {/* Survey responses */}
+          {adminTab === 'surveys' && (
+            <>
+              <button onClick={() => downloadCSV(
+                ['Teacher Email', 'Setup Ease', 'Qs Appropriate', 'TIA Helpful', 'Recommend', 'Date'],
+                surveyRows.map(s => [s.teacher?.email || s.teacher_id, s.setup_ease || '', s.questions_appropriate || '', s.tia_helpful || '', s.recommend_likelihood || '', fmtDate(s.created_at)])
+              , 'survey-responses.csv')} style={{ marginBottom: '16px', padding: '7px 16px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>
+                Export CSV
+              </button>
+              <div style={{ overflowX: 'auto', background: 'white', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead><tr>
+                    <th style={thStyle}>Date</th><th style={thStyle}>Teacher</th>
+                    <th style={thStyle}>Setup (★)</th><th style={thStyle}>Qs OK?</th>
+                    <th style={thStyle}>TIA?</th><th style={thStyle}>Recommend (★)</th>
+                  </tr></thead>
+                  <tbody>
+                    {surveyRows.map(s => (
+                      <tr key={s.id}>
+                        <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>{fmtDate(s.created_at)}</td>
+                        <td style={tdStyle}>{s.teacher?.email || '—'}</td>
+                        <td style={tdStyle}>{s.setup_ease ? '★'.repeat(s.setup_ease) : '—'}</td>
+                        <td style={tdStyle}>{s.questions_appropriate || '—'}</td>
+                        <td style={tdStyle}>{s.tia_helpful || '—'}</td>
+                        <td style={tdStyle}>{s.recommend_likelihood ? '★'.repeat(s.recommend_likelihood) : '—'}</td>
+                      </tr>
+                    ))}
+                    {surveyRows.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, color: '#94a3b8', textAlign: 'center', padding: '32px' }}>No survey responses yet</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Access Windows Page ───────────────────────────────────────────────────────
 
 function AccessWindowsPage({ profile, classData, onBack }) {
@@ -4268,7 +4673,7 @@ function ResultsDashboard({ profile, onBack }) {
 
 
 function Dashboard({ profile, onLogout }) {
-  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report', 'new-class-wizard', 'class-manage', 'access-windows-editor'];
+  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report', 'new-class-wizard', 'class-manage', 'access-windows-editor', 'admin'];
 
   const [section, setSection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -4290,6 +4695,8 @@ function Dashboard({ profile, onLogout }) {
   const [showArchived, setShowArchived] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState(null);
   const [dashGuideOpen, setDashGuideOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen]   = useState(false);
+  const isAdmin = profile.email === ADMIN_EMAIL;
 
   useEffect(() => {
     const loadDashClasses = async () => {
@@ -4541,8 +4948,9 @@ function Dashboard({ profile, onLogout }) {
             { id: 'my-classes', label: 'My Classes' },
             { id: 'results',    label: 'My Results' },
             { id: 'tia-report', label: 'TIA Report' },
+            ...(isAdmin ? [{ id: 'admin', label: '⚙ Admin' }] : []),
           ].map(({ id, label }) => {
-            const active = section === id || (id === 'my-classes' && section === 'new-class-wizard');
+            const active = section === id || (id === 'my-classes' && (section === 'new-class-wizard' || section === 'class-manage' || section === 'access-windows-editor'));
             return (
               <button
                 key={id}
@@ -4550,13 +4958,13 @@ function Dashboard({ profile, onLogout }) {
                 style={{
                   padding: '14px 16px', fontSize: '14px',
                   fontWeight: active ? 700 : 500,
-                  color: active ? '#3D6B8A' : '#64748b',
+                  color: active ? (id === 'admin' ? '#6B5F9B' : '#3D6B8A') : '#64748b',
                   background: 'none', border: 'none',
-                  borderBottom: `2px solid ${active ? '#3D6B8A' : 'transparent'}`,
+                  borderBottom: `2px solid ${active ? (id === 'admin' ? '#6B5F9B' : '#3D6B8A') : 'transparent'}`,
                   cursor: 'pointer', whiteSpace: 'nowrap',
                   marginBottom: '-1px', transition: 'color 0.15s',
                 }}
-                onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#3D6B8A'; }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color = id === 'admin' ? '#6B5F9B' : '#3D6B8A'; }}
                 onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#64748b'; }}
               >{label}</button>
             );
@@ -4573,6 +4981,13 @@ function Dashboard({ profile, onLogout }) {
             onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
             onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
           >+ New Class & Assessment</button>
+          <button
+            onClick={() => setFeedbackOpen(v => !v)}
+            title="Share feedback"
+            style={{ padding: '6px 12px', borderRadius: '7px', flexShrink: 0, border: '1.5px solid #e2e8f0', background: feedbackOpen ? '#EAF1F8' : 'transparent', color: '#64748b', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#EAF1F8'; e.currentTarget.style.color = '#3D6B8A'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = feedbackOpen ? '#EAF1F8' : 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+          >💬 Feedback</button>
           <button
             onClick={() => setDashGuideOpen(v => !v)}
             title="Getting started guide"
@@ -4654,6 +5069,8 @@ function Dashboard({ profile, onLogout }) {
           }}
         />
       )}
+
+      {section === 'admin' && isAdmin && <AdminDashboard profile={profile} />}
 
       {section === 'access-windows-editor' && selectedClass && (
         <AccessWindowsPage
@@ -4790,6 +5207,9 @@ function Dashboard({ profile, onLogout }) {
           )}
         </div>
       )}
+
+      {/* ── Feedback Panel ───────────────────────────────────────────────── */}
+      <FeedbackPanel profile={profile} section={section} open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       {/* ── Floating FAQ Help Panel ───────────────────────────────────────── */}
       <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 8000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
