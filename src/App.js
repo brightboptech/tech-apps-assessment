@@ -4678,21 +4678,14 @@ function ResultsDashboard({ profile, onBack }) {
 
 
 const DASHBOARD_QUOTES = [
-  { quote: "The illiterate of the 21st century will not be those who cannot read and write, but those who cannot learn, unlearn, and relearn.", author: "Alvin Toffler" },
-  { quote: "Technology will never replace great teachers, but technology in the hands of great teachers can be transformational.", author: "George Couros" },
-  { quote: "One child, one teacher, one book, one pen can change the world.", author: "Malala Yousafzai" },
-  { quote: "Education is not preparation for life; education is life itself.", author: "John Dewey" },
-  { quote: "A teacher affects eternity; he can never tell where his influence stops.", author: "Henry Adams" },
-  { quote: "I touch the future. I teach.", author: "Christa McAuliffe" },
-  { quote: "Children must be taught how to think, not what to think.", author: "Margaret Mead" },
-  { quote: "Do the best you can until you know better. Then when you know better, do better.", author: "Maya Angelou" },
-  { quote: "Becoming is better than being.", author: "Carol Dweck" },
-  { quote: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
-  { quote: "We need technology in every classroom and in every student and teacher's hand, because it is the pen and paper of our time.", author: "David Warlick" },
-  { quote: "Teachers need to integrate technology seamlessly into the curriculum instead of viewing it as an add-on or an afterthought.", author: "Heidi Hayes Jacobs" },
-  { quote: "Education is what survives when what has been learned has been forgotten.", author: "B.F. Skinner" },
-  { quote: "The function of education is to teach one to think intensively and to think critically.", author: "Martin Luther King Jr." },
-  { quote: "Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.", author: "Albert Einstein" },
+  "Every student who understands how technology works is better prepared for the world ahead. That's your doing.",
+  "Technology Applications teachers are building the foundation for every other subject. Thank you for what you do.",
+  "TIA exists because your impact is real and measurable. You're earning it.",
+  "You're not just teaching tech — you're teaching students how to think, create, and solve problems. That matters.",
+  "Small districts. Big impact. The work you're doing in your classroom changes lives.",
+  "Behind every student who knows how to navigate the digital world is a teacher who showed them how.",
+  "You chose a subject that prepares students for jobs that don't even exist yet. That takes vision.",
+  "The best technology teachers don't just teach tools — they teach thinking. You're one of them.",
 ];
 
 function Dashboard({ profile, onLogout }) {
@@ -5008,9 +5001,9 @@ function Dashboard({ profile, onLogout }) {
           <button
             onClick={() => setFeedbackOpen(v => !v)}
             title="Share feedback"
-            style={{ padding: '7px 16px', borderRadius: '7px', flexShrink: 0, border: 'none', background: feedbackOpen ? '#1e6b6e' : 'linear-gradient(135deg, #2E7F84 0%, #3A9BA0 100%)', color: 'white', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(46,127,132,0.35)' }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+            style={{ padding: '7px 16px', borderRadius: '7px', flexShrink: 0, border: '2px solid #2E7F84', background: feedbackOpen ? '#2E7F84' : 'white', color: feedbackOpen ? 'white' : '#2E7F84', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap', transition: 'background 0.15s, color 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#2E7F84'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = feedbackOpen ? '#2E7F84' : 'white'; e.currentTarget.style.color = feedbackOpen ? 'white' : '#2E7F84'; }}
           >💬 Feedback</button>
           <button
             onClick={() => setDashGuideOpen(v => !v)}
@@ -5126,10 +5119,9 @@ function Dashboard({ profile, onLogout }) {
 
           {/* Rotating quote */}
           <div style={{ marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>
-            <p style={{ fontStyle: 'italic', color: '#94a3b8', fontSize: '13px', lineHeight: 1.75, margin: '0 auto 4px', maxWidth: '640px' }}>
-              &ldquo;{DASHBOARD_QUOTES[quoteIdx].quote}&rdquo;
+            <p style={{ fontStyle: 'italic', color: '#94a3b8', fontSize: '13px', lineHeight: 1.75, margin: '0 auto', maxWidth: '640px' }}>
+              &ldquo;{DASHBOARD_QUOTES[quoteIdx]}&rdquo;
             </p>
-            <p style={{ color: '#b0bec8', fontSize: '12px', margin: 0 }}>— {DASHBOARD_QUOTES[quoteIdx].author}</p>
           </div>
 
           {dashClasses.length === 0 && archivedNames.size === 0 ? (
