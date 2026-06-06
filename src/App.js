@@ -15,7 +15,7 @@ import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import {
   KeyRound, ClipboardList, Volume2, FileText,
-  BarChart2, Printer, Clock, Lock, CheckCircle, Layers, X, Archive, RotateCcw, ChevronDown, ChevronRight,
+  BarChart2, Printer, Clock, Lock, CheckCircle, Layers, Archive, RotateCcw, ChevronDown, ChevronRight,
   BookOpen, HelpCircle,
 } from 'lucide-react';
 
@@ -1130,19 +1130,9 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const [schedError, setSchedError] = useState('');
   const [schedSaving, setSchedSaving] = useState(false);
 
-  const addAnotherClass = () =>
-    setAdditionalClasses(prev => [...prev, { id: String(Date.now()), className: '', grade: '', studentCount: '' }]);
-  const removeAdditionalClass = (id) =>
-    setAdditionalClasses(prev => prev.filter(c => c.id !== id));
-  const updateAdditionalClass = (id, field, value) =>
-    setAdditionalClasses(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
-
   const appUrl = `${window.location.origin}/student`;
   const count = parseInt(studentCount, 10) || 0;
   const price = Math.max(parseFloat(pricePerStudent) || 2, 2);
-  const additionalStudentCount = additionalClasses.reduce((sum, c) => sum + (parseInt(c.studentCount) || 0), 0);
-  const totalStudents = count + additionalStudentCount;
-  const totalCost = (price * totalStudents).toFixed(2);
 
   const existingClass = existingClasses.find(c => c.class_name === className.trim());
   const isAddMode = Boolean(existingClass);
@@ -1391,7 +1381,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   };
 
   const handleBetaGenerate = async () => {
-    if (!betaCode.trim()) { setBetaCodeError('Enter your beta code.'); return; }
+    if (!betaCode.trim()) { setBetaCodeError('Enter your code.'); return; }
     if (!isAddMode && !grade) { setBetaCodeError('Please select a grade level.'); return; }
     setGenerating(true);
     setBetaCodeError('');
@@ -1403,12 +1393,12 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         .maybeSingle();
 
       if (codeErr || !codeData) {
-        setBetaCodeError('Invalid beta code.');
+        setBetaCodeError('Invalid code.');
         setGenerating(false);
         return;
       }
       if (codeData.expires_at && new Date(codeData.expires_at) < new Date()) {
-        setBetaCodeError('This beta code has expired.');
+        setBetaCodeError('This code has expired.');
         setGenerating(false);
         return;
       }
@@ -1713,58 +1703,13 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
             </span>
           </div>
         )}
-        {/* Additional class rows */}
-        {additionalClasses.map((ac, acIdx) => (
-          <div key={ac.id} style={{ background: '#F4F7FA', borderRadius: '8px', padding: '16px', marginBottom: '12px', border: '1px solid #E2E8F0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#3D4B5C' }}>Class {acIdx + 2}</span>
-              <button
-                onClick={() => removeAdditionalClass(ac.id)}
-                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 4px', display: 'flex', alignItems: 'center' }}
-                aria-label="Remove class"
-              ><X size={16} /></button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>Class Name</label>
-                <input type="text" list="class-name-suggestions" placeholder="e.g. Period 4" value={ac.className} onChange={e => updateAdditionalClass(ac.id, 'className', e.target.value)} style={fieldStyle} />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>Grade Level</label>
-                <select value={ac.grade} onChange={e => updateAdditionalClass(ac.id, 'grade', e.target.value)} style={fieldStyle}>
-                  <option value="">Select grade…</option>
-                  {PASS_GRADES.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: '#3D4B5C', marginBottom: '6px' }}>Number of Students</label>
-                <input type="number" min="1" placeholder="e.g. 25" value={ac.studentCount} onChange={e => updateAdditionalClass(ac.id, 'studentCount', e.target.value)} style={fieldStyle} />
-              </div>
-            </div>
-          </div>
-        ))}
-
-        <button
-          onClick={addAnotherClass}
-          style={{
-            padding: '8px 16px', fontSize: '13px', fontWeight: 600,
-            border: '1.5px dashed #5B8DB8', borderRadius: '6px',
-            backgroundColor: 'transparent', color: '#5B8DB8',
-            cursor: 'pointer', marginBottom: '20px', display: 'block',
-          }}
-        >
-          + Add Another Class
-        </button>
-
-        {totalStudents > 0 && (
+        {count > 0 && (
           <div style={{
             background: '#F0F7FF', border: '1px solid #C5D9EC', borderRadius: '8px',
             padding: '12px 16px', marginBottom: '20px',
             fontSize: '15px', color: '#3D6B8A', fontWeight: 600,
           }}>
-            {totalStudents} student{totalStudents !== 1 ? 's' : ''}
-            {additionalClasses.length > 0 ? ` across ${1 + additionalClasses.length} classes` : ''}
-            {' '}× ${price.toFixed(2)} = <strong>${totalCost}</strong>
+            {count} student{count !== 1 ? 's' : ''} × ${price.toFixed(2)} = <strong>${(price * count).toFixed(2)}</strong>
           </div>
         )}
 
@@ -1797,13 +1742,13 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
             onClick={() => { setShowBetaCode(v => !v); setBetaCodeError(''); }}
             style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
           >
-            {showBetaCode ? 'Hide beta code ↑' : 'Have a beta code? →'}
+            {showBetaCode ? 'Hide code ↑' : 'Have a code? →'}
           </button>
           {showBetaCode && (
             <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
               <input
                 type="text"
-                placeholder="Beta code"
+                placeholder="Code"
                 value={betaCode}
                 onChange={e => { setBetaCode(e.target.value.toUpperCase()); setBetaCodeError(''); }}
                 style={{ padding: '10px 12px', fontSize: '15px', border: '1.5px solid #ddd', borderRadius: '6px', fontFamily: 'monospace', letterSpacing: '2px', width: '180px', boxSizing: 'border-box' }}
@@ -2978,6 +2923,7 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   const [genError, setGenError]             = useState('');
   const [done, setDone]                     = useState(false);
   const [generatedExpiresAt, setGeneratedExpiresAt] = useState(null);
+  const [guideOpen, setGuideOpen]           = useState(false);
 
   // ── Stripe payment return: restore state then verify ──────────────────────
   useEffect(() => {
@@ -3085,8 +3031,8 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
       const { data, error: dbErr } = await supabase
         .from('beta_codes').select('*')
         .eq('code', betaCode.trim().toUpperCase()).maybeSingle();
-      if (dbErr || !data) { setBetaCodeError('Invalid beta code.'); return; }
-      if (data.expires_at && new Date(data.expires_at) < new Date()) { setBetaCodeError('This beta code has expired.'); return; }
+      if (dbErr || !data) { setBetaCodeError('Invalid code.'); return; }
+      if (data.expires_at && new Date(data.expires_at) < new Date()) { setBetaCodeError('This code has expired.'); return; }
       const remaining = (data.max_students || 0) - (data.used_students || 0);
       if (count > remaining) { setBetaCodeError(`Only ${remaining} student pass${remaining !== 1 ? 'es' : ''} remaining on this code.`); return; }
       setValidatedBeta(data);
@@ -3101,7 +3047,7 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
     const count = parseInt(studentCount, 10);
     if (!count || count < 1) { setStep2Error('Enter at least 1 student.'); return; }
     if (count > 200) { setStep2Error('Maximum 200 students per class.'); return; }
-    if (!validatedBeta) { setStep2Error('Validate your beta code, or use Pay with Card to continue.'); return; }
+    if (!validatedBeta) { setStep2Error('Validate your code, or use Pay with Card to continue.'); return; }
     setStep2Error('');
     setStep(3);
   };
@@ -3346,7 +3292,7 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
               <button
                 onClick={() => { setShowBetaInput(v => !v); setBetaCode(''); setBetaCodeError(''); setValidatedBeta(null); }}
                 style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0 }}
-              >{showBetaInput ? '↑ Hide' : '+ Have a beta code?'}</button>
+              >{showBetaInput ? '↑ Hide' : '+ Have a code?'}</button>
 
               {showBetaInput && (
                 <div style={{ marginTop: '12px' }}>
@@ -3440,6 +3386,9 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
             {/* Strand checkboxes */}
             <div style={{ marginBottom: Number(grade) >= 3 ? '24px' : '32px' }}>
               <label style={labelStyle}>Strands</label>
+              <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#94a3b8', lineHeight: 1.5 }}>
+                All 5 strands are selected by default. Deselect any strands you're not currently teaching to shorten the assessment.
+              </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {strandGroups.map(({ strand }) => {
                   const on    = isStrandSelected(strand);
@@ -3514,6 +3463,44 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
         )}
 
       </div>
+
+      {/* Getting started guide — toggle below the card */}
+      {!done && (
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <button
+            onClick={() => setGuideOpen(v => !v)}
+            style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer', padding: 0, display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#5B8DB8'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; }}
+          >
+            <span style={{ fontSize: '15px', fontWeight: 700, lineHeight: 1 }}>?</span>
+            {guideOpen ? 'Hide guide' : 'Getting started guide'}
+          </button>
+
+          {guideOpen && (
+            <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '24px 28px', marginTop: '12px', textAlign: 'left', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+              <p style={{ margin: '0 0 16px', fontSize: '13px', fontWeight: 700, color: '#3D6B8A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>How it works</p>
+              {[
+                { n: '1', title: 'Create a Class', body: 'Give the class a name and choose the grade level. Each class gets its own set of passes.' },
+                { n: '2', title: 'Add Students', body: 'Enter the number of students. Use a code if you have one for free access, or pay $2 per student by card. Each student gets a unique pre-test and post-test pass.' },
+                { n: '3', title: 'Set Up Assessment', body: 'Choose which TEKS strands to include and how many questions per standard (1–3, default 3). The same configuration applies to both the pre-test and post-test.' },
+                { n: '✓', title: 'After generating', body: 'Go to My Classes → View Passes to print pass sheets or display QR codes. Students visit techgrowthcheck.com and enter their 8-character code. For K–2, use Teacher Script Mode to read questions aloud from the smartboard.' },
+              ].map(({ n, title, body }) => (
+                <div key={n} style={{ display: 'flex', gap: '14px', marginBottom: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#EAF1F8', color: '#3D6B8A', fontSize: '12px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>{n}</div>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#1e293b', marginBottom: '3px' }}>{title}</div>
+                    <div style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.55 }}>{body}</div>
+                  </div>
+                </div>
+              ))}
+              <p style={{ margin: '16px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                Questions? Email <a href="mailto:support@brightboptech.com" style={{ color: '#5B8DB8' }}>support@brightboptech.com</a>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -3880,6 +3867,7 @@ function Dashboard({ profile, onLogout }) {
   const [archivedNames, setArchivedNames] = useState(new Set());
   const [showArchived, setShowArchived] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState(null);
+  const [dashGuideOpen, setDashGuideOpen] = useState(false);
 
   useEffect(() => {
     const loadDashClasses = async () => {
@@ -3943,6 +3931,14 @@ function Dashboard({ profile, onLogout }) {
       window.history.replaceState({}, '', url.toString());
     }
   }, []);
+
+  // Prevent GeneratePasses from acting as a creation entry point —
+  // it is only valid when viewing an existing class (initialClass set).
+  useEffect(() => {
+    if (section === 'generate-passes' && !initialClass) {
+      setSection('my-classes');
+    }
+  }, [section, initialClass]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
 
@@ -4151,8 +4147,45 @@ function Dashboard({ profile, onLogout }) {
             onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
             onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
           >+ New Class</button>
+          <button
+            onClick={() => setDashGuideOpen(v => !v)}
+            title="Getting started guide"
+            style={{
+              width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+              background: dashGuideOpen ? '#EAF1F8' : 'transparent',
+              border: '1.5px solid #e2e8f0', color: '#64748b', fontSize: '14px',
+              fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#EAF1F8'; e.currentTarget.style.color = '#3D6B8A'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = dashGuideOpen ? '#EAF1F8' : 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+          >?</button>
         </div>
       </div>
+
+      {/* Getting started guide — collapsible under nav bar */}
+      {dashGuideOpen && (
+        <div style={{ background: '#F8FAFC', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ maxWidth: '960px', margin: '0 auto', padding: '20px 24px' }}>
+            <p style={{ margin: '0 0 16px', fontSize: '12px', fontWeight: 700, color: '#3D6B8A', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Getting started</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+              {[
+                { n: '1', title: 'Create a Class', body: 'Click + New Class, enter a class name and grade level.' },
+                { n: '2', title: 'Add Students', body: 'Enter how many students. Use a code for free access or pay $2 per student by card.' },
+                { n: '3', title: 'Set Up Assessment', body: 'Choose which TEKS strands to assess and how many questions per standard (1–3).' },
+                { n: '✓', title: 'View & Distribute', body: 'Open My Classes → View Passes to print sheets or show QR codes. Students visit techgrowthcheck.com and enter their 8-character code.' },
+              ].map(({ n, title, body }) => (
+                <div key={n} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#EAF1F8', color: '#3D6B8A', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>{n}</div>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b', marginBottom: '2px' }}>{title}</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>{body}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {section === 'generate-passes'  && <GeneratePasses    profile={profile} onBack={() => setSection('my-classes')} paymentSessionId={paymentSessionId} initialClass={initialClass} />}
       {section === 'create-assessment' && <CreateAssessment  profile={profile} onBack={() => setSection('my-classes')} />}
