@@ -3442,6 +3442,9 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
                   );
                 })}
               </div>
+              <p style={{ margin: '10px 0 0', fontSize: '12px', color: '#94a3b8', lineHeight: 1.55 }}>
+                This assessment configuration is locked in for both the pre-test and post-test. If you want to assess different standards, create a new class and assessment.
+              </p>
             </div>
 
             {/* Randomize (grades 3+) */}
@@ -3704,7 +3707,7 @@ function AccessWindowsPage({ profile, classData, onBack }) {
       ) : !configId ? (
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '24px', fontSize: '14px', color: '#64748b', lineHeight: 1.65 }}>
           <strong>Access windows are not available for this class.</strong><br />
-          Access windows only apply to assessments created through the + New Class wizard. This class may have been created with an older flow.
+          Access windows only apply to assessments created through the + New Class & Assessment wizard. This class may have been created with an older flow.
         </div>
       ) : (
         <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7' }}>
@@ -4410,7 +4413,7 @@ function Dashboard({ profile, onLogout }) {
       items: [
         { q: "What does 'Randomize question order' do?", a: 'When enabled (default for grades 3-8), each student sees questions in a different random order. This prevents students sitting next to each other from having the same sequence. K-2 questions are always in fixed order regardless of this setting.' },
         { q: 'What are Access Windows?', a: 'Access Windows let you restrict when students can start the assessment. Add recurring windows by selecting days of the week, a start time, an end time, and a repeat-until date. Outside these windows, students see a message that the assessment is unavailable. No windows set = always open.' },
-        { q: 'How do I set up an access schedule?', a: 'You can set a schedule in two places: (1) In Step 3 of the + New Class wizard, choose "Set a schedule" under "When can students access this?" to add windows before generating passes. (2) After a class is created, open the class from My Classes and click the Access Windows tile. Access Windows only apply to assessments created through the wizard — older classes may not support this feature.' },
+        { q: 'How do I set up an access schedule?', a: 'You can set a schedule in two places: (1) In Step 3 of the + New Class & Assessment wizard, choose "Set a schedule" under "When can students access this?" to add windows before generating passes. (2) After a class is created, open the class from My Classes and click the Access Windows tile. Access Windows only apply to assessments created through the wizard — older classes may not support this feature.' },
         { q: 'Can students save and come back later?', a: 'Yes. Students can click Save & Exit during the assessment and return later with the same pass code to resume where they left off. Once submitted, the assessment is complete.' },
       ],
     },
@@ -4569,7 +4572,7 @@ function Dashboard({ profile, onLogout }) {
             }}
             onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
             onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-          >+ New Class</button>
+          >+ New Class & Assessment</button>
           <button
             onClick={() => setDashGuideOpen(v => !v)}
             title="Getting started guide"
@@ -4592,7 +4595,7 @@ function Dashboard({ profile, onLogout }) {
             <p style={{ margin: '0 0 16px', fontSize: '12px', fontWeight: 700, color: '#3D6B8A', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Getting started</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
               {[
-                { n: '1', title: 'Create a Class', body: 'Click + New Class, enter a class name and grade level.' },
+                { n: '1', title: 'Create a Class', body: 'Click + New Class & Assessment, enter a class name and grade level.' },
                 { n: '2', title: 'Add Students', body: 'Enter how many students. Use a code for free access or pay $2 per student by card.' },
                 { n: '3', title: 'Set Up Assessment', body: 'Choose which TEKS strands to assess and how many questions per standard (1–3).' },
                 { n: '✓', title: 'View & Distribute', body: 'Open My Classes → View Passes to print sheets or show QR codes. Students visit techgrowthcheck.com and enter their 8-character code.' },
@@ -4677,7 +4680,7 @@ function Dashboard({ profile, onLogout }) {
               style={{ padding: '10px 22px', background: 'linear-gradient(135deg, #3D7A5E 0%, #4E9A7A 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(61,122,94,0.25)' }}
               onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
               onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-            >+ New Class</button>
+            >+ New Class & Assessment</button>
           </div>
 
           {dashClasses.length === 0 && archivedNames.size === 0 ? (
@@ -4687,7 +4690,7 @@ function Dashboard({ profile, onLogout }) {
               <button
                 onClick={() => setSection('new-class-wizard')}
                 style={{ padding: '10px 22px', background: 'linear-gradient(135deg, #3D7A5E 0%, #4E9A7A 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}
-              >+ New Class</button>
+              >+ New Class & Assessment</button>
             </div>
           ) : (
             <>
