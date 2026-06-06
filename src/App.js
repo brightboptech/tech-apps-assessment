@@ -1087,6 +1087,13 @@ const TIMEZONES = [
 
 const SCHED_DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+// Shared scheduling helpers (used by GeneratePasses, AccessWindowsPage, NewClassWizard)
+const fmtSchedTime = t => { const [h, m] = t.split(':'); const hr = parseInt(h, 10); return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`; };
+const fmtSchedDays = days => days.map(d => SCHED_DAY_LABELS[d]).join(', ');
+const fmtSchedDate = d => { const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const [y, m, day] = d.split('-'); return `${mo[parseInt(m,10)-1]} ${parseInt(day,10)}, ${y}`; };
+const getSchedTzAbbr = tz => { try { return new Intl.DateTimeFormat('en-US', { timeZoneName: 'short', timeZone: tz }).formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? ''; } catch { return ''; } };
+const getSchedTzLongName = tz => { try { return new Intl.DateTimeFormat('en-US', { timeZoneName: 'long', timeZone: tz }).formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? tz; } catch { return tz; } };
+
 function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null, startInAddMode = false }) {
   const [className, setClassName] = useState('');
   const [grade, setGrade] = useState('');
@@ -1147,11 +1154,6 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     return null;
   })();
 
-  const fmtSchedTime = (t) => { const [h, m] = t.split(':'); const hr = parseInt(h, 10); return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`; };
-  const fmtSchedDays = (days) => days.map(d => SCHED_DAY_LABELS[d]).join(', ');
-  const fmtSchedDate = (d) => { const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const [y, m, day] = d.split('-'); return `${mo[parseInt(m,10)-1]} ${parseInt(day,10)}, ${y}`; };
-  const getSchedTzAbbr = (tz) => { try { return new Intl.DateTimeFormat('en-US', { timeZoneName: 'short', timeZone: tz }).formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? ''; } catch { return ''; } };
-  const getSchedTzLongName = (tz) => { try { return new Intl.DateTimeFormat('en-US', { timeZoneName: 'long', timeZone: tz }).formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value ?? tz; } catch { return tz; } };
   const handleSchedTzChange = (tz) => { setSchedTz(tz); setSchedShowTzPicker(false); localStorage.setItem('scheduleTimezone', tz); };
   const toggleSchedDay = (i) => { setSchedFormDays(prev => { const next = new Set(prev); next.has(i) ? next.delete(i) : next.add(i); return next; }); };
 
@@ -2930,6 +2932,17 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   const [generatedExpiresAt, setGeneratedExpiresAt] = useState(null);
   const [guideOpen, setGuideOpen]           = useState(false);
 
+  // Access windows (Step 3)
+  const [schedMode, setSchedMode]             = useState('always'); // 'always' | 'schedule'
+  const [pendingWindows, setPendingWindows]   = useState([]);
+  const [wizSchedFormDays, setWizSchedFormDays]   = useState(new Set());
+  const [wizSchedFormStart, setWizSchedFormStart] = useState('08:00');
+  const [wizSchedFormEnd, setWizSchedFormEnd]     = useState('08:50');
+  const [wizSchedFormUntil, setWizSchedFormUntil] = useState('');
+  const [wizSchedTz, setWizSchedTz]               = useState(() => localStorage.getItem('scheduleTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const [wizSchedShowTzPicker, setWizSchedShowTzPicker] = useState(false);
+  const [wizSchedError, setWizSchedError]         = useState('');
+
   // ── Stripe payment return: restore state then verify ──────────────────────
   useEffect(() => {
     if (!paymentSessionId) return;
@@ -3147,6 +3160,13 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
     const { error: cfgErr } = await supabase.from('token_configs').insert(configRows);
     if (cfgErr) { setGenError('Could not link questions to passes: ' + cfgErr.message); setGenerating(false); return; }
 
+    // Insert any scheduled access windows buffered in Step 3
+    if (schedMode === 'schedule' && pendingWindows.length > 0) {
+      await supabase.from('access_windows').insert(
+        pendingWindows.map(w => ({ ...w, teacher_id: profile.id, assessment_id: acData.id }))
+      );
+    }
+
     if (verifiedSession) {
       await supabase.from('payments').insert([{
         teacher_id:        profile.id,
@@ -3168,6 +3188,16 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
     setGeneratedExpiresAt(expiresAt);
     setGenerating(false);
     setDone(true);
+  };
+
+  const handleWizAddWindow = () => {
+    if (wizSchedFormDays.size === 0) { setWizSchedError('Select at least one day.'); return; }
+    if (!wizSchedFormStart || !wizSchedFormEnd) { setWizSchedError('Set a start and end time.'); return; }
+    if (wizSchedFormEnd <= wizSchedFormStart)   { setWizSchedError('End time must be after start time.'); return; }
+    if (!wizSchedFormUntil)                     { setWizSchedError('Set a repeat-until date.'); return; }
+    setWizSchedError('');
+    setPendingWindows(prev => [...prev, { days_of_week: [...wizSchedFormDays].sort((a, b) => a - b), start_time: wizSchedFormStart, end_time: wizSchedFormEnd, repeat_until: wizSchedFormUntil }]);
+    setWizSchedFormDays(new Set()); setWizSchedFormStart('08:00'); setWizSchedFormEnd('08:50'); setWizSchedFormUntil('');
   };
 
   // ── Shared styles ─────────────────────────────────────────────────────────
@@ -3429,6 +3459,101 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
               </div>
             )}
 
+            {/* Access windows */}
+            <div style={{ marginBottom: '32px' }}>
+              <label style={labelStyle}>When can students access this?</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[
+                  { id: 'always',   label: 'Always open',    desc: 'Students can start any time while their pass is active.' },
+                  { id: 'schedule', label: 'Set a schedule', desc: 'Restrict access to specific days and times.' },
+                ].map(opt => (
+                  <div key={opt.id} onClick={() => setSchedMode(opt.id)}
+                    style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', padding: '10px 14px', borderRadius: '8px', border: `1.5px solid ${schedMode === opt.id ? '#3D6B8A' : '#e2e8f0'}`, background: schedMode === opt.id ? '#EAF1F8' : 'white', userSelect: 'none' }}
+                  >
+                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', flexShrink: 0, marginTop: '2px', border: `2px solid ${schedMode === opt.id ? '#3D6B8A' : '#cbd5e1'}`, background: schedMode === opt.id ? '#3D6B8A' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {schedMode === opt.id && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>{opt.label}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginTop: '1px' }}>{opt.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {schedMode === 'schedule' && (
+                <div style={{ marginTop: '14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '5px' }}>Days of week</div>
+                    <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                      {SCHED_DAY_LABELS.map((day, i) => { const on = wizSchedFormDays.has(i); return (
+                        <button key={i} type="button" onClick={() => setWizSchedFormDays(prev => { const next = new Set(prev); next.has(i) ? next.delete(i) : next.add(i); return next; })}
+                          style={{ padding: '5px 9px', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, border: on ? '2px solid #5B8DB8' : '2px solid #e2e8f0', background: on ? '#EAF1F8' : 'white', color: on ? '#3D6B8A' : '#64748b' }}>{day}</button>
+                      ); })}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '10px' }}>
+                    {wizSchedShowTzPicker ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>Times are in:</span>
+                        <select value={wizSchedTz} autoFocus onChange={e => { setWizSchedTz(e.target.value); setWizSchedShowTzPicker(false); localStorage.setItem('scheduleTimezone', e.target.value); }} onBlur={() => setWizSchedShowTzPicker(false)}
+                          style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #5B8DB8', borderRadius: '5px', color: '#1e293b', cursor: 'pointer' }}>
+                          {TIMEZONES.map(t => <option key={t} value={t}>{getSchedTzLongName(t)} — {t}</option>)}
+                          {!TIMEZONES.includes(wizSchedTz) && <option value={wizSchedTz}>{getSchedTzLongName(wizSchedTz)} — {wizSchedTz}</option>}
+                        </select>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => setWizSchedShowTzPicker(true)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ fontSize: '12px' }}>🌐</span>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>Times in: <strong style={{ color: '#3D6B8A' }}>{getSchedTzLongName(wizSchedTz)}</strong> <span style={{ color: '#94a3b8' }}>({wizSchedTz})</span></span>
+                        <span style={{ fontSize: '10px', color: '#5B8DB8' }}>▾</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                    <div style={{ flex: 1, minWidth: '110px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Start time</label>
+                      <input type="time" value={wizSchedFormStart} onChange={e => setWizSchedFormStart(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: '110px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>End time</label>
+                      <input type="time" value={wizSchedFormEnd} onChange={e => setWizSchedFormEnd(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+                    </div>
+                    <div style={{ flex: '1 1 140px', minWidth: '140px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Repeat until</label>
+                      <input type="date" value={wizSchedFormUntil} onChange={e => setWizSchedFormUntil(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+                    </div>
+                  </div>
+
+                  {wizSchedError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '0 0 10px' }}>{wizSchedError}</p>}
+
+                  <button type="button" onClick={handleWizAddWindow}
+                    style={{ padding: '7px 18px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '6px', background: '#5B8DB8', color: 'white', cursor: 'pointer' }}>
+                    + Add Window
+                  </button>
+
+                  {pendingWindows.length > 0 && (
+                    <div style={{ marginTop: '12px', borderTop: '1px solid #e2e8f0', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '0' }}>
+                      {pendingWindows.map((w, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < pendingWindows.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '12px', color: '#1e293b' }}>{fmtSchedDays(w.days_of_week)} · {fmtSchedTime(w.start_time)} – {fmtSchedTime(w.end_time)}</div>
+                            <div style={{ fontSize: '11px', color: '#94a3b8' }}>Repeats until {fmtSchedDate(w.repeat_until)}</div>
+                          </div>
+                          <button type="button" onClick={() => setPendingWindows(prev => prev.filter((_, j) => j !== i))}
+                            style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '5px', padding: '4px 10px', cursor: 'pointer', fontSize: '11px', fontWeight: 600, marginLeft: '8px', flexShrink: 0 }}>
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {genError && <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '16px' }}>{genError}</p>}
 
             <button
@@ -3510,6 +3635,161 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   );
 }
 
+// ── Access Windows Page ───────────────────────────────────────────────────────
+
+function AccessWindowsPage({ profile, classData, onBack }) {
+  const [configId, setConfigId]     = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [windows, setWindows]       = useState([]);
+  const [formDays, setFormDays]     = useState(new Set());
+  const [formStart, setFormStart]   = useState('08:00');
+  const [formEnd, setFormEnd]       = useState('08:50');
+  const [formUntil, setFormUntil]   = useState('');
+  const [tz, setTz]                 = useState(() => localStorage.getItem('scheduleTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const [showTzPicker, setShowTzPicker] = useState(false);
+  const [formError, setFormError]   = useState('');
+  const [saving, setSaving]         = useState(false);
+
+  const handleTzChange = tzVal => { setTz(tzVal); setShowTzPicker(false); localStorage.setItem('scheduleTimezone', tzVal); };
+  const toggleDay = i => setFormDays(prev => { const next = new Set(prev); next.has(i) ? next.delete(i) : next.add(i); return next; });
+
+  const loadWindows = async id => {
+    const { data } = await supabase.from('access_windows').select('*').eq('teacher_id', profile.id).eq('assessment_id', id).order('start_time');
+    setWindows(data ?? []);
+  };
+
+  useEffect(() => {
+    (async () => {
+      const { data: tok } = await supabase.from('tokens').select('token').eq('teacher_id', profile.id).eq('class_name', classData.class_name).eq('test_type', 'pre').limit(1).maybeSingle();
+      if (!tok) { setLoading(false); return; }
+      const { data: cfg } = await supabase.from('token_configs').select('assessment_config_id').eq('token', tok.token).maybeSingle();
+      const id = cfg?.assessment_config_id ?? null;
+      setConfigId(id);
+      if (id) await loadWindows(id);
+      setLoading(false);
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleAdd = async () => {
+    if (formDays.size === 0) { setFormError('Select at least one day.'); return; }
+    if (!formStart || !formEnd)    { setFormError('Set a start and end time.'); return; }
+    if (formEnd <= formStart)      { setFormError('End time must be after start time.'); return; }
+    if (!formUntil)                { setFormError('Set a repeat-until date.'); return; }
+    setFormError('');
+    setSaving(true);
+    await supabase.from('access_windows').insert({ teacher_id: profile.id, assessment_id: configId, days_of_week: [...formDays].sort((a, b) => a - b), start_time: formStart, end_time: formEnd, repeat_until: formUntil });
+    setSaving(false);
+    setFormDays(new Set()); setFormStart('08:00'); setFormEnd('08:50'); setFormUntil('');
+    await loadWindows(configId);
+  };
+
+  const handleDelete = async id => {
+    await supabase.from('access_windows').delete().eq('id', id);
+    setWindows(prev => prev.filter(w => w.id !== id));
+  };
+
+  return (
+    <div style={{ maxWidth: '680px', margin: '36px auto', padding: '0 24px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#5B8DB8', fontSize: '14px', cursor: 'pointer', padding: 0, marginBottom: '20px', fontWeight: 600 }}>← Back to Class</button>
+
+      <div style={{ marginBottom: '24px' }}>
+        <h2 style={{ margin: '0 0 4px', color: '#1e293b', fontSize: '22px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Clock size={20} color="#2E7F84" strokeWidth={2} /> Access Windows
+        </h2>
+        <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>{classData.class_name} &nbsp;·&nbsp; {gradeDisplay(classData.grade_level)}</p>
+      </div>
+
+      {loading ? (
+        <p style={{ color: '#94a3b8', fontSize: '14px' }}>Loading…</p>
+      ) : !configId ? (
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '24px', fontSize: '14px', color: '#64748b', lineHeight: 1.65 }}>
+          <strong>Access windows are not available for this class.</strong><br />
+          Access windows only apply to assessments created through the + New Class wizard. This class may have been created with an older flow.
+        </div>
+      ) : (
+        <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #eef2f7' }}>
+          <p style={{ margin: '0 0 20px', fontSize: '14px', color: '#64748b', lineHeight: 1.65 }}>
+            Set recurring time windows when students are allowed to start this assessment. Outside these windows, students see a message that the assessment is unavailable.{' '}
+            <strong>No windows set = always open.</strong>
+          </p>
+
+          {/* Add form */}
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '18px', marginBottom: '20px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b', marginBottom: '12px' }}>Add Window</div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '5px' }}>Days of week</div>
+              <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                {SCHED_DAY_LABELS.map((day, i) => { const on = formDays.has(i); return (
+                  <button key={i} onClick={() => toggleDay(i)} style={{ padding: '5px 9px', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, border: on ? '2px solid #5B8DB8' : '2px solid #e2e8f0', background: on ? '#EAF1F8' : 'white', color: on ? '#3D6B8A' : '#64748b' }}>{day}</button>
+                ); })}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '10px' }}>
+              {showTzPicker ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>Times are in:</span>
+                  <select value={tz} autoFocus onChange={e => handleTzChange(e.target.value)} onBlur={() => setShowTzPicker(false)} style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #5B8DB8', borderRadius: '5px', color: '#1e293b', cursor: 'pointer' }}>
+                    {TIMEZONES.map(t => <option key={t} value={t}>{getSchedTzLongName(t)} — {t}</option>)}
+                    {!TIMEZONES.includes(tz) && <option value={tz}>{getSchedTzLongName(tz)} — {tz}</option>}
+                  </select>
+                </div>
+              ) : (
+                <button onClick={() => setShowTzPicker(true)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ fontSize: '12px' }}>🌐</span>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>Times in: <strong style={{ color: '#3D6B8A' }}>{getSchedTzLongName(tz)}</strong> <span style={{ color: '#94a3b8' }}>({tz})</span></span>
+                  <span style={{ fontSize: '10px', color: '#5B8DB8' }}>▾</span>
+                </button>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+              <div style={{ flex: 1, minWidth: '120px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Start time</label>
+                <input type="time" value={formStart} onChange={e => setFormStart(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ flex: 1, minWidth: '120px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>End time</label>
+                <input type="time" value={formEnd} onChange={e => setFormEnd(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ flex: '1 1 150px', minWidth: '150px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Repeat until</label>
+                <input type="date" value={formUntil} onChange={e => setFormUntil(e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #e2e8f0', borderRadius: '5px', boxSizing: 'border-box' }} />
+              </div>
+            </div>
+
+            {formError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '0 0 12px' }}>{formError}</p>}
+
+            <button onClick={handleAdd} disabled={saving} style={{ padding: '8px 20px', fontSize: '13px', fontWeight: 700, border: 'none', borderRadius: '6px', background: '#5B8DB8', color: 'white', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
+              {saving ? 'Adding…' : '+ Add Window'}
+            </button>
+          </div>
+
+          {/* Existing windows */}
+          {windows.length === 0 ? (
+            <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>No windows set — this assessment is open at all times.</p>
+          ) : (
+            <div>
+              {windows.map((w, i) => (
+                <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < windows.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '13px', color: '#1e293b', marginBottom: '2px' }}>
+                      {fmtSchedDays(w.days_of_week)} · {fmtSchedTime(w.start_time)} – {fmtSchedTime(w.end_time)} <span style={{ fontWeight: 400, color: '#94a3b8', fontSize: '12px' }}>{getSchedTzAbbr(tz)}</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>Repeats until {fmtSchedDate(w.repeat_until)}</div>
+                  </div>
+                  <button onClick={() => handleDelete(w.id)} style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '5px', padding: '5px 12px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, marginLeft: '12px', flexShrink: 0 }}>Delete</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Class Management Page ─────────────────────────────────────────────────────
 
 function ClassManagePage({ profile, classData, onBack, onNavigate }) {
@@ -3563,6 +3843,15 @@ function ClassManagePage({ profile, classData, onBack, onNavigate }) {
       color: '#3D7A5E', bg: '#D4EEE3',
       onClick: () => onNavigate('add-students'),
       disabled: isExpired,
+    },
+    {
+      id: 'access-windows',
+      Icon: Clock,
+      title: 'Access Windows',
+      desc: 'Set the days and times students are allowed to start this assessment.',
+      color: '#2E7F84', bg: '#E5F4F5',
+      onClick: () => onNavigate('access-windows'),
+      disabled: false,
     },
   ];
 
@@ -3976,7 +4265,7 @@ function ResultsDashboard({ profile, onBack }) {
 
 
 function Dashboard({ profile, onLogout }) {
-  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report', 'new-class-wizard', 'class-manage'];
+  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'create-assessment', 'tia-report', 'new-class-wizard', 'class-manage', 'access-windows-editor'];
 
   const [section, setSection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -4068,9 +4357,9 @@ function Dashboard({ profile, onLogout }) {
     if (section === 'generate-passes' && !initialClass) setSection('my-classes');
   }, [section, initialClass]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // class-manage requires a selected class; fall back to My Classes without one.
+  // class-manage and access-windows-editor require a selected class.
   useEffect(() => {
-    if (section === 'class-manage' && !selectedClass) setSection('my-classes');
+    if ((section === 'class-manage' || section === 'access-windows-editor') && !selectedClass) setSection('my-classes');
   }, [section, selectedClass]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
@@ -4120,7 +4409,8 @@ function Dashboard({ profile, onLogout }) {
       category: 'Assessment Settings',
       items: [
         { q: "What does 'Randomize question order' do?", a: 'When enabled (default for grades 3-8), each student sees questions in a different random order. This prevents students sitting next to each other from having the same sequence. K-2 questions are always in fixed order regardless of this setting.' },
-        { q: 'How do I set testing windows?', a: 'Go to My Classes, click View Passes on your class, then expand the Access Windows section at the bottom of the page. Add recurring windows by day of week and time. Outside these windows students see a message that the assessment is unavailable. If no windows are set, the assessment is always open. Note: access windows only apply to custom assessments created via Create Custom Assessment — standard grade-level passes are always open.' },
+        { q: 'What are Access Windows?', a: 'Access Windows let you restrict when students can start the assessment. Add recurring windows by selecting days of the week, a start time, an end time, and a repeat-until date. Outside these windows, students see a message that the assessment is unavailable. No windows set = always open.' },
+        { q: 'How do I set up an access schedule?', a: 'You can set a schedule in two places: (1) In Step 3 of the + New Class wizard, choose "Set a schedule" under "When can students access this?" to add windows before generating passes. (2) After a class is created, open the class from My Classes and click the Access Windows tile. Access Windows only apply to assessments created through the wizard — older classes may not support this feature.' },
         { q: 'Can students save and come back later?', a: 'Yes. Students can click Save & Exit during the assessment and return later with the same pass code to resume where they left off. Once submitted, the assessment is complete.' },
       ],
     },
@@ -4355,8 +4645,18 @@ function Dashboard({ profile, onLogout }) {
               setInitialClass(selectedClass);
               setStartGPInAddMode(true);
               setSection('generate-passes');
+            } else if (action === 'access-windows') {
+              setSection('access-windows-editor');
             }
           }}
+        />
+      )}
+
+      {section === 'access-windows-editor' && selectedClass && (
+        <AccessWindowsPage
+          profile={profile}
+          classData={selectedClass}
+          onBack={() => setSection('class-manage')}
         />
       )}
 
