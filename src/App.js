@@ -3056,11 +3056,16 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   const [globalCount, setGlobalCount] = useState(3);
   const [randomize, setRandomize]     = useState(true);
 
+  // Existing class detection
+  const [existingAcSummary, setExistingAcSummary] = useState(null); // set when adding to an existing class
+  const [step2Loading, setStep2Loading]           = useState(false);
+
   // Generation
   const [generating, setGenerating]         = useState(false);
   const [genError, setGenError]             = useState('');
   const [done, setDone]                     = useState(false);
   const [generatedExpiresAt, setGeneratedExpiresAt] = useState(null);
+  const [actualQuestionCount, setActualQuestionCount] = useState(null);
   const [guideOpen, setGuideOpen]           = useState(false);
 
   // Access windows (Step 3)
@@ -3073,6 +3078,44 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   const [wizSchedTz, setWizSchedTz]               = useState(() => localStorage.getItem('scheduleTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [wizSchedShowTzPicker, setWizSchedShowTzPicker] = useState(false);
   const [wizSchedError, setWizSchedError]         = useState('');
+
+  // ── Lookup helper: find existing assessment_config for a class name ─────────
+  const lookupExistingConfig = async (cn) => {
+    // Strategy 1: direct name-based lookup (works for wizard-created classes)
+    const { data: namedAc } = await supabase
+      .from('assessment_configs')
+      .select('id, standards_config, grade_levels, total_questions')
+      .eq('teacher_id', profile.id)
+      .eq('name', cn.trim())
+      .limit(1)
+      .maybeSingle();
+    if (namedAc) return namedAc;
+    // Strategy 2: tokens → token_configs → assessment_configs
+    const { data: preTokens } = await supabase
+      .from('tokens')
+      .select('token')
+      .eq('teacher_id', profile.id)
+      .eq('class_name', cn.trim())
+      .eq('test_type', 'pre')
+      .limit(10);
+    if (preTokens?.length > 0) {
+      const { data: tc } = await supabase
+        .from('token_configs')
+        .select('assessment_config_id')
+        .in('token', preTokens.map(t => t.token))
+        .limit(1)
+        .maybeSingle();
+      if (tc?.assessment_config_id) {
+        const { data: ac } = await supabase
+          .from('assessment_configs')
+          .select('id, standards_config, grade_levels, total_questions')
+          .eq('id', tc.assessment_config_id)
+          .single();
+        if (ac) return ac;
+      }
+    }
+    return null;
+  };
 
   // ── Stripe payment return: restore state then verify ──────────────────────
   useEffect(() => {
@@ -3095,6 +3138,8 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
           return;
         }
         setVerifiedSession({ sessionId: paymentSessionId, amountTotal: data.amountTotal });
+        const existing = await lookupExistingConfig(cn);
+        if (existing) setExistingAcSummary(existing);
         setStep(3);
         const cleanUrl = new URL(window.location.href);
         cleanUrl.searchParams.delete('payment');
@@ -3192,12 +3237,16 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
     }
   };
 
-  const handleStep2Next = () => {
+  const handleStep2Next = async () => {
     const count = parseInt(studentCount, 10);
     if (!count || count < 1) { setStep2Error('Enter at least 1 student.'); return; }
     if (count > 200) { setStep2Error('Maximum 200 students per class.'); return; }
     if (!validatedBeta) { setStep2Error('Validate your code, or use Pay with Card to continue.'); return; }
     setStep2Error('');
+    setStep2Loading(true);
+    const existing = await lookupExistingConfig(className);
+    if (existing) setExistingAcSummary(existing);
+    setStep2Loading(false);
     setStep(3);
   };
 
@@ -3232,7 +3281,7 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   };
 
   const handleGenerate = async () => {
-    if (totalQ === 0) { setGenError('Select at least one strand.'); return; }
+    if (totalQ === 0 && !existingAcSummary) { setGenError('Select at least one strand.'); return; }
     setGenerating(true);
     setGenError('');
 
@@ -3386,10 +3435,18 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
       await supabase.from('teachers').update({ beta_code: validatedBeta.code }).eq('id', profile.id);
     }
 
+    setActualQuestionCount(effectiveSelectedIds.length);
     setGeneratedExpiresAt(expiresAt);
     setGenerating(false);
     setDone(true);
   };
+
+  // ── Auto-generate when adding to an existing class (skip Step 3 UI) ────────
+  useEffect(() => {
+    if (step !== 3 || !existingAcSummary || generating || done) return;
+    if (totalQ === 0) return; // wait for grade useEffect to initialize config
+    handleGenerate();
+  }, [step, existingAcSummary, totalQ, generating, done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleWizAddWindow = () => {
     if (wizSchedFormDays.size === 0) { setWizSchedError('Select at least one day.'); return; }
@@ -3566,10 +3623,10 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {validatedBeta ? (
-                <button onClick={handleStep2Next} style={{ ...btnPrimary, width: '100%' }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; }}
+                <button onClick={handleStep2Next} disabled={step2Loading} style={{ ...btnPrimary, width: '100%', background: step2Loading ? '#94a3b8' : undefined, cursor: step2Loading ? 'default' : 'pointer' }}
+                  onMouseEnter={e => { if (!step2Loading) e.currentTarget.style.opacity = '0.9'; }}
                   onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-                >Continue →</button>
+                >{step2Loading ? 'Loading…' : 'Continue →'}</button>
               ) : (
                 <button
                   onClick={handleStripeCheckout} disabled={redirecting}
@@ -3585,8 +3642,28 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
           </>
         )}
 
-        {/* ── STEP 3: Set Up Assessment ──────────────────────────────────── */}
-        {step === 3 && (
+        {/* ── STEP 3: Set Up Assessment (or locked auto-generate for existing class) ── */}
+        {step === 3 && existingAcSummary && (
+          <>
+            <h2 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>
+              {generating ? 'Generating Passes…' : 'Adding Students'}
+            </h2>
+            <p style={{ margin: '0 0 24px', color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span>Step 3 of 3 &nbsp;·&nbsp; {className} &nbsp;·&nbsp; {gradeDisplay(grade)}</span>
+              {verifiedSession && (
+                <span style={{ background: '#D4EEE3', color: '#3D7A5E', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 700 }}>Payment confirmed ✓</span>
+              )}
+            </p>
+            <div style={{ background: '#EAF1F8', border: '1px solid #C5D9EC', borderRadius: '8px', padding: '14px 16px', marginBottom: '24px', fontSize: '14px', color: '#2D4A60', lineHeight: 1.6 }}>
+              <strong>{className}</strong> already has an assessment configuration.
+              New student passes will use the same setup as existing students
+              {existingAcSummary.total_questions ? ` (${existingAcSummary.total_questions} questions)` : ''}.
+            </div>
+            {genError && <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '16px' }}>{genError}</p>}
+            {generating && <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>Generating passes…</p>}
+          </>
+        )}
+        {step === 3 && !existingAcSummary && (
           <>
             <h2 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>Set Up Assessment</h2>
             <p style={{ margin: '0 0 24px', color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -3785,7 +3862,7 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
               <strong>{className}</strong> &nbsp;·&nbsp; {gradeDisplay(grade)}
             </p>
             <p style={{ margin: '0 0 28px', fontSize: '13px', color: '#94a3b8' }}>
-              {count} students &nbsp;·&nbsp; {totalQ} questions &nbsp;·&nbsp; Pre-test + Post-test passes ready
+              {count} students &nbsp;·&nbsp; {actualQuestionCount ?? totalQ} questions &nbsp;·&nbsp; Pre-test + Post-test passes ready
             </p>
             <button
               onClick={() => onDone({ className: className.trim(), grade, count, expiresAt: generatedExpiresAt })}
