@@ -56,3 +56,31 @@ CREATE POLICY "teachers_select_admin" ON teachers
 --    Only run if a conflicting policy doesn't already exist.
 CREATE POLICY "tokens_select_admin" ON tokens
   FOR SELECT USING (teacher_id = auth.uid() OR auth.jwt() ->> 'email' = 'brightboptech@gmail.com');
+
+
+-- 5. Access windows (scheduled time restrictions per assessment)
+--    This table is referenced by GeneratePasses, AccessWindowsPage, NewClassWizard,
+--    and the student assessment flow. Create it if it doesn't exist.
+CREATE TABLE IF NOT EXISTS access_windows (
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_id     UUID        REFERENCES teachers(id) ON DELETE CASCADE,
+  assessment_id  UUID        REFERENCES assessment_configs(id) ON DELETE CASCADE,
+  days_of_week   INTEGER[]   NOT NULL,
+  start_time     TIME        NOT NULL,
+  end_time       TIME        NOT NULL,
+  repeat_until   DATE        NOT NULL,
+  created_at     TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE access_windows ENABLE ROW LEVEL SECURITY;
+
+-- Teachers can manage their own windows
+CREATE POLICY "access_windows_all_teacher" ON access_windows
+  FOR ALL USING (teacher_id = auth.uid());
+
+-- Students (anon/authenticated) can read windows to enforce scheduling
+CREATE POLICY "access_windows_select_public" ON access_windows
+  FOR SELECT USING (true);
+
+-- Admin can read all
+CREATE POLICY "access_windows_select_admin" ON access_windows
+  FOR SELECT USING (auth.jwt() ->> 'email' = 'brightboptech@gmail.com');

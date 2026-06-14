@@ -1105,7 +1105,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
   const [activeTab, setActiveTab] = useState('pre');
   const [existingClasses, setExistingClasses] = useState([]);
   const [studentNames, setStudentNames] = useState({});
-  const [isViewingExisting, setIsViewingExisting] = useState(false);
+  const [isViewingExisting, setIsViewingExisting] = useState(!startInAddMode && !!initialClass);
   const canvasRefs = useRef({});
   const [showTeacherScript, setShowTeacherScript] = useState(false);
   const [showAnswerKey, setShowAnswerKey] = useState(false);
@@ -1712,7 +1712,13 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         {startInAddMode ? `Add Students — ${initialClass?.class_name ?? ''}` : 'Student Passes'}
       </h2>
 
-      {/* Form */}
+      {/* Loading state when navigating from Passes & QR Codes tile (passes not yet loaded) */}
+      {isViewingExisting && passes.length === 0 && generating && (
+        <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Loading passes…</p>
+      )}
+
+      {/* Form — hidden when viewing existing passes */}
+      {!isViewingExisting && (
       <div style={{
         background: 'white', borderRadius: '10px', padding: '28px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '28px',
@@ -1908,6 +1914,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
           <p style={{ color: '#f44336', marginTop: '12px', fontSize: '14px' }}>{error}</p>
         )}
       </div>
+      )} {/* end !isViewingExisting form */}
 
       {/* Multi-class result tabs */}
       {multiClassResults.length > 1 && (
@@ -2230,11 +2237,11 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
               onClick={handleAddMore}
               style={{
                 padding: '10px 24px', fontSize: '14px', fontWeight: 600,
-                border: '1.5px solid #5B8DB8', borderRadius: '6px',
-                backgroundColor: 'white', color: '#5B8DB8', cursor: 'pointer',
+                border: '1.5px solid #3D7A5E', borderRadius: '6px',
+                backgroundColor: 'white', color: '#3D7A5E', cursor: 'pointer',
               }}
             >
-              {isViewingExisting ? '← Back to form' : `+ Add More Students to ${className}`}
+              {`+ Add Students to ${className}`}
             </button>
           </div>
         </div>
