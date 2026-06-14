@@ -1267,7 +1267,49 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         startingStudentNumber: order.startingStudentNumber || '1',
       }];
 
+      // Pre-load existing assessment configs for each class so new students can share the same one
+      const classAcMap = {}; // className → { id, configuredIds, gradeNum }
+      for (const cls of classes) {
+        const { data: existingPreTokens } = await supabase
+          .from('tokens')
+          .select('token')
+          .eq('teacher_id', profile.id)
+          .eq('class_name', cls.className)
+          .eq('test_type', 'pre')
+          .limit(10);
+        console.log('[verifyAndGenerate] find-or-create: class=', cls.className, 'existingPreTokens=', existingPreTokens?.length ?? 0);
+        if (existingPreTokens?.length > 0) {
+          const { data: tc, error: tcErr } = await supabase
+            .from('token_configs')
+            .select('assessment_config_id')
+            .in('token', existingPreTokens.map(t => t.token))
+            .limit(1)
+            .maybeSingle();
+          console.log('[verifyAndGenerate] token_configs lookup: tc=', tc, 'err=', tcErr?.message);
+          if (tc?.assessment_config_id) {
+            const { data: ac, error: acErr } = await supabase
+              .from('assessment_configs')
+              .select('standards_config, grade_levels')
+              .eq('id', tc.assessment_config_id)
+              .single();
+            console.log('[verifyAndGenerate] assessment_configs fetch: id=', ac ? tc.assessment_config_id : null, 'err=', acErr?.message);
+            if (ac) {
+              const gNum = (ac.grade_levels ?? [])[0] ?? Number(cls.grade);
+              const acStdGroups  = buildStandards(getQuestionsForGrade(gNum));
+              const configuredIds = acStdGroups.flatMap(({ standards }) =>
+                standards.flatMap(std => {
+                  const cfg = (ac.standards_config ?? {})[std.id];
+                  return cfg?.checked ? std.questions.slice(0, cfg.count ?? 3).map(q => q.id) : [];
+                })
+              );
+              classAcMap[cls.className] = { id: tc.assessment_config_id, configuredIds, gradeNum: gNum };
+            }
+          }
+        }
+      }
+
       const allRows = [];
+      const allConfigRows = [];
       const byClass = {};
       const newExpiresAt = (() => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d.toISOString(); })();
 
@@ -1276,6 +1318,12 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         const startAt = parseInt(cls.startingStudentNumber, 10) || 1;
         const classKey = cls.className;
         if (!byClass[classKey]) byClass[classKey] = { className: cls.className, grade: cls.grade, passes: [] };
+        const classAc = classAcMap[cls.className];
+        const acGradeNum = classAc?.gradeNum ?? Number(cls.grade);
+        const earlyGradeQIds = acGradeNum <= 2
+          ? new Set(getQuestionsForGrade(acGradeNum).map(q => q.id))
+          : new Set();
+        const shouldRand = !!(classAc && acGradeNum >= 3);
         for (let i = 0; i < n; i++) {
           const studentNum = startAt + i;
           const pre  = makeToken();
@@ -1285,6 +1333,18 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
             { token: post, grade_level: Number(cls.grade), test_type: 'post', teacher_id: profile.id, class_name: cls.className, student_number: studentNum, expires_at: newExpiresAt },
           );
           byClass[classKey].passes.push({ studentNum, pre, post });
+          if (classAc) {
+            const ordered = shouldRand
+              ? [
+                  ...classAc.configuredIds.filter(id => earlyGradeQIds.has(id)),
+                  ...[...classAc.configuredIds.filter(id => !earlyGradeQIds.has(id))].sort(() => Math.random() - 0.5),
+                ]
+              : classAc.configuredIds;
+            allConfigRows.push(
+              { token: pre,  question_ids: ordered, assessment_config_id: classAc.id },
+              { token: post, question_ids: ordered, assessment_config_id: classAc.id },
+            );
+          }
         }
       }
 
@@ -1293,6 +1353,10 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         setError('Could not save passes: ' + insertError.message);
         setGenerating(false);
         return;
+      }
+
+      if (allConfigRows.length > 0) {
+        await supabase.from('token_configs').insert(allConfigRows);
       }
 
       const totalN = allRows.length / 2;
@@ -1415,6 +1479,39 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         return;
       }
 
+      // Look up any existing assessment_config for this class before inserting new tokens
+      let classAcId = null;
+      let classAcConfig = null;
+      {
+        const { data: existingPreTokens } = await supabase
+          .from('tokens')
+          .select('token')
+          .eq('teacher_id', profile.id)
+          .eq('class_name', className.trim())
+          .eq('test_type', 'pre')
+          .limit(10);
+        console.log('[handleBetaGenerate] find-or-create: class=', className.trim(), 'existingPreTokens=', existingPreTokens?.length ?? 0);
+        if (existingPreTokens?.length > 0) {
+          const { data: tc, error: tcErr } = await supabase
+            .from('token_configs')
+            .select('assessment_config_id')
+            .in('token', existingPreTokens.map(t => t.token))
+            .limit(1)
+            .maybeSingle();
+          console.log('[handleBetaGenerate] token_configs lookup: tc=', tc, 'err=', tcErr?.message);
+          if (tc?.assessment_config_id) {
+            classAcId = tc.assessment_config_id;
+            const { data: ac, error: acErr } = await supabase
+              .from('assessment_configs')
+              .select('standards_config, grade_levels')
+              .eq('id', classAcId)
+              .single();
+            console.log('[handleBetaGenerate] assessment_configs fetch: id=', ac ? classAcId : null, 'err=', acErr?.message);
+            classAcConfig = ac;
+          }
+        }
+      }
+
       const rows = [];
       const passData = [];
       const betaExpiresAt = (() => { const d = new Date(); d.setDate(d.getDate() + 60); return d.toISOString(); })();
@@ -1432,10 +1529,39 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       const { error: insertError } = await supabase.from('tokens').insert(rows);
       if (insertError) { setBetaCodeError('Could not save passes: ' + insertError.message); setGenerating(false); return; }
 
+      // Link new tokens to the class's existing assessment_config so all students share the same one
+      if (classAcId && classAcConfig) {
+        const acGradeNum = (classAcConfig.grade_levels ?? [])[0] ?? Number(grade);
+        const earlyGradeQIds = acGradeNum <= 2
+          ? new Set(getQuestionsForGrade(acGradeNum).map(q => q.id))
+          : new Set();
+        const acStdGroups  = buildStandards(getQuestionsForGrade(acGradeNum));
+        const acConfiguredIds = acStdGroups.flatMap(({ standards }) =>
+          standards.flatMap(std => {
+            const cfg = (classAcConfig.standards_config ?? {})[std.id];
+            return cfg?.checked ? std.questions.slice(0, cfg.count ?? 3).map(q => q.id) : [];
+          })
+        );
+        const shouldRand = acGradeNum >= 3;
+        const tcRows = passData.flatMap(({ pre, post }) => {
+          const ordered = shouldRand
+            ? [
+                ...acConfiguredIds.filter(id => earlyGradeQIds.has(id)),
+                ...[...acConfiguredIds.filter(id => !earlyGradeQIds.has(id))].sort(() => Math.random() - 0.5),
+              ]
+            : acConfiguredIds;
+          return [
+            { token: pre,  question_ids: ordered, assessment_config_id: classAcId },
+            { token: post, question_ids: ordered, assessment_config_id: classAcId },
+          ];
+        });
+        await supabase.from('token_configs').insert(tcRows);
+      }
+
       await supabase.from('beta_codes').update({ used_students: (codeData.used_students || 0) + count }).eq('code', codeData.code);
       await supabase.from('teachers').update({ beta_code: codeData.code }).eq('id', profile.id);
-      setExpiresAt(betaExpiresAt);
-      setPasses(passData);
+      // Reload all passes for the class so teacher sees the complete updated list
+      await loadClassPasses(className.trim());
     } catch (err) {
       setBetaCodeError('Something went wrong: ' + err.message);
     }
@@ -3118,23 +3244,88 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
       return d.toISOString();
     })();
 
-    // Build standards_config for assessment record
-    const standardsConfig = {};
-    strandGroups.forEach(({ standards }) =>
-      standards.forEach(std => {
-        if (config[std.id]) standardsConfig[std.id] = { checked: !!config[std.id].checked, count: globalCount };
-      })
-    );
+    // Find or create the assessment_config for this class.
+    // Uses two lookup strategies so at least one works regardless of table policies or
+    // whether the class was originally created via NewClassWizard vs CreateAssessment.
+    let acId;
+    let effectiveSelectedIds = selectedIds;
 
-    const { data: acData, error: acErr } = await supabase
-      .from('assessment_configs').insert({
-        teacher_id:       profile.id,
-        name:             className.trim(),
-        grade_levels:     [gradeNum],
-        standards_config: standardsConfig,
-        total_questions:  totalQ,
-      }).select('id').single();
-    if (acErr) { setGenError('Could not save assessment config: ' + acErr.message); setGenerating(false); return; }
+    const applyExistingConfig = (ac) => {
+      acId = ac.id;
+      const existingStdConfig = ac.standards_config ?? {};
+      const existingGradeNum  = (ac.grade_levels ?? [gradeNum])[0];
+      const existingStdGroups = buildStandards(getQuestionsForGrade(existingGradeNum));
+      effectiveSelectedIds = existingStdGroups.flatMap(({ standards }) =>
+        standards.flatMap(std => {
+          const cfg = existingStdConfig[std.id];
+          return cfg?.checked ? std.questions.slice(0, cfg.count ?? globalCount).map(q => q.id) : [];
+        })
+      );
+    };
+
+    // Strategy 1: direct name-based lookup on assessment_configs (fast; works when
+    // the wizard created the original class, since name = className is stored there).
+    const { data: namedAc, error: namedAcErr } = await supabase
+      .from('assessment_configs')
+      .select('id, standards_config, grade_levels')
+      .eq('teacher_id', profile.id)
+      .eq('name', className.trim())
+      .limit(1)
+      .maybeSingle();
+    console.log('[NewClassWizard] strategy1 (name lookup): class=', className.trim(), 'found=', namedAc?.id ?? null, 'err=', namedAcErr?.message);
+    if (namedAc) applyExistingConfig(namedAc);
+
+    // Strategy 2: tokens → token_configs → assessment_configs (more reliable; works
+    // even if the original class name differs from assessment_configs.name).
+    if (!acId) {
+      const { data: existingPreTokens } = await supabase
+        .from('tokens')
+        .select('token')
+        .eq('teacher_id', profile.id)
+        .eq('class_name', className.trim())
+        .eq('test_type', 'pre')
+        .limit(10);
+      console.log('[NewClassWizard] strategy2 (token chain): existingPreTokens=', existingPreTokens?.length ?? 0);
+      if (existingPreTokens?.length > 0) {
+        const { data: tc, error: tcErr } = await supabase
+          .from('token_configs')
+          .select('assessment_config_id')
+          .in('token', existingPreTokens.map(t => t.token))
+          .limit(1)
+          .maybeSingle();
+        console.log('[NewClassWizard] strategy2 token_configs: tc=', tc, 'err=', tcErr?.message);
+        if (tc?.assessment_config_id) {
+          const { data: ac, error: acFetchErr } = await supabase
+            .from('assessment_configs')
+            .select('id, standards_config, grade_levels')
+            .eq('id', tc.assessment_config_id)
+            .single();
+          console.log('[NewClassWizard] strategy2 assessment_configs: id=', ac?.id, 'err=', acFetchErr?.message);
+          if (ac) applyExistingConfig(ac);
+        }
+      }
+    }
+
+    if (!acId) {
+      // No existing config found — create one for this class
+      const standardsConfig = {};
+      strandGroups.forEach(({ standards }) =>
+        standards.forEach(std => {
+          if (config[std.id]) standardsConfig[std.id] = { checked: !!config[std.id].checked, count: globalCount };
+        })
+      );
+      const { data: acData, error: acErr } = await supabase
+        .from('assessment_configs').insert({
+          teacher_id:       profile.id,
+          name:             className.trim(),
+          grade_levels:     [gradeNum],
+          standards_config: standardsConfig,
+          total_questions:  totalQ,
+        }).select('id').single();
+      console.log('[NewClassWizard] created new assessment_config: id=', acData?.id, 'err=', acErr?.message);
+      if (acErr) { setGenError('Could not save assessment config: ' + acErr.message); setGenerating(false); return; }
+      acId = acData.id;
+    }
 
     const earlyGradeQIds = gradeNum <= 2
       ? new Set(getQuestionsForGrade(gradeNum).map(q => q.id))
@@ -3149,17 +3340,17 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
       const post = makeToken();
       const ordered = shouldRandomize
         ? [
-            ...selectedIds.filter(id =>  earlyGradeQIds.has(id)),
-            ...[...selectedIds.filter(id => !earlyGradeQIds.has(id))].sort(() => Math.random() - 0.5),
+            ...effectiveSelectedIds.filter(id =>  earlyGradeQIds.has(id)),
+            ...[...effectiveSelectedIds.filter(id => !earlyGradeQIds.has(id))].sort(() => Math.random() - 0.5),
           ]
-        : selectedIds;
+        : effectiveSelectedIds;
       tokenRows.push(
         { token: pre,  grade_level: gradeNum, test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: i, expires_at: expiresAt },
         { token: post, grade_level: gradeNum, test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: i, expires_at: expiresAt },
       );
       configRows.push(
-        { token: pre,  question_ids: ordered, assessment_config_id: acData.id },
-        { token: post, question_ids: ordered, assessment_config_id: acData.id },
+        { token: pre,  question_ids: ordered, assessment_config_id: acId },
+        { token: post, question_ids: ordered, assessment_config_id: acId },
       );
     }
 
@@ -3172,7 +3363,7 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
     // Insert any scheduled access windows buffered in Step 3
     if (schedMode === 'schedule' && pendingWindows.length > 0) {
       await supabase.from('access_windows').insert(
-        pendingWindows.map(w => ({ ...w, teacher_id: profile.id, assessment_id: acData.id }))
+        pendingWindows.map(w => ({ ...w, teacher_id: profile.id, assessment_id: acId }))
       );
     }
 
