@@ -368,6 +368,22 @@ function makeToken() {
   ).join('');
 }
 
+// Polls pending_orders until the webhook has fulfilled a checkout session (or times out).
+async function pollUntilFulfilled(sessionId, { timeoutMs = 45000, intervalMs = 1500 } = {}) {
+  const startedAt = Date.now();
+  while (true) {
+    const { data, error } = await supabase
+      .from('pending_orders')
+      .select('fulfilled_at')
+      .eq('stripe_session_id', sessionId)
+      .maybeSingle();
+    if (error) return 'error';
+    if (data?.fulfilled_at) return 'fulfilled';
+    if (Date.now() - startedAt > timeoutMs) return 'timeout';
+    await new Promise(r => setTimeout(r, intervalMs));
+  }
+}
+
 const PASS_PRINT_STYLES = `
   body  { font-family: Arial, sans-serif; margin: 20px; color: #000; font-size: 12px; }
   h1    { font-size: 15px; margin: 0 0 2px; }
@@ -1259,115 +1275,83 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
         return;
       }
 
-      // Support both old single-class and new multi-class localStorage format
+      const status = await pollUntilFulfilled(sessionId);
+      if (status !== 'fulfilled') {
+        setError(status === 'timeout'
+          ? 'Your payment is still processing — this can take a moment. Refresh in a bit, or contact support if it persists.'
+          : 'Payment verification failed. Please contact support.');
+        setGenerating(false);
+        return;
+      }
+
+      // Read back the bare tokens the webhook just created for this exact order.
+      const { data: freshTokens, error: freshErr } = await supabase
+        .from('tokens')
+        .select('token, test_type, student_number, class_name, grade_level, expires_at')
+        .eq('teacher_id', profile.id)
+        .eq('source_order_id', sessionId)
+        .order('student_number');
+      if (freshErr) { setError('Could not load your passes: ' + freshErr.message); setGenerating(false); return; }
+
       const classes = order.classes || [{
-        className: order.className,
-        grade: order.grade,
-        studentCount: order.studentCount,
-        startingStudentNumber: order.startingStudentNumber || '1',
+        className: order.className, grade: order.grade,
+        studentCount: order.studentCount, startingStudentNumber: order.startingStudentNumber || '1',
       }];
 
-      // Pre-load existing assessment configs for each class so new students can share the same one
-      const classAcMap = {}; // className → { id, configuredIds, gradeNum }
+      // Attach an existing assessment_config to the freshly created tokens, if this class
+      // already had one from an earlier purchase — search only among *older* tokens for
+      // this class so we never match against the batch we just created (which has no config yet).
       for (const cls of classes) {
-        const { data: existingPreTokens } = await supabase
+        const { data: olderPreTokens } = await supabase
           .from('tokens')
           .select('token')
           .eq('teacher_id', profile.id)
           .eq('class_name', cls.className)
           .eq('test_type', 'pre')
+          .not('source_order_id', 'eq', sessionId)
           .limit(10);
-        console.log('[verifyAndGenerate] find-or-create: class=', cls.className, 'existingPreTokens=', existingPreTokens?.length ?? 0);
-        if (existingPreTokens?.length > 0) {
-          const { data: tc, error: tcErr } = await supabase
-            .from('token_configs')
-            .select('assessment_config_id')
-            .in('token', existingPreTokens.map(t => t.token))
-            .limit(1)
-            .maybeSingle();
-          console.log('[verifyAndGenerate] token_configs lookup: tc=', tc, 'err=', tcErr?.message);
-          if (tc?.assessment_config_id) {
-            const { data: ac, error: acErr } = await supabase
-              .from('assessment_configs')
-              .select('standards_config, grade_levels')
-              .eq('id', tc.assessment_config_id)
-              .single();
-            console.log('[verifyAndGenerate] assessment_configs fetch: id=', ac ? tc.assessment_config_id : null, 'err=', acErr?.message);
-            if (ac) {
-              const gNum = (ac.grade_levels ?? [])[0] ?? Number(cls.grade);
-              const acStdGroups  = buildStandards(getQuestionsForGrade(gNum));
-              const configuredIds = acStdGroups.flatMap(({ standards }) =>
-                standards.flatMap(std => {
-                  const cfg = (ac.standards_config ?? {})[std.id];
-                  return cfg?.checked ? std.questions.slice(0, cfg.count ?? 3).map(q => q.id) : [];
-                })
-              );
-              classAcMap[cls.className] = { id: tc.assessment_config_id, configuredIds, gradeNum: gNum };
-            }
-          }
+        if (!olderPreTokens?.length) continue;
+
+        const { data: tc } = await supabase
+          .from('token_configs')
+          .select('assessment_config_id')
+          .in('token', olderPreTokens.map(t => t.token))
+          .limit(1)
+          .maybeSingle();
+        if (!tc?.assessment_config_id) continue;
+
+        const { data: ac } = await supabase
+          .from('assessment_configs')
+          .select('standards_config, grade_levels, total_questions')
+          .eq('id', tc.assessment_config_id)
+          .single();
+        if (!ac) continue;
+
+        const gNum = (ac.grade_levels ?? [])[0] ?? Number(cls.grade);
+        const acStdGroups = buildStandards(getQuestionsForGrade(gNum));
+        const configuredIds = acStdGroups.flatMap(({ standards }) =>
+          standards.flatMap(std => {
+            const cfg = (ac.standards_config ?? {})[std.id];
+            return cfg?.checked ? std.questions.slice(0, cfg.count ?? 3).map(q => q.id) : [];
+          })
+        );
+        const shouldRand = gNum >= 3;
+        const perTokenIds = {};
+        freshTokens.filter(t => t.class_name === cls.className).forEach(t => {
+          perTokenIds[t.token] = shouldRand ? [...configuredIds].sort(() => Math.random() - 0.5) : configuredIds;
+        });
+
+        if (Object.keys(perTokenIds).length > 0) {
+          const { error: attachErr } = await supabase.rpc('attach_assessment_config', {
+            p_class_name: cls.className,
+            p_grade_levels: ac.grade_levels ?? [gNum],
+            p_standards_config: ac.standards_config ?? {},
+            p_total_questions: ac.total_questions ?? configuredIds.length,
+            p_token_question_ids: perTokenIds,
+          });
+          if (attachErr) console.error('[verifyAndGenerate] attach_assessment_config error:', attachErr.message);
         }
       }
-
-      const allRows = [];
-      const allConfigRows = [];
-      const byClass = {};
-      const newExpiresAt = (() => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d.toISOString(); })();
-
-      for (const cls of classes) {
-        const n = parseInt(cls.studentCount, 10);
-        const startAt = parseInt(cls.startingStudentNumber, 10) || 1;
-        const classKey = cls.className;
-        if (!byClass[classKey]) byClass[classKey] = { className: cls.className, grade: cls.grade, passes: [] };
-        const classAc = classAcMap[cls.className];
-        const acGradeNum = classAc?.gradeNum ?? Number(cls.grade);
-        const earlyGradeQIds = acGradeNum <= 2
-          ? new Set(getQuestionsForGrade(acGradeNum).map(q => q.id))
-          : new Set();
-        const shouldRand = !!(classAc && acGradeNum >= 3);
-        for (let i = 0; i < n; i++) {
-          const studentNum = startAt + i;
-          const pre  = makeToken();
-          const post = makeToken();
-          allRows.push(
-            { token: pre,  grade_level: Number(cls.grade), test_type: 'pre',  teacher_id: profile.id, class_name: cls.className, student_number: studentNum, expires_at: newExpiresAt },
-            { token: post, grade_level: Number(cls.grade), test_type: 'post', teacher_id: profile.id, class_name: cls.className, student_number: studentNum, expires_at: newExpiresAt },
-          );
-          byClass[classKey].passes.push({ studentNum, pre, post });
-          if (classAc) {
-            const ordered = shouldRand
-              ? [
-                  ...classAc.configuredIds.filter(id => earlyGradeQIds.has(id)),
-                  ...[...classAc.configuredIds.filter(id => !earlyGradeQIds.has(id))].sort(() => Math.random() - 0.5),
-                ]
-              : classAc.configuredIds;
-            allConfigRows.push(
-              { token: pre,  question_ids: ordered, assessment_config_id: classAc.id },
-              { token: post, question_ids: ordered, assessment_config_id: classAc.id },
-            );
-          }
-        }
-      }
-
-      const { error: insertError } = await supabase.from('tokens').insert(allRows);
-      if (insertError) {
-        setError('Could not save passes: ' + insertError.message);
-        setGenerating(false);
-        return;
-      }
-
-      if (allConfigRows.length > 0) {
-        await supabase.from('token_configs').insert(allConfigRows);
-      }
-
-      const totalN = allRows.length / 2;
-      await supabase.from('payments').insert([{
-        teacher_id: profile.id,
-        stripe_session_id: sessionId,
-        amount_paid: data.amountTotal,
-        num_students: totalN,
-        class_name: classes.map(c => c.className).join(', '),
-        grade_level: Number(classes[0].grade),
-      }]);
 
       localStorage.removeItem('pendingPassOrder');
       const cleanUrl = new URL(window.location.href);
@@ -1375,8 +1359,16 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       cleanUrl.searchParams.delete('session_id');
       window.history.replaceState({}, '', cleanUrl.toString());
 
+      const byClass = {};
+      freshTokens.forEach(t => {
+        if (!byClass[t.class_name]) byClass[t.class_name] = { className: t.class_name, grade: t.grade_level, passes: [] };
+        let entry = byClass[t.class_name].passes.find(p => p.studentNum === t.student_number);
+        if (!entry) { entry = { studentNum: t.student_number }; byClass[t.class_name].passes.push(entry); }
+        entry[t.test_type] = t.token;
+        setExpiresAt(t.expires_at);
+      });
+
       const classList = Object.values(byClass);
-      setExpiresAt(newExpiresAt);
       if (classList.length === 1) {
         setClassName(classList[0].className);
         setGrade(classList[0].grade);
@@ -1457,109 +1449,77 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
     setGenerating(true);
     setBetaCodeError('');
     try {
-      const { data: codeData, error: codeErr } = await supabase
-        .from('beta_codes')
-        .select('*')
-        .eq('code', betaCode.trim().toUpperCase())
-        .maybeSingle();
+      const code = betaCode.trim().toUpperCase();
+      const { data: redeemData, error: redeemErr } = await supabase.rpc('redeem_beta_code', {
+        p_code: code,
+        p_class_name: className.trim(),
+        p_grade_level: Number(grade),
+        p_student_count: count,
+      });
+      if (redeemErr) { setBetaCodeError(redeemErr.message); setGenerating(false); return; }
+      if (!redeemData?.length) { setBetaCodeError('Could not create passes — please try again.'); setGenerating(false); return; }
 
-      if (codeErr || !codeData) {
-        setBetaCodeError('Invalid code.');
-        setGenerating(false);
-        return;
-      }
-      if (codeData.expires_at && new Date(codeData.expires_at) < new Date()) {
-        setBetaCodeError('This code has expired.');
-        setGenerating(false);
-        return;
-      }
-      if ((codeData.used_students || 0) + count > (codeData.max_students || 0)) {
-        setBetaCodeError(`This code only has ${(codeData.max_students || 0) - (codeData.used_students || 0)} student passes remaining.`);
-        setGenerating(false);
-        return;
-      }
+      const orderId = redeemData[0].order_id;
+      const { data: freshTokens, error: freshErr } = await supabase
+        .from('tokens')
+        .select('token, test_type, student_number')
+        .eq('teacher_id', profile.id)
+        .eq('class_name', className.trim())
+        .eq('source_order_id', orderId);
+      if (freshErr) { setBetaCodeError('Could not load new passes: ' + freshErr.message); setGenerating(false); return; }
 
-      // Look up any existing assessment_config for this class before inserting new tokens
-      let classAcId = null;
-      let classAcConfig = null;
-      {
-        const { data: existingPreTokens } = await supabase
-          .from('tokens')
-          .select('token')
-          .eq('teacher_id', profile.id)
-          .eq('class_name', className.trim())
-          .eq('test_type', 'pre')
-          .limit(10);
-        console.log('[handleBetaGenerate] find-or-create: class=', className.trim(), 'existingPreTokens=', existingPreTokens?.length ?? 0);
-        if (existingPreTokens?.length > 0) {
-          const { data: tc, error: tcErr } = await supabase
-            .from('token_configs')
-            .select('assessment_config_id')
-            .in('token', existingPreTokens.map(t => t.token))
-            .limit(1)
-            .maybeSingle();
-          console.log('[handleBetaGenerate] token_configs lookup: tc=', tc, 'err=', tcErr?.message);
-          if (tc?.assessment_config_id) {
-            classAcId = tc.assessment_config_id;
-            const { data: ac, error: acErr } = await supabase
-              .from('assessment_configs')
-              .select('standards_config, grade_levels')
-              .eq('id', classAcId)
-              .single();
-            console.log('[handleBetaGenerate] assessment_configs fetch: id=', ac ? classAcId : null, 'err=', acErr?.message);
-            classAcConfig = ac;
+      // Attach an existing assessment_config to the freshly created tokens, if this class
+      // already had one — search only among older tokens so we never match our own new batch.
+      const { data: olderPreTokens } = await supabase
+        .from('tokens')
+        .select('token')
+        .eq('teacher_id', profile.id)
+        .eq('class_name', className.trim())
+        .eq('test_type', 'pre')
+        .not('source_order_id', 'eq', orderId)
+        .limit(10);
+
+      if (olderPreTokens?.length > 0) {
+        const { data: tc } = await supabase
+          .from('token_configs')
+          .select('assessment_config_id')
+          .in('token', olderPreTokens.map(t => t.token))
+          .limit(1)
+          .maybeSingle();
+        if (tc?.assessment_config_id) {
+          const { data: ac } = await supabase
+            .from('assessment_configs')
+            .select('standards_config, grade_levels, total_questions')
+            .eq('id', tc.assessment_config_id)
+            .single();
+          if (ac) {
+            const acGradeNum = (ac.grade_levels ?? [])[0] ?? Number(grade);
+            const acStdGroups = buildStandards(getQuestionsForGrade(acGradeNum));
+            const configuredIds = acStdGroups.flatMap(({ standards }) =>
+              standards.flatMap(std => {
+                const cfg = (ac.standards_config ?? {})[std.id];
+                return cfg?.checked ? std.questions.slice(0, cfg.count ?? 3).map(q => q.id) : [];
+              })
+            );
+            const shouldRand = acGradeNum >= 3;
+            const perTokenIds = {};
+            freshTokens.forEach(({ token }) => {
+              perTokenIds[token] = shouldRand ? [...configuredIds].sort(() => Math.random() - 0.5) : configuredIds;
+            });
+            if (Object.keys(perTokenIds).length > 0) {
+              const { error: attachErr } = await supabase.rpc('attach_assessment_config', {
+                p_class_name: className.trim(),
+                p_grade_levels: ac.grade_levels ?? [acGradeNum],
+                p_standards_config: ac.standards_config ?? {},
+                p_total_questions: ac.total_questions ?? configuredIds.length,
+                p_token_question_ids: perTokenIds,
+              });
+              if (attachErr) console.error('[handleBetaGenerate] attach_assessment_config error:', attachErr.message);
+            }
           }
         }
       }
 
-      const rows = [];
-      const passData = [];
-      const betaExpiresAt = (() => { const d = new Date(); d.setDate(d.getDate() + 60); return d.toISOString(); })();
-      for (let i = 0; i < count; i++) {
-        const studentNum = startingStudentNumber + i;
-        const pre  = makeToken();
-        const post = makeToken();
-        rows.push(
-          { token: pre,  grade_level: Number(grade), test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: studentNum, expires_at: betaExpiresAt },
-          { token: post, grade_level: Number(grade), test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: studentNum, expires_at: betaExpiresAt },
-        );
-        passData.push({ studentNum, pre, post });
-      }
-
-      const { error: insertError } = await supabase.from('tokens').insert(rows);
-      if (insertError) { setBetaCodeError('Could not save passes: ' + insertError.message); setGenerating(false); return; }
-
-      // Link new tokens to the class's existing assessment_config so all students share the same one
-      if (classAcId && classAcConfig) {
-        const acGradeNum = (classAcConfig.grade_levels ?? [])[0] ?? Number(grade);
-        const earlyGradeQIds = acGradeNum <= 2
-          ? new Set(getQuestionsForGrade(acGradeNum).map(q => q.id))
-          : new Set();
-        const acStdGroups  = buildStandards(getQuestionsForGrade(acGradeNum));
-        const acConfiguredIds = acStdGroups.flatMap(({ standards }) =>
-          standards.flatMap(std => {
-            const cfg = (classAcConfig.standards_config ?? {})[std.id];
-            return cfg?.checked ? std.questions.slice(0, cfg.count ?? 3).map(q => q.id) : [];
-          })
-        );
-        const shouldRand = acGradeNum >= 3;
-        const tcRows = passData.flatMap(({ pre, post }) => {
-          const ordered = shouldRand
-            ? [
-                ...acConfiguredIds.filter(id => earlyGradeQIds.has(id)),
-                ...[...acConfiguredIds.filter(id => !earlyGradeQIds.has(id))].sort(() => Math.random() - 0.5),
-              ]
-            : acConfiguredIds;
-          return [
-            { token: pre,  question_ids: ordered, assessment_config_id: classAcId },
-            { token: post, question_ids: ordered, assessment_config_id: classAcId },
-          ];
-        });
-        await supabase.from('token_configs').insert(tcRows);
-      }
-
-      await supabase.from('beta_codes').update({ used_students: (codeData.used_students || 0) + count }).eq('code', codeData.code);
-      await supabase.from('teachers').update({ beta_code: codeData.code }).eq('id', profile.id);
       // Reload all passes for the class so teacher sees the complete updated list
       await loadClassPasses(className.trim());
     } catch (err) {
@@ -3144,6 +3104,13 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
           setPaymentError('Payment verification failed. Please contact support@brightboptech.com.');
           return;
         }
+        const status = await pollUntilFulfilled(paymentSessionId);
+        if (status !== 'fulfilled') {
+          setPaymentError(status === 'timeout'
+            ? 'Your payment is still processing — this can take a moment. Refresh in a bit, or contact support if it persists.'
+            : 'Payment verification failed. Please contact support.');
+          return;
+        }
         setVerifiedSession({ sessionId: paymentSessionId, amountTotal: data.amountTotal });
         const existing = await lookupExistingConfig(cn);
         if (existing) setExistingAcSummary(existing);
@@ -3229,14 +3196,13 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
     setBetaValidating(true);
     setBetaCodeError('');
     try {
+      const code = betaCode.trim().toUpperCase();
       const { data, error: dbErr } = await supabase
-        .from('beta_codes').select('*')
-        .eq('code', betaCode.trim().toUpperCase()).maybeSingle();
-      if (dbErr || !data) { setBetaCodeError('Invalid code.'); return; }
-      if (data.expires_at && new Date(data.expires_at) < new Date()) { setBetaCodeError('This code has expired.'); return; }
-      const remaining = (data.max_students || 0) - (data.used_students || 0);
-      if (count > remaining) { setBetaCodeError(`Only ${remaining} student pass${remaining !== 1 ? 'es' : ''} remaining on this code.`); return; }
-      setValidatedBeta(data);
+        .rpc('check_beta_code', { p_code: code })
+        .maybeSingle();
+      if (dbErr || !data || !data.valid) { setBetaCodeError('Invalid code.'); return; }
+      if (count > data.remaining) { setBetaCodeError(`Only ${data.remaining} student pass${data.remaining !== 1 ? 'es' : ''} remaining on this code.`); return; }
+      setValidatedBeta({ code, max_students: data.remaining, used_students: 0 });
     } catch (err) {
       setBetaCodeError('Could not validate: ' + err.message);
     } finally {
@@ -3294,166 +3260,112 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
 
     const count    = parseInt(studentCount, 10);
     const gradeNum = Number(grade);
-    const expiresAt = (() => {
-      const d = new Date();
-      if (validatedBeta) { d.setDate(d.getDate() + 60); } else { d.setFullYear(d.getFullYear() + 1); }
-      return d.toISOString();
-    })();
 
-    // Find or create the assessment_config for this class.
-    // Uses two lookup strategies so at least one works regardless of table policies or
-    // whether the class was originally created via NewClassWizard vs CreateAssessment.
-    let acId;
-    let effectiveSelectedIds = selectedIds;
+    try {
+      let orderId;
 
-    const applyExistingConfig = (ac) => {
-      acId = ac.id;
-      const existingStdConfig = ac.standards_config ?? {};
-      const existingGradeNum  = (ac.grade_levels ?? [gradeNum])[0];
-      const existingStdGroups = buildStandards(getQuestionsForGrade(existingGradeNum));
-      effectiveSelectedIds = existingStdGroups.flatMap(({ standards }) =>
-        standards.flatMap(std => {
-          const cfg = existingStdConfig[std.id];
-          return cfg?.checked ? std.questions.slice(0, cfg.count ?? globalCount).map(q => q.id) : [];
-        })
-      );
-    };
+      // 1. Create bare tokens, via whichever path got us here.
+      if (validatedBeta) {
+        const { data: redeemData, error: redeemErr } = await supabase.rpc('redeem_beta_code', {
+          p_code: validatedBeta.code,
+          p_class_name: className.trim(),
+          p_grade_level: gradeNum,
+          p_student_count: count,
+        });
+        if (redeemErr) { setGenError('Could not redeem code: ' + redeemErr.message); setGenerating(false); return; }
+        if (!redeemData?.length) { setGenError('Could not create passes — please try again.'); setGenerating(false); return; }
+        orderId = redeemData[0].order_id;
+      } else if (verifiedSession) {
+        orderId = verifiedSession.sessionId;
+        // Bare tokens already exist — created by the webhook before Step 3 was ever shown
+        // (see the pollUntilFulfilled gate in the paymentSessionId effect).
+      } else {
+        setGenError('Payment not verified. Please start over.');
+        setGenerating(false);
+        return;
+      }
 
-    // Strategy 1: direct name-based lookup on assessment_configs (fast; works when
-    // the wizard created the original class, since name = className is stored there).
-    const { data: namedAc, error: namedAcErr } = await supabase
-      .from('assessment_configs')
-      .select('id, standards_config, grade_levels')
-      .eq('teacher_id', profile.id)
-      .eq('name', className.trim())
-      .limit(1)
-      .maybeSingle();
-    console.log('[NewClassWizard] strategy1 (name lookup): class=', className.trim(), 'found=', namedAc?.id ?? null, 'err=', namedAcErr?.message);
-    if (namedAc) applyExistingConfig(namedAc);
-
-    // Strategy 2: tokens → token_configs → assessment_configs (more reliable; works
-    // even if the original class name differs from assessment_configs.name).
-    if (!acId) {
-      const { data: existingPreTokens } = await supabase
+      // 2. Read back the freshly created, unconfigured tokens for this exact order.
+      const { data: freshTokens, error: freshErr } = await supabase
         .from('tokens')
-        .select('token')
+        .select('token, test_type, student_number, expires_at')
         .eq('teacher_id', profile.id)
         .eq('class_name', className.trim())
-        .eq('test_type', 'pre')
-        .limit(10);
-      console.log('[NewClassWizard] strategy2 (token chain): existingPreTokens=', existingPreTokens?.length ?? 0);
-      if (existingPreTokens?.length > 0) {
-        const { data: tc, error: tcErr } = await supabase
-          .from('token_configs')
-          .select('assessment_config_id')
-          .in('token', existingPreTokens.map(t => t.token))
-          .limit(1)
-          .maybeSingle();
-        console.log('[NewClassWizard] strategy2 token_configs: tc=', tc, 'err=', tcErr?.message);
-        if (tc?.assessment_config_id) {
-          const { data: ac, error: acFetchErr } = await supabase
-            .from('assessment_configs')
-            .select('id, standards_config, grade_levels')
-            .eq('id', tc.assessment_config_id)
-            .single();
-          console.log('[NewClassWizard] strategy2 assessment_configs: id=', ac?.id, 'err=', acFetchErr?.message);
-          if (ac) applyExistingConfig(ac);
-        }
+        .eq('source_order_id', orderId);
+      if (freshErr) { setGenError('Could not load new passes: ' + freshErr.message); setGenerating(false); return; }
+      if (freshTokens.length === 0) { setGenError('No passes were created — please contact support.'); setGenerating(false); return; }
+
+      // 3. Find-or-create the assessment_config and attach it. attach_assessment_config's
+      //    own find-by-name logic naturally reuses an existing config when existingAcSummary
+      //    is set — we only need to source the *question selection* differently for that case
+      //    (reuse the existing config's standards, not the teacher's Step 3 toggles).
+      let effectiveSelectedIds = selectedIds;
+      let gradeLevelsForConfig = [gradeNum];
+      let standardsConfigForAttach = {};
+      let totalQuestionsForAttach = totalQ;
+
+      if (existingAcSummary) {
+        gradeLevelsForConfig = existingAcSummary.grade_levels ?? [gradeNum];
+        const existingGradeNum = gradeLevelsForConfig[0];
+        const existingStdGroups = buildStandards(getQuestionsForGrade(existingGradeNum));
+        effectiveSelectedIds = existingStdGroups.flatMap(({ standards }) =>
+          standards.flatMap(std => {
+            const cfg = (existingAcSummary.standards_config ?? {})[std.id];
+            return cfg?.checked ? std.questions.slice(0, cfg.count ?? globalCount).map(q => q.id) : [];
+          })
+        );
+        standardsConfigForAttach = existingAcSummary.standards_config ?? {};
+        totalQuestionsForAttach = existingAcSummary.total_questions ?? totalQ;
+      } else {
+        strandGroups.forEach(({ standards }) => standards.forEach(std => {
+          if (config[std.id]) standardsConfigForAttach[std.id] = { checked: !!config[std.id].checked, count: globalCount };
+        }));
       }
+
+      const shouldRandomize = randomize && gradeNum >= 3;
+      const perTokenIds = {};
+      freshTokens.forEach(({ token }) => {
+        perTokenIds[token] = shouldRandomize
+          ? [...effectiveSelectedIds].sort(() => Math.random() - 0.5)
+          : effectiveSelectedIds;
+      });
+
+      const { data: acId, error: attachErr } = await supabase.rpc('attach_assessment_config', {
+        p_class_name: className.trim(),
+        p_grade_levels: gradeLevelsForConfig,
+        p_standards_config: standardsConfigForAttach,
+        p_total_questions: totalQuestionsForAttach,
+        p_token_question_ids: perTokenIds,
+      });
+      if (attachErr) { setGenError('Could not save question config: ' + attachErr.message); setGenerating(false); return; }
+
+      // Access windows buffered in Step 3 — attach_assessment_config returns the config id directly.
+      if (schedMode === 'schedule' && pendingWindows.length > 0 && acId) {
+        await supabase.from('access_windows').insert(
+          pendingWindows.map(w => ({ ...w, teacher_id: profile.id, assessment_id: acId }))
+        );
+      }
+
+      // payments row: written by fulfill_pending_order (Stripe). beta_codes.used_students /
+      // teachers.beta_code: written by redeem_beta_code. Nothing to write client-side for either.
+      if (verifiedSession) localStorage.removeItem('pendingPassOrder');
+
+      setActualQuestionCount(effectiveSelectedIds.length);
+      setGeneratedExpiresAt(freshTokens[0]?.expires_at ?? null);
+      setGenerating(false);
+      setDone(true);
+    } catch (err) {
+      setGenError('Something went wrong: ' + err.message);
+      setGenerating(false);
     }
-
-    if (!acId) {
-      // No existing config found — create one for this class
-      const standardsConfig = {};
-      strandGroups.forEach(({ standards }) =>
-        standards.forEach(std => {
-          if (config[std.id]) standardsConfig[std.id] = { checked: !!config[std.id].checked, count: globalCount };
-        })
-      );
-      const { data: acData, error: acErr } = await supabase
-        .from('assessment_configs').insert({
-          teacher_id:       profile.id,
-          name:             className.trim(),
-          grade_levels:     [gradeNum],
-          standards_config: standardsConfig,
-          total_questions:  totalQ,
-        }).select('id').single();
-      console.log('[NewClassWizard] created new assessment_config: id=', acData?.id, 'err=', acErr?.message);
-      if (acErr) { setGenError('Could not save assessment config: ' + acErr.message); setGenerating(false); return; }
-      acId = acData.id;
-    }
-
-    const earlyGradeQIds = gradeNum <= 2
-      ? new Set(getQuestionsForGrade(gradeNum).map(q => q.id))
-      : new Set();
-    const shouldRandomize = randomize && gradeNum >= 3;
-
-    const tokenRows  = [];
-    const configRows = [];
-
-    for (let i = 1; i <= count; i++) {
-      const pre  = makeToken();
-      const post = makeToken();
-      const ordered = shouldRandomize
-        ? [
-            ...effectiveSelectedIds.filter(id =>  earlyGradeQIds.has(id)),
-            ...[...effectiveSelectedIds.filter(id => !earlyGradeQIds.has(id))].sort(() => Math.random() - 0.5),
-          ]
-        : effectiveSelectedIds;
-      tokenRows.push(
-        { token: pre,  grade_level: gradeNum, test_type: 'pre',  teacher_id: profile.id, class_name: className.trim(), student_number: i, expires_at: expiresAt },
-        { token: post, grade_level: gradeNum, test_type: 'post', teacher_id: profile.id, class_name: className.trim(), student_number: i, expires_at: expiresAt },
-      );
-      configRows.push(
-        { token: pre,  question_ids: ordered, assessment_config_id: acId },
-        { token: post, question_ids: ordered, assessment_config_id: acId },
-      );
-    }
-
-    const { error: tokErr } = await supabase.from('tokens').insert(tokenRows);
-    if (tokErr) { setGenError('Could not save passes: ' + tokErr.message); setGenerating(false); return; }
-
-    const { error: cfgErr } = await supabase.from('token_configs').insert(configRows);
-    if (cfgErr) { setGenError('Could not link questions to passes: ' + cfgErr.message); setGenerating(false); return; }
-
-    // Insert any scheduled access windows buffered in Step 3
-    if (schedMode === 'schedule' && pendingWindows.length > 0) {
-      await supabase.from('access_windows').insert(
-        pendingWindows.map(w => ({ ...w, teacher_id: profile.id, assessment_id: acId }))
-      );
-    }
-
-    if (verifiedSession) {
-      await supabase.from('payments').insert([{
-        teacher_id:        profile.id,
-        stripe_session_id: verifiedSession.sessionId,
-        amount_paid:       verifiedSession.amountTotal,
-        num_students:      count,
-        class_name:        className.trim(),
-        grade_level:       gradeNum,
-      }]);
-      localStorage.removeItem('pendingPassOrder');
-    }
-
-    if (validatedBeta) {
-      await supabase.from('beta_codes').update({
-        used_students: (validatedBeta.used_students || 0) + count,
-      }).eq('code', validatedBeta.code);
-      await supabase.from('teachers').update({ beta_code: validatedBeta.code }).eq('id', profile.id);
-    }
-
-    setActualQuestionCount(effectiveSelectedIds.length);
-    setGeneratedExpiresAt(expiresAt);
-    setGenerating(false);
-    setDone(true);
   };
 
   // ── Auto-generate when adding to an existing class (skip Step 3 UI) ────────
   useEffect(() => {
-    if (step !== 3 || !existingAcSummary || generating || done) return;
+    if (step !== 3 || !existingAcSummary || generating || done || genError) return;
     if (totalQ === 0) return; // wait for grade useEffect to initialize config
     handleGenerate();
-  }, [step, existingAcSummary, totalQ, generating, done]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step, existingAcSummary, totalQ, generating, done, genError]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleWizAddWindow = () => {
     if (wizSchedFormDays.size === 0) { setWizSchedError('Select at least one day.'); return; }
@@ -7553,9 +7465,7 @@ function App() {
     setError('');
     try {
       const { data, error: dbError } = await supabase
-        .from('tokens')
-        .select('grade_level, expires_at')
-        .eq('token', code)
+        .rpc('get_token_for_login', { p_token: code })
         .maybeSingle();
       if (dbError) {
         console.error('Token lookup error:', dbError);
@@ -7575,17 +7485,15 @@ function App() {
         return;
       }
       const [cfgResult, progressResult] = await Promise.all([
-        supabase.from('token_configs').select('question_ids, assessment_config_id').eq('token', code).maybeSingle(),
-        supabase.from('student_progress').select('answers, current_question, submitted').eq('token', code).maybeSingle(),
+        supabase.rpc('get_token_config_for_login', { p_token: code }).maybeSingle(),
+        supabase.rpc('get_student_progress', { p_token: code }).maybeSingle(),
       ]);
 
       // ── Access window check ────────────────────────────────────────────────
       const assessmentConfigId = cfgResult.data?.assessment_config_id ?? null;
       if (assessmentConfigId) {
         const { data: windows } = await supabase
-          .from('access_windows')
-          .select('days_of_week, start_time, end_time, repeat_until')
-          .eq('assessment_id', assessmentConfigId);
+          .rpc('get_access_window', { p_assessment_id: assessmentConfigId });
 
         if (windows && windows.length > 0) {
           const now = new Date();
@@ -7642,18 +7550,12 @@ function App() {
   };
 
   const saveProgress = async (answersToSave, questionIndex) => {
-    const { error: saveError } = await supabase
-      .from('student_progress')
-      .upsert(
-        {
-          token,
-          answers: answersToSave,
-          current_question: questionIndex,
-          submitted: false,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'token' }
-      );
+    const { error: saveError } = await supabase.rpc('save_student_progress', {
+      p_token: token,
+      p_answers: answersToSave,
+      p_current_question: questionIndex,
+      p_submitted: false,
+    });
     if (saveError) console.error('Progress save error:', saveError.message, saveError);
     return saveError;
   };
@@ -7795,45 +7697,30 @@ function App() {
     const score = calculateScore();
     const percentage = Math.round((score / questions.length) * 100);
     try {
-      const { data: assessmentData, error: assessmentError } = await supabase
-        .from('assessment_responses')
-        .insert([{
-          student_token: token,
-          grade_level: selectedGrade,
-          total_questions: questions.length,
-          correct_answers: score,
-          percentage,
-        }])
-        .select();
-      if (assessmentError) {
-        console.error('Error saving assessment:', assessmentError);
+      const { error: submitError } = await supabase.rpc('submit_assessment', {
+        p_token: token,
+        p_grade_level: selectedGrade,
+        p_total_questions: questions.length,
+        p_correct_answers: score,
+        p_percentage: percentage,
+        p_responses: questions.map((q, index) => ({
+          question_id: q.id,
+          selected_answer: answers[index] || null,
+          correct_answer: q.correctAnswer,
+          is_correct: answers[index] === q.correctAnswer,
+        })),
+      });
+      if (submitError) {
+        console.error('Error submitting assessment:', submitError);
         return;
       }
-      const assessmentId = assessmentData[0].id;
-      const questionData = questions.map((q, index) => ({
-        assessment_id: assessmentId,
-        question_id: q.id,
-        selected_answer: answers[index] || null,
-        correct_answer: q.correctAnswer,
-        is_correct: answers[index] === q.correctAnswer,
-      }));
-      const { error: questionsError } = await supabase
-        .from('question_responses')
-        .insert(questionData);
-      if (questionsError) console.error('Error saving questions:', questionsError);
 
-      await supabase
-        .from('student_progress')
-        .upsert(
-          {
-            token,
-            answers,
-            current_question: currentQuestion,
-            submitted: true,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'token' }
-        );
+      await supabase.rpc('save_student_progress', {
+        p_token: token,
+        p_answers: answers,
+        p_current_question: currentQuestion,
+        p_submitted: true,
+      });
     } catch (err) {
       console.error('Error:', err);
     }

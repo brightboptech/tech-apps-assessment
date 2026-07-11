@@ -58,6 +58,24 @@ module.exports = async (req, res) => {
       },
     });
 
+    const { createClient } = require('@supabase/supabase-js');
+    const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('[create-checkout-session] SUPABASE_URL or SUPABASE_SERVICE_KEY env var is not set');
+      return res.status(500).json({ error: 'Server is not fully configured. Add SUPABASE_URL / SUPABASE_SERVICE_KEY to Vercel environment variables.' });
+    }
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    const { error: orderErr } = await supabaseAdmin.from('pending_orders').insert({
+      stripe_session_id: session.id,
+      teacher_id: teacherId,
+      classes: lineItemClasses,
+    });
+    if (orderErr) {
+      console.error('[create-checkout-session] Failed to record pending_orders:', orderErr.message);
+      return res.status(500).json({ error: 'Could not start checkout — please try again.' });
+    }
+
     res.json({ url: session.url });
   } catch (err) {
     console.error('[create-checkout-session] Error:', err);
