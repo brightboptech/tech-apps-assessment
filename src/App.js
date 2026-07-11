@@ -7305,12 +7305,6 @@ function App() {
     [isComplete, showSaveExitScreen]
   );
 
-  // ── ElevenLabs env check (remove after confirming) ───────────────────────
-  useEffect(() => {
-    console.log('[ENV] REACT_APP_ELEVENLABS_API_KEY =', process.env.REACT_APP_ELEVENLABS_API_KEY);
-    console.log('[ENV] REACT_APP_ELEVENLABS_VOICE_ID =', process.env.REACT_APP_ELEVENLABS_VOICE_ID);
-  }, []);
-
   // ── Password reset detection ─────────────────────────────────────────────
   const [showPasswordReset, setShowPasswordReset] = useState(() => {
     const hash = window.location.hash;
@@ -7609,45 +7603,21 @@ function App() {
       let objectURL = audioCacheRef.current[text];
 
       if (!objectURL) {
-        const apiKey = process.env.REACT_APP_ELEVENLABS_API_KEY;
-        const voiceId = process.env.REACT_APP_ELEVENLABS_VOICE_ID;
-
-        console.log('[TTS] API key value:', apiKey);
-        console.log('[TTS] Voice ID value:', voiceId);
-        console.log('[TTS] Making API call for text:', text.slice(0, 60));
-
-        const res = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-          {
-            method: 'POST',
-            headers: {
-              'xi-api-key': apiKey,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              text,
-              model_id: 'eleven_turbo_v2',
-              voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-            }),
-          }
-        );
-
-        console.log('[TTS] Response status:', res.status, res.statusText);
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        });
 
         if (!res.ok) {
-          const errBody = await res.text();
-          console.error('[TTS] API error body:', errBody);
+          console.error('[TTS] Request failed:', res.status);
           setLoadingId(null);
           return;
         }
 
         const blob = await res.blob();
-        console.log('[TTS] Blob received — size:', blob.size, 'type:', blob.type);
         objectURL = URL.createObjectURL(blob);
         audioCacheRef.current[text] = objectURL;
-        console.log('[TTS] Object URL created:', objectURL);
-      } else {
-        console.log('[TTS] Using cached audio for:', text.slice(0, 60));
       }
 
       const audio = new Audio(objectURL);
@@ -7662,12 +7632,10 @@ function App() {
       setSpeakingId(id);
       const playPromise = audio.play();
       if (playPromise !== undefined) {
-        playPromise
-          .then(() => console.log('[TTS] Playback started successfully'))
-          .catch(err => console.error('[TTS] play() rejected:', err));
+        playPromise.catch(err => console.error('[TTS] play() rejected:', err));
       }
     } catch (err) {
-      console.error('[TTS] Caught error:', err);
+      console.error('[TTS] Request failed:', err.message);
       setLoadingId(null);
     }
   };
