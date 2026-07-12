@@ -1,6 +1,9 @@
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+const { applyCors } = require('./_cors');
 
+module.exports = async (req, res) => {
+  applyCors(req, res, 'GET, OPTIONS');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const { session_id } = req.query;

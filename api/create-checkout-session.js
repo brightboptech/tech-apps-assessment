@@ -1,10 +1,16 @@
+const { applyCors } = require('./_cors');
+const { checkRateLimit, getClientKey } = require('./_rateLimit');
+
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  applyCors(req, res);
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const allowed = await checkRateLimit('create-checkout-session', getClientKey(req), 20, 3600);
+  if (!allowed) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
 
   try {
     const key = process.env.STRIPE_SECRET_KEY;
