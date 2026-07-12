@@ -1,5 +1,6 @@
 const { applyCors } = require('./_cors');
 const { checkRateLimit, getClientKey } = require('./_rateLimit');
+const { escapeHtml, safeMailto, safeHttpsUrl, safeSubjectPart } = require('./_escapeHtml');
 
 module.exports = async (req, res) => {
   applyCors(req, res);
@@ -20,6 +21,16 @@ module.exports = async (req, res) => {
     return res.json({ ok: true, email: false });
   }
 
+  const safeName = escapeHtml(name);
+  const safeSchool = escapeHtml(school);
+  const safeGradeLevels = escapeHtml(grade_levels);
+  const safeIssueType = escapeHtml(issue_type);
+  const safeDescription = escapeHtml(description);
+  const mailtoHref = safeMailto(email);
+  const safeEmailText = escapeHtml(email);
+  const screenshotHref = safeHttpsUrl(screenshot_url);
+  const safeScreenshotText = escapeHtml(screenshot_url);
+
   try {
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -30,17 +41,17 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         from: 'TechGrowth Check Support <onboarding@resend.dev>',
         to: ['brightboptech@gmail.com'],
-        subject: `New Support Ticket: ${issue_type || 'Unknown'} from ${name || 'Unknown'}`,
+        subject: `New Support Ticket: ${safeSubjectPart(issue_type || 'Unknown')} from ${safeSubjectPart(name || 'Unknown')}`,
         html: `
           <h2 style="color:#3D6B8A;font-family:sans-serif">New Support Ticket — TechGrowth Check</h2>
           <table style="border-collapse:collapse;font-family:sans-serif;font-size:15px">
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Name</td><td>${name || '—'}</td></tr>
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Email</td><td><a href="mailto:${email}">${email || '—'}</a></td></tr>
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">School</td><td>${school || '—'}</td></tr>
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Grade Levels</td><td>${grade_levels || '—'}</td></tr>
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Issue Type</td><td>${issue_type || '—'}</td></tr>
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Description</td><td style="white-space:pre-wrap;max-width:480px">${description || '—'}</td></tr>
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Screenshot URL</td><td>${screenshot_url ? `<a href="${screenshot_url}">${screenshot_url}</a>` : '—'}</td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Name</td><td>${safeName || '—'}</td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Email</td><td>${mailtoHref ? `<a href="mailto:${mailtoHref}">${safeEmailText || '—'}</a>` : (safeEmailText || '—')}</td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">School</td><td>${safeSchool || '—'}</td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Grade Levels</td><td>${safeGradeLevels || '—'}</td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Issue Type</td><td>${safeIssueType || '—'}</td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Description</td><td style="white-space:pre-wrap;max-width:480px">${safeDescription || '—'}</td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Screenshot URL</td><td>${screenshotHref ? `<a href="${screenshotHref}">${safeScreenshotText}</a>` : (safeScreenshotText || '—')}</td></tr>
           </table>
         `,
       }),

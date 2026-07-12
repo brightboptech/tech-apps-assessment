@@ -1,5 +1,6 @@
 const { applyCors } = require('./_cors');
 const { checkRateLimit, getClientKey } = require('./_rateLimit');
+const { escapeHtml, safeMailto, safeSubjectPart } = require('./_escapeHtml');
 
 module.exports = async (req, res) => {
   applyCors(req, res);
@@ -65,6 +66,13 @@ module.exports = async (req, res) => {
   const resendKey = process.env.RESEND_API_KEY;
   if (resendKey) {
     try {
+      const safeName = escapeHtml(cleanName);
+      const safeSchool = escapeHtml(cleanSchool);
+      const safeDistrict = escapeHtml(cleanDistrict);
+      const safeComments = escapeHtml(cleanComments);
+      const mailtoHref = safeMailto(cleanEmail);
+      const safeEmailText = escapeHtml(cleanEmail);
+
       const emailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -74,15 +82,15 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           from: 'TechGrowth Check <onboarding@resend.dev>',
           to: ['brightboptech@gmail.com'],
-          subject: `New Beta Signup: ${cleanName}`,
+          subject: `New Beta Signup: ${safeSubjectPart(cleanName)}`,
           html: `
             <h2 style="color:#3D6B8A">New Beta Signup — TechGrowth Check</h2>
             <table style="border-collapse:collapse;font-family:sans-serif;font-size:15px">
-              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Name</td><td>${cleanName}</td></tr>
-              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Email</td><td><a href="mailto:${cleanEmail}">${cleanEmail}</a></td></tr>
-              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">School</td><td>${cleanSchool}</td></tr>
-              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">District</td><td>${cleanDistrict || '—'}</td></tr>
-              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Comments</td><td>${cleanComments || '—'}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Name</td><td>${safeName}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Email</td><td>${mailtoHref ? `<a href="mailto:${mailtoHref}">${safeEmailText}</a>` : safeEmailText}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">School</td><td>${safeSchool}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">District</td><td>${safeDistrict || '—'}</td></tr>
+              <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600;vertical-align:top">Comments</td><td>${safeComments || '—'}</td></tr>
             </table>
           `,
         }),

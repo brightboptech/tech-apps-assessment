@@ -1,5 +1,6 @@
 const { applyCors } = require('./_cors');
 const { checkRateLimit, getClientKey } = require('./_rateLimit');
+const { escapeHtml, safeMailto } = require('./_escapeHtml');
 
 module.exports = async (req, res) => {
   applyCors(req, res);
@@ -24,6 +25,9 @@ module.exports = async (req, res) => {
     ? new Date(signed_up_at).toLocaleString('en-US', { timeZone: 'America/Chicago', dateStyle: 'full', timeStyle: 'short' }) + ' CT'
     : '—';
 
+  const mailtoHref = safeMailto(email);
+  const safeEmailText = escapeHtml(email);
+
   try {
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -38,7 +42,7 @@ module.exports = async (req, res) => {
         html: `
           <h2 style="color:#3D6B8A;font-family:sans-serif">New Teacher Signup — TechGrowth Check</h2>
           <table style="border-collapse:collapse;font-family:sans-serif;font-size:15px">
-            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Email</td><td><a href="mailto:${email}">${email || '—'}</a></td></tr>
+            <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Email</td><td>${mailtoHref ? `<a href="mailto:${mailtoHref}">${safeEmailText || '—'}</a>` : (safeEmailText || '—')}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#64748b;font-weight:600">Signed up</td><td>${displayTime}</td></tr>
           </table>
         `,
