@@ -4090,6 +4090,7 @@ function AdminDashboard({ profile }) {
   const [betaCodes, setBetaCodes]         = useState([]);
   const [supportTickets, setSupportTickets] = useState([]);
   const [loading, setLoading]             = useState(true);
+  const [drillDown, setDrillDown]         = useState(null); // { title, subtitle, columns: [{key,label}], rows: [{...}] }
 
   // Beta code create/edit form state
   const [newCode, setNewCode]                     = useState('');
@@ -4108,10 +4109,10 @@ function AdminDashboard({ profile }) {
     const load = async () => {
       const [{ data: tData }, { data: tokData }, { data: fbData }, { data: svData }, { data: payData }, { data: arData }, { data: leData }, { data: bcData }, { data: stData }] = await Promise.all([
         supabase.from('teachers').select('id, email, full_name, created_at, beta_code').order('created_at', { ascending: false }),
-        supabase.from('tokens').select('token, teacher_id, class_name, grade_level, created_at').eq('test_type', 'pre'),
+        supabase.from('tokens').select('token, teacher_id, class_name, grade_level, created_at, test_type').not('teacher_id', 'is', null),
         supabase.from('feedback').select('id, teacher_id, page_context, tag, message, created_at, teacher:teacher_id(email)').order('created_at', { ascending: false }),
         supabase.from('survey_responses').select('id, teacher_id, setup_ease, questions_appropriate, tia_helpful, recommend_likelihood, created_at, teacher:teacher_id(email)').order('created_at', { ascending: false }),
-        supabase.from('payments').select('teacher_id, amount_paid, created_at'),
+        supabase.from('payments').select('id, teacher_id, amount_paid, created_at'),
         supabase.from('assessment_responses').select('id, student_token, created_at'),
         supabase.from('login_events').select('id, teacher_id, created_at, teacher:teacher_id(email, full_name)').order('created_at', { ascending: false }),
         supabase.from('beta_codes').select('*').order('created_at', { ascending: false }),
@@ -4216,12 +4217,27 @@ function AdminDashboard({ profile }) {
   const thStyle = { padding: '10px 14px', fontSize: '12px', fontWeight: 700, color: '#475569', textAlign: 'left', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' };
   const tdStyle = { padding: '10px 14px', fontSize: '13px', color: '#374151', borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' };
 
-  const statCard = (label, value) => (
-    <div key={label} style={{ background: 'white', borderRadius: '10px', padding: '18px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0', minWidth: '160px' }}>
+  const statCard = (label, value, onClick) => (
+    <div
+      key={label}
+      onClick={onClick}
+      style={{
+        background: 'white', borderRadius: '10px', padding: '18px 20px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0', minWidth: '160px',
+        cursor: onClick ? 'pointer' : 'default',
+      }}
+      onMouseEnter={e => { if (onClick) e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.12)'; }}
+      onMouseLeave={e => { if (onClick) e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.07)'; }}
+    >
       <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginBottom: '6px' }}>{label}</div>
       <div style={{ fontSize: '24px', fontWeight: 800, color: '#1e293b' }}>{value}</div>
     </div>
   );
+
+  // Generic drill-down opener — every stat tile funnels through this so the
+  // modal itself stays dumb (title + columns + rows), matching the existing
+  // Assessment Preview Modal pattern instead of inventing per-tile UI.
+  const openDrillDown = (title, subtitle, columns, rows) => setDrillDown({ title, subtitle, columns, rows });
 
   return (
     <div style={{ maxWidth: '1060px', margin: '36px auto', padding: '0 24px' }}>
@@ -4259,8 +4275,18 @@ function AdminDashboard({ profile }) {
             const startOfMonth = now - 30 * DAY;
             const fmtUSD = cents => `$${((cents || 0) / 100).toFixed(2)}`;
 
-            const newTeachersWeek = teachers.filter(t => new Date(t.created_at).getTime() >= startOfWeek).length;
-            const newTeachersMonth = teachers.filter(t => new Date(t.created_at).getTime() >= startOfMonth).length;
+            const teacherById = {};
+            teachers.forEach(t => { teacherById[t.id] = t; });
+            const teacherLabel = id => teacherById[id]?.full_name || teacherById[id]?.email || '—';
+            const adminTeacherId = teachers.find(t => t.email === ADMIN_EMAIL)?.id;
+
+            const tokenById = {};
+            tokenRows.forEach(t => { tokenById[t.token] = t; });
+
+            const preTokens = tokenRows.filter(t => t.test_type === 'pre');
+
+            const newTeachersWeek = teachers.filter(t => new Date(t.created_at).getTime() >= startOfWeek);
+            const newTeachersMonth = teachers.filter(t => new Date(t.created_at).getTime() >= startOfMonth);
 
             const paymentsWeek = paymentRows.filter(p => new Date(p.created_at).getTime() >= startOfWeek);
             const paymentsMonth = paymentRows.filter(p => new Date(p.created_at).getTime() >= startOfMonth);
@@ -4272,8 +4298,8 @@ function AdminDashboard({ profile }) {
               if (!lastActivityByTeacher[teacher_id] || t > lastActivityByTeacher[teacher_id]) lastActivityByTeacher[teacher_id] = t;
             });
             const dormantCutoff = now - 30 * DAY;
-            const activeCount = teachers.filter(t => lastActivityByTeacher[t.id] >= dormantCutoff).length;
-            const dormantCount = teachers.length - activeCount;
+            const activeTeachers = teachers.filter(t => lastActivityByTeacher[t.id] >= dormantCutoff);
+            const dormantTeachers = teachers.filter(t => !(lastActivityByTeacher[t.id] >= dormantCutoff));
 
             const gradeBreakdown = {};
             const seenClasses = new Set();
@@ -4288,25 +4314,66 @@ function AdminDashboard({ profile }) {
               .filter(([g]) => !knownGrades.includes(Number(g)))
               .reduce((s, [, c]) => s + c, 0);
 
+            // Row builders — each returns rows already shaped for the drill-down columns below.
+            const teacherRows = list => list.map(t => ({
+              id: t.id,
+              name: t.full_name || '—',
+              email: t.email || '—',
+              joined: fmtDate(t.created_at),
+              lastActivity: lastActivityByTeacher[t.id] ? fmtDate(lastActivityByTeacher[t.id]) : '—',
+            }));
+            const teacherColumns = [{ key: 'name', label: 'Name' }, { key: 'email', label: 'Email' }, { key: 'joined', label: 'Joined' }];
+            const activityColumns = [{ key: 'name', label: 'Name' }, { key: 'email', label: 'Email' }, { key: 'lastActivity', label: 'Last Activity' }];
+
+            const passcodeRows = preTokens.map(t => ({
+              id: t.token,
+              teacher: teacherLabel(t.teacher_id),
+              class_name: t.class_name || '—',
+              grade: t.grade_level,
+              created: fmtDate(t.created_at),
+            }));
+            const passcodeColumns = [{ key: 'teacher', label: 'Teacher' }, { key: 'class_name', label: 'Class' }, { key: 'grade', label: 'Grade' }, { key: 'created', label: 'Created' }];
+
+            const assessedRows = assessmentResponseRows.map(r => {
+              const tok = tokenById[r.student_token];
+              return {
+                id: r.id,
+                teacher: tok ? teacherLabel(tok.teacher_id) : '—',
+                class_name: tok?.class_name || '—',
+                prePost: tok?.test_type === 'post' ? 'Post' : tok?.test_type === 'pre' ? 'Pre' : '—',
+                date: fmtDate(r.created_at),
+              };
+            });
+            const assessedColumns = [{ key: 'teacher', label: 'Teacher' }, { key: 'class_name', label: 'Class' }, { key: 'prePost', label: 'Pre/Post' }, { key: 'date', label: 'Date' }];
+
+            const paymentColumns = [{ key: 'teacher', label: 'Teacher' }, { key: 'amount', label: 'Amount' }, { key: 'date', label: 'Date' }, { key: 'account', label: 'Account' }];
+            const paymentRowsFor = list => list.map(p => ({
+              id: p.id,
+              teacher: teacherLabel(p.teacher_id),
+              amount: fmtUSD(p.amount_paid),
+              date: fmtDate(p.created_at),
+              account: p.teacher_id === adminTeacherId ? 'Own Account (test)' : 'Real Teacher',
+            }));
+
             return (
               <>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '24px' }}>
-                  {statCard('Total Teachers', teachers.length)}
-                  {statCard('New This Week', newTeachersWeek)}
-                  {statCard('New This Month', newTeachersMonth)}
-                  {statCard('Total Passcodes', tokenRows.length)}
-                  {statCard('Students Assessed', assessmentResponseRows.length)}
-                  {statCard('Active Teachers (30d)', activeCount)}
-                  {statCard('Dormant Teachers (30d+)', dormantCount)}
+                  {statCard('Total Teachers', teachers.length, () => openDrillDown('Total Teachers', 'All teachers, all time', teacherColumns, teacherRows(teachers)))}
+                  {statCard('New This Week', newTeachersWeek.length, () => openDrillDown('New Teachers', 'Joined in the last 7 days', teacherColumns, teacherRows(newTeachersWeek)))}
+                  {statCard('New This Month', newTeachersMonth.length, () => openDrillDown('New Teachers', 'Joined in the last 30 days', teacherColumns, teacherRows(newTeachersMonth)))}
+                  {statCard('Total Passcodes', preTokens.length, () => openDrillDown('Passcodes', `${preTokens.length} student passes created`, passcodeColumns, passcodeRows))}
+                  {statCard('Students Assessed', assessmentResponseRows.length, () => openDrillDown('Students Assessed', 'Every submitted assessment response', assessedColumns, assessedRows))}
+                  {statCard('Active Teachers (30d)', activeTeachers.length, () => openDrillDown('Active Teachers', 'Created a class in the last 30 days', activityColumns, teacherRows(activeTeachers)))}
+                  {statCard('Dormant Teachers (30d+)', dormantTeachers.length, () => openDrillDown('Dormant Teachers', 'No class activity in 30+ days (or ever)', activityColumns, teacherRows(dormantTeachers)))}
                 </div>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '28px' }}>
-                  {statCard('Revenue This Week', fmtUSD(sumCents(paymentsWeek)))}
-                  {statCard('Revenue This Month', fmtUSD(sumCents(paymentsMonth)))}
-                  {statCard('Revenue All-Time', fmtUSD(sumCents(paymentRows)))}
-                  {statCard('Payments This Week', paymentsWeek.length)}
-                  {statCard('Payments This Month', paymentsMonth.length)}
-                  {statCard('Payments All-Time', paymentRows.length)}
+                  {statCard('Revenue This Week', fmtUSD(sumCents(paymentsWeek)), () => openDrillDown('Payments', 'Last 7 days', paymentColumns, paymentRowsFor(paymentsWeek)))}
+                  {statCard('Revenue This Month', fmtUSD(sumCents(paymentsMonth)), () => openDrillDown('Payments', 'Last 30 days', paymentColumns, paymentRowsFor(paymentsMonth)))}
+                  {statCard('Revenue All-Time', fmtUSD(sumCents(paymentRows)), () => openDrillDown('Payments', 'All time', paymentColumns, paymentRowsFor(paymentRows)))}
+                  {statCard('Payments This Week', paymentsWeek.length, () => openDrillDown('Payments', 'Last 7 days', paymentColumns, paymentRowsFor(paymentsWeek)))}
+                  {statCard('Payments This Month', paymentsMonth.length, () => openDrillDown('Payments', 'Last 30 days', paymentColumns, paymentRowsFor(paymentsMonth)))}
+                  {statCard('Payments All-Time', paymentRows.length, () => openDrillDown('Payments', 'All time', paymentColumns, paymentRowsFor(paymentRows)))}
                 </div>
 
                 <h3 style={{ fontSize: '15px', color: '#1e293b', marginBottom: '12px' }}>Classes by Grade Level</h3>
@@ -4623,6 +4690,65 @@ function AdminDashboard({ profile }) {
             </>
           )}
         </>
+      )}
+
+      {/* Generic stat drill-down modal — same visual pattern as the Assessment Preview Modal */}
+      {drillDown && (
+        <div
+          onClick={() => setDrillDown(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.55)',
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+            padding: '32px 16px', overflowY: 'auto',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#F4F7FA', borderRadius: '14px',
+              width: '100%', maxWidth: '900px',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
+              marginBottom: '32px',
+            }}
+          >
+            <div style={{
+              background: 'linear-gradient(135deg, #3D6B8A 0%, #5B8DB8 100%)',
+              borderRadius: '14px 14px 0 0', padding: '20px 28px',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: 'white', marginBottom: '3px' }}>{drillDown.title}</div>
+                {drillDown.subtitle && <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{drillDown.subtitle}</div>}
+              </div>
+              <button
+                onClick={() => setDrillDown(null)}
+                style={{
+                  background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.35)',
+                  color: 'white', borderRadius: '6px', padding: '6px 14px',
+                  fontSize: '14px', cursor: 'pointer', fontWeight: 600,
+                }}
+              >✕ Close</button>
+            </div>
+            <div style={{ padding: '24px 28px', overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead><tr>
+                  {drillDown.columns.map(c => <th key={c.key} style={thStyle}>{c.label}</th>)}
+                </tr></thead>
+                <tbody>
+                  {drillDown.rows.map((row, i) => (
+                    <tr key={row.id ?? i}>
+                      {drillDown.columns.map(c => <td key={c.key} style={tdStyle}>{row[c.key]}</td>)}
+                    </tr>
+                  ))}
+                  {drillDown.rows.length === 0 && (
+                    <tr><td colSpan={drillDown.columns.length} style={{ ...tdStyle, color: '#94a3b8', textAlign: 'center', padding: '32px' }}>No rows in this range</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
