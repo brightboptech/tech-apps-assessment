@@ -4077,19 +4077,45 @@ function FeedbackPanel({ profile, section, open, onClose }) {
 // ── Admin Dashboard ────────────────────────────────────────────────────────────
 
 function AdminDashboard({ profile }) {
-  const [adminTab, setAdminTab]           = useState('teachers'); // 'teachers' | 'feedback' | 'surveys'
+  const [adminTab, setAdminTab]           = useState('overview'); // 'overview' | 'teachers' | 'feedback' | 'surveys' | 'login-activity' | 'beta-testers' | 'support-tickets'
   const [teachers, setTeachers]           = useState([]);
   const [feedbackRows, setFeedbackRows]   = useState([]);
   const [surveyRows, setSurveyRows]       = useState([]);
+  const [tokenRows, setTokenRows]         = useState([]);
+  const [paymentRows, setPaymentRows]     = useState([]);
+  const [assessmentResponseRows, setAssessmentResponseRows] = useState([]);
+  const [loginEvents, setLoginEvents]     = useState([]);
+  const [loginFrom, setLoginFrom]         = useState('');
+  const [loginTo, setLoginTo]             = useState('');
+  const [betaCodes, setBetaCodes]         = useState([]);
+  const [supportTickets, setSupportTickets] = useState([]);
   const [loading, setLoading]             = useState(true);
+
+  // Beta code create/edit form state
+  const [newCode, setNewCode]                     = useState('');
+  const [newMaxStudents, setNewMaxStudents]       = useState('');
+  const [newExpiresAt, setNewExpiresAt]           = useState('');
+  const [newRecipientName, setNewRecipientName]   = useState('');
+  const [newRecipientEmail, setNewRecipientEmail] = useState('');
+  const [createError, setCreateError]             = useState('');
+  const [creating, setCreating]                   = useState(false);
+  const [editingCodeId, setEditingCodeId]         = useState(null);
+  const [editDraft, setEditDraft]                 = useState(null);
+  const [editError, setEditError]                 = useState('');
+  const [savingEdit, setSavingEdit]               = useState(false);
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: tData }, { data: tokData }, { data: fbData }, { data: svData }] = await Promise.all([
-        supabase.from('teachers').select('id, email, full_name, created_at').order('created_at', { ascending: false }),
-        supabase.from('tokens').select('teacher_id, class_name').eq('test_type', 'pre'),
+      const [{ data: tData }, { data: tokData }, { data: fbData }, { data: svData }, { data: payData }, { data: arData }, { data: leData }, { data: bcData }, { data: stData }] = await Promise.all([
+        supabase.from('teachers').select('id, email, full_name, created_at, beta_code').order('created_at', { ascending: false }),
+        supabase.from('tokens').select('token, teacher_id, class_name, grade_level, created_at').eq('test_type', 'pre'),
         supabase.from('feedback').select('id, teacher_id, page_context, tag, message, created_at, teacher:teacher_id(email)').order('created_at', { ascending: false }),
         supabase.from('survey_responses').select('id, teacher_id, setup_ease, questions_appropriate, tia_helpful, recommend_likelihood, created_at, teacher:teacher_id(email)').order('created_at', { ascending: false }),
+        supabase.from('payments').select('teacher_id, amount_paid, created_at'),
+        supabase.from('assessment_responses').select('id, student_token, created_at'),
+        supabase.from('login_events').select('id, teacher_id, created_at, teacher:teacher_id(email, full_name)').order('created_at', { ascending: false }),
+        supabase.from('beta_codes').select('*').order('created_at', { ascending: false }),
+        supabase.from('support_tickets').select('*').order('created_at', { ascending: false }).limit(50),
       ]);
 
       const classMap = {};
@@ -4100,12 +4126,83 @@ function AdminDashboard({ profile }) {
       setTeachers((tData || []).map(t => ({ ...t, classCount: classMap[t.id]?.size ?? 0 })));
       setFeedbackRows(fbData || []);
       setSurveyRows(svData || []);
+      setTokenRows(tokData || []);
+      setPaymentRows(payData || []);
+      setAssessmentResponseRows(arData || []);
+      setLoginEvents(leData || []);
+      setBetaCodes(bcData || []);
+      setSupportTickets(stData || []);
       setLoading(false);
     };
     load();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+  const generateBetaCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I — avoids ambiguous codes
+    let suffix = '';
+    for (let i = 0; i < 5; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
+    return `TGC-${suffix}`;
+  };
+
+  const handleCreateBetaCode = async () => {
+    setCreateError('');
+    const code = (newCode.trim() || generateBetaCode()).toUpperCase();
+    const maxStudents = parseInt(newMaxStudents, 10);
+    if (!maxStudents || maxStudents < 1) { setCreateError('Enter a valid max students count.'); return; }
+    if (!newRecipientName.trim() || !newRecipientEmail.trim()) { setCreateError('Recipient name and email are required.'); return; }
+
+    setCreating(true);
+    const { data, error } = await supabase.from('beta_codes').insert({
+      code,
+      max_students: maxStudents,
+      expires_at: newExpiresAt || null,
+      recipient_name: newRecipientName.trim(),
+      recipient_email: newRecipientEmail.trim(),
+    }).select().single();
+    setCreating(false);
+
+    if (error) {
+      setCreateError(error.code === '23505' ? 'That code already exists — try again or edit the code field.' : error.message);
+      return;
+    }
+    setBetaCodes(prev => [data, ...prev]);
+    setNewCode(''); setNewMaxStudents(''); setNewExpiresAt(''); setNewRecipientName(''); setNewRecipientEmail('');
+  };
+
+  const startEditBetaCode = (row) => {
+    setEditingCodeId(row.id);
+    setEditDraft({
+      recipient_name: row.recipient_name || '',
+      recipient_email: row.recipient_email || '',
+      max_students: row.max_students,
+      expires_at: row.expires_at ? row.expires_at.slice(0, 10) : '',
+    });
+    setEditError('');
+  };
+
+  const cancelEditBetaCode = () => { setEditingCodeId(null); setEditDraft(null); setEditError(''); };
+
+  const saveEditBetaCode = async (id) => {
+    setEditError('');
+    const maxStudents = parseInt(editDraft.max_students, 10);
+    if (!maxStudents || maxStudents < 1) { setEditError('Enter a valid max students count.'); return; }
+
+    setSavingEdit(true);
+    const { data, error } = await supabase.from('beta_codes').update({
+      recipient_name: editDraft.recipient_name.trim() || null,
+      recipient_email: editDraft.recipient_email.trim() || null,
+      max_students: maxStudents,
+      expires_at: editDraft.expires_at || null,
+    }).eq('id', id).select().single();
+    setSavingEdit(false);
+
+    if (error) { setEditError(error.message); return; }
+    setBetaCodes(prev => prev.map(bc => (bc.id === id ? data : bc)));
+    setEditingCodeId(null);
+    setEditDraft(null);
+  };
 
   const downloadCSV = (headers, rows, filename) => {
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -4119,6 +4216,13 @@ function AdminDashboard({ profile }) {
   const thStyle = { padding: '10px 14px', fontSize: '12px', fontWeight: 700, color: '#475569', textAlign: 'left', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' };
   const tdStyle = { padding: '10px 14px', fontSize: '13px', color: '#374151', borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' };
 
+  const statCard = (label, value) => (
+    <div key={label} style={{ background: 'white', borderRadius: '10px', padding: '18px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0', minWidth: '160px' }}>
+      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginBottom: '6px' }}>{label}</div>
+      <div style={{ fontSize: '24px', fontWeight: 800, color: '#1e293b' }}>{value}</div>
+    </div>
+  );
+
   return (
     <div style={{ maxWidth: '1060px', margin: '36px auto', padding: '0 24px' }}>
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
@@ -4131,7 +4235,11 @@ function AdminDashboard({ profile }) {
       {/* Admin tabs */}
       <div style={{ display: 'flex', borderBottom: '2px solid #e2e8f0', marginBottom: '24px', gap: '0' }}>
         {[
+          { id: 'overview', label: 'Overview' },
           { id: 'teachers', label: `Teachers (${teachers.length})` },
+          { id: 'login-activity', label: `Login Activity (${loginEvents.length})` },
+          { id: 'beta-testers', label: `Beta Testers (${betaCodes.length})` },
+          { id: 'support-tickets', label: `Support Tickets (${supportTickets.length})` },
           { id: 'feedback', label: `Feedback (${feedbackRows.length})` },
           { id: 'surveys',  label: `Surveys (${surveyRows.length})` },
         ].map(({ id, label }) => (
@@ -4143,6 +4251,73 @@ function AdminDashboard({ profile }) {
         <p style={{ color: '#94a3b8', fontSize: '14px' }}>Loading…</p>
       ) : (
         <>
+          {/* Overview */}
+          {adminTab === 'overview' && (() => {
+            const DAY = 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            const startOfWeek = now - 7 * DAY;
+            const startOfMonth = now - 30 * DAY;
+            const fmtUSD = cents => `$${((cents || 0) / 100).toFixed(2)}`;
+
+            const newTeachersWeek = teachers.filter(t => new Date(t.created_at).getTime() >= startOfWeek).length;
+            const newTeachersMonth = teachers.filter(t => new Date(t.created_at).getTime() >= startOfMonth).length;
+
+            const paymentsWeek = paymentRows.filter(p => new Date(p.created_at).getTime() >= startOfWeek);
+            const paymentsMonth = paymentRows.filter(p => new Date(p.created_at).getTime() >= startOfMonth);
+            const sumCents = rows => rows.reduce((s, p) => s + (p.amount_paid || 0), 0);
+
+            const lastActivityByTeacher = {};
+            tokenRows.forEach(({ teacher_id, created_at }) => {
+              const t = new Date(created_at).getTime();
+              if (!lastActivityByTeacher[teacher_id] || t > lastActivityByTeacher[teacher_id]) lastActivityByTeacher[teacher_id] = t;
+            });
+            const dormantCutoff = now - 30 * DAY;
+            const activeCount = teachers.filter(t => lastActivityByTeacher[t.id] >= dormantCutoff).length;
+            const dormantCount = teachers.length - activeCount;
+
+            const gradeBreakdown = {};
+            const seenClasses = new Set();
+            tokenRows.forEach(({ teacher_id, class_name, grade_level }) => {
+              const key = `${teacher_id}::${class_name}`;
+              if (seenClasses.has(key)) return;
+              seenClasses.add(key);
+              gradeBreakdown[grade_level] = (gradeBreakdown[grade_level] || 0) + 1;
+            });
+            const knownGrades = [3, 5, 8];
+            const otherGradesCount = Object.entries(gradeBreakdown)
+              .filter(([g]) => !knownGrades.includes(Number(g)))
+              .reduce((s, [, c]) => s + c, 0);
+
+            return (
+              <>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '24px' }}>
+                  {statCard('Total Teachers', teachers.length)}
+                  {statCard('New This Week', newTeachersWeek)}
+                  {statCard('New This Month', newTeachersMonth)}
+                  {statCard('Total Passcodes', tokenRows.length)}
+                  {statCard('Students Assessed', assessmentResponseRows.length)}
+                  {statCard('Active Teachers (30d)', activeCount)}
+                  {statCard('Dormant Teachers (30d+)', dormantCount)}
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '28px' }}>
+                  {statCard('Revenue This Week', fmtUSD(sumCents(paymentsWeek)))}
+                  {statCard('Revenue This Month', fmtUSD(sumCents(paymentsMonth)))}
+                  {statCard('Revenue All-Time', fmtUSD(sumCents(paymentRows)))}
+                  {statCard('Payments This Week', paymentsWeek.length)}
+                  {statCard('Payments This Month', paymentsMonth.length)}
+                  {statCard('Payments All-Time', paymentRows.length)}
+                </div>
+
+                <h3 style={{ fontSize: '15px', color: '#1e293b', marginBottom: '12px' }}>Classes by Grade Level</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+                  {knownGrades.map(g => statCard(`Grade ${g}`, gradeBreakdown[g] || 0))}
+                  {otherGradesCount > 0 && statCard('Other Grades', otherGradesCount)}
+                </div>
+              </>
+            );
+          })()}
+
           {/* Teachers */}
           {adminTab === 'teachers' && (
             <>
@@ -4172,6 +4347,214 @@ function AdminDashboard({ profile }) {
                 </table>
               </div>
             </>
+          )}
+
+          {/* Login Activity */}
+          {adminTab === 'login-activity' && (() => {
+            const DAY = 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
+            const startOfWeek = now - 7 * DAY;
+            const startOfMonth = now - 30 * DAY;
+
+            const todayCount = loginEvents.filter(e => new Date(e.created_at).getTime() >= startOfToday.getTime()).length;
+            const weekCount = loginEvents.filter(e => new Date(e.created_at).getTime() >= startOfWeek).length;
+            const monthCount = loginEvents.filter(e => new Date(e.created_at).getTime() >= startOfMonth).length;
+
+            const fromTs = loginFrom ? new Date(loginFrom + 'T00:00:00').getTime() : null;
+            const toTs = loginTo ? new Date(loginTo + 'T23:59:59').getTime() : null;
+            const filteredEvents = loginEvents.filter(e => {
+              const t = new Date(e.created_at).getTime();
+              if (fromTs !== null && t < fromTs) return false;
+              if (toTs !== null && t > toTs) return false;
+              return true;
+            });
+
+            const fmtDateTime = ts => new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+            return (
+              <>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '20px' }}>
+                  {statCard('Logins Today', todayCount)}
+                  {statCard('Logins This Week', weekCount)}
+                  {statCard('Logins This Month', monthCount)}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                  <label style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>From
+                    <input type="date" value={loginFrom} onChange={e => setLoginFrom(e.target.value)} style={{ marginLeft: '6px', padding: '5px 8px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px' }} />
+                  </label>
+                  <label style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>To
+                    <input type="date" value={loginTo} onChange={e => setLoginTo(e.target.value)} style={{ marginLeft: '6px', padding: '5px 8px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px' }} />
+                  </label>
+                  {(loginFrom || loginTo) && (
+                    <button onClick={() => { setLoginFrom(''); setLoginTo(''); }} style={{ padding: '5px 12px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>Clear</button>
+                  )}
+                </div>
+
+                <div style={{ overflowX: 'auto', background: 'white', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead><tr>
+                      <th style={thStyle}>Teacher</th><th style={thStyle}>Email</th><th style={thStyle}>Logged In At</th>
+                    </tr></thead>
+                    <tbody>
+                      {filteredEvents.map(e => (
+                        <tr key={e.id}>
+                          <td style={tdStyle}>{e.teacher?.full_name || '—'}</td>
+                          <td style={tdStyle}>{e.teacher?.email || '—'}</td>
+                          <td style={tdStyle}>{fmtDateTime(e.created_at)}</td>
+                        </tr>
+                      ))}
+                      {filteredEvents.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, color: '#94a3b8', textAlign: 'center', padding: '32px' }}>No login activity in this range yet</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            );
+          })()}
+
+          {/* Beta Testers */}
+          {adminTab === 'beta-testers' && (() => {
+            const DAY = 24 * 60 * 60 * 1000;
+            const now = Date.now();
+
+            const lastLoginByTeacher = {};
+            loginEvents.forEach(({ teacher_id, created_at }) => {
+              const t = new Date(created_at).getTime();
+              if (!lastLoginByTeacher[teacher_id] || t > lastLoginByTeacher[teacher_id]) lastLoginByTeacher[teacher_id] = t;
+            });
+
+            const tokenToTeacher = {};
+            tokenRows.forEach(({ token, teacher_id }) => { tokenToTeacher[token] = teacher_id; });
+            const assessedCountByTeacher = {};
+            assessmentResponseRows.forEach(({ student_token }) => {
+              const tid = tokenToTeacher[student_token];
+              if (!tid) return;
+              assessedCountByTeacher[tid] = (assessedCountByTeacher[tid] || 0) + 1;
+            });
+
+            return (
+              <>
+                <div style={{ background: 'white', borderRadius: '10px', padding: '18px 20px', marginBottom: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
+                  <h3 style={{ margin: '0 0 12px', fontSize: '15px', color: '#1e293b' }}>Create Beta Code</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'flex-end' }}>
+                    <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Code
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                        <input value={newCode} onChange={e => setNewCode(e.target.value.toUpperCase())} placeholder="auto-generated if blank" style={{ padding: '7px 10px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px', width: '160px' }} />
+                        <button type="button" onClick={() => setNewCode(generateBetaCode())} style={{ padding: '7px 10px', fontSize: '12px', border: '1.5px solid #e2e8f0', borderRadius: '6px', background: 'white', color: '#64748b', cursor: 'pointer' }}>Generate</button>
+                      </div>
+                    </label>
+                    <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Max Students
+                      <input type="number" min="1" value={newMaxStudents} onChange={e => setNewMaxStudents(e.target.value)} style={{ display: 'block', marginTop: '4px', padding: '7px 10px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px', width: '110px' }} />
+                    </label>
+                    <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Expires At
+                      <input type="date" value={newExpiresAt} onChange={e => setNewExpiresAt(e.target.value)} style={{ display: 'block', marginTop: '4px', padding: '7px 10px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px' }} />
+                    </label>
+                    <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Recipient Name
+                      <input value={newRecipientName} onChange={e => setNewRecipientName(e.target.value)} style={{ display: 'block', marginTop: '4px', padding: '7px 10px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px' }} />
+                    </label>
+                    <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Recipient Email
+                      <input type="email" value={newRecipientEmail} onChange={e => setNewRecipientEmail(e.target.value)} style={{ display: 'block', marginTop: '4px', padding: '7px 10px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px' }} />
+                    </label>
+                    <button onClick={handleCreateBetaCode} disabled={creating} style={{ padding: '8px 18px', fontSize: '13px', fontWeight: 600, border: 'none', borderRadius: '6px', background: '#3D6B8A', color: 'white', cursor: creating ? 'default' : 'pointer', opacity: creating ? 0.6 : 1 }}>
+                      {creating ? 'Creating…' : 'Create Code'}
+                    </button>
+                  </div>
+                  {createError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '10px 0 0' }}>{createError}</p>}
+                </div>
+
+                <div style={{ overflowX: 'auto', background: 'white', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead><tr>
+                      <th style={thStyle}>Code</th><th style={thStyle}>Recipient</th><th style={thStyle}>Redeemed?</th>
+                      <th style={thStyle}>Max</th><th style={thStyle}>Expires</th><th style={thStyle}>Last Login</th>
+                      <th style={thStyle}>Students Assessed</th><th style={thStyle}>Days Since Created</th><th style={thStyle}>Actions</th>
+                    </tr></thead>
+                    <tbody>
+                      {betaCodes.map(bc => {
+                        const matchedTeacher = teachers.find(t => t.beta_code === bc.code);
+                        const lastLogin = matchedTeacher ? lastLoginByTeacher[matchedTeacher.id] : null;
+                        const assessedCount = matchedTeacher ? (assessedCountByTeacher[matchedTeacher.id] || 0) : 0;
+                        const daysSince = Math.floor((now - new Date(bc.created_at).getTime()) / DAY);
+                        const isEditing = editingCodeId === bc.id;
+
+                        return (
+                          <tr key={bc.id}>
+                            <td style={{ ...tdStyle, fontWeight: 700 }}>{bc.code}</td>
+                            <td style={tdStyle}>
+                              {isEditing ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <input value={editDraft.recipient_name} onChange={e => setEditDraft(d => ({ ...d, recipient_name: e.target.value }))} placeholder="Name" style={{ padding: '5px 8px', fontSize: '12px', border: '1.5px solid #e2e8f0', borderRadius: '5px' }} />
+                                  <input value={editDraft.recipient_email} onChange={e => setEditDraft(d => ({ ...d, recipient_email: e.target.value }))} placeholder="Email" style={{ padding: '5px 8px', fontSize: '12px', border: '1.5px solid #e2e8f0', borderRadius: '5px' }} />
+                                </div>
+                              ) : (
+                                <>{bc.recipient_name || '—'}<br /><span style={{ color: '#94a3b8', fontSize: '12px' }}>{bc.recipient_email || '—'}</span></>
+                              )}
+                            </td>
+                            <td style={tdStyle}>{(bc.used_students || 0) > 0 ? `Yes (${bc.used_students}/${bc.max_students})` : 'No'}</td>
+                            <td style={tdStyle}>
+                              {isEditing ? (
+                                <input type="number" min="1" value={editDraft.max_students} onChange={e => setEditDraft(d => ({ ...d, max_students: e.target.value }))} style={{ width: '70px', padding: '5px 8px', fontSize: '12px', border: '1.5px solid #e2e8f0', borderRadius: '5px' }} />
+                              ) : bc.max_students}
+                            </td>
+                            <td style={tdStyle}>
+                              {isEditing ? (
+                                <input type="date" value={editDraft.expires_at} onChange={e => setEditDraft(d => ({ ...d, expires_at: e.target.value }))} style={{ padding: '5px 8px', fontSize: '12px', border: '1.5px solid #e2e8f0', borderRadius: '5px' }} />
+                              ) : fmtDate(bc.expires_at)}
+                            </td>
+                            <td style={tdStyle}>{lastLogin ? fmtDate(lastLogin) : '—'}</td>
+                            <td style={tdStyle}>{assessedCount}</td>
+                            <td style={tdStyle}>{daysSince}</td>
+                            <td style={tdStyle}>
+                              {isEditing ? (
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button onClick={() => saveEditBetaCode(bc.id)} disabled={savingEdit} style={{ padding: '5px 10px', fontSize: '12px', border: 'none', borderRadius: '5px', background: '#3D6B8A', color: 'white', cursor: 'pointer' }}>Save</button>
+                                  <button onClick={cancelEditBetaCode} style={{ padding: '5px 10px', fontSize: '12px', border: '1.5px solid #e2e8f0', borderRadius: '5px', background: 'white', color: '#64748b', cursor: 'pointer' }}>Cancel</button>
+                                </div>
+                              ) : (
+                                <button onClick={() => startEditBetaCode(bc)} style={{ padding: '5px 10px', fontSize: '12px', border: '1.5px solid #e2e8f0', borderRadius: '5px', background: 'white', color: '#64748b', cursor: 'pointer' }}>Edit</button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {betaCodes.length === 0 && <tr><td colSpan={9} style={{ ...tdStyle, color: '#94a3b8', textAlign: 'center', padding: '32px' }}>No beta codes yet</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+                {editError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '10px 0 0' }}>{editError}</p>}
+              </>
+            );
+          })()}
+
+          {/* Support Tickets */}
+          {/* Rendered as plain JSX ({value}), which React escapes as text by default —
+              no dangerouslySetInnerHTML here, so no need for api/_escapeHtml.js in this context. */}
+          {adminTab === 'support-tickets' && (
+            <div style={{ overflowX: 'auto', background: 'white', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead><tr>
+                  <th style={thStyle}>Date</th><th style={thStyle}>Name</th><th style={thStyle}>Email</th>
+                  <th style={thStyle}>School</th><th style={thStyle}>Issue Type</th><th style={thStyle}>Description</th>
+                  <th style={thStyle}>Screenshot</th><th style={thStyle}>Status</th>
+                </tr></thead>
+                <tbody>
+                  {supportTickets.map(t => (
+                    <tr key={t.id}>
+                      <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>{fmtDate(t.created_at)}</td>
+                      <td style={tdStyle}>{t.name || '—'}</td>
+                      <td style={tdStyle}>{t.email || '—'}</td>
+                      <td style={tdStyle}>{t.school || '—'}</td>
+                      <td style={tdStyle}>{t.issue_type || '—'}</td>
+                      <td style={{ ...tdStyle, maxWidth: '360px', whiteSpace: 'pre-wrap' }}>{t.description}</td>
+                      <td style={tdStyle}>{/^https:\/\//i.test(t.screenshot_url || '') ? <a href={t.screenshot_url} target="_blank" rel="noreferrer">View</a> : (t.screenshot_url || '—')}</td>
+                      <td style={tdStyle}>{t.status || '—'}</td>
+                    </tr>
+                  ))}
+                  {supportTickets.length === 0 && <tr><td colSpan={8} style={{ ...tdStyle, color: '#94a3b8', textAlign: 'center', padding: '32px' }}>No support tickets yet</td></tr>}
+                </tbody>
+              </table>
+            </div>
           )}
 
           {/* Feedback */}
@@ -5100,13 +5483,15 @@ function Dashboard({ profile, onLogout }) {
     setContactSubmitting(true);
     setContactErrors({});
 
+    // support_tickets is anon-insertable (RLS) and stores raw, unescaped input.
+    // Any future UI reading this table must escapeHtml() at render time — see api/_escapeHtml.js.
     const { error } = await supabase.from('support_tickets').insert({
-      name: stripHtml(contactForm.name.trim()),
+      name: contactForm.name.trim(),
       email: contactForm.email.trim(),
-      school: contactForm.school.trim() ? stripHtml(contactForm.school.trim()) : null,
+      school: contactForm.school.trim() || null,
       grade_levels: contactForm.gradeLevels.length > 0 ? contactForm.gradeLevels.join(', ') : null,
       issue_type: contactForm.issueType,
-      description: stripHtml(contactForm.description.trim()),
+      description: contactForm.description.trim(),
       screenshot_url: urlVal || null,
       status: 'new',
     });
@@ -7372,6 +7757,10 @@ function App() {
       }
       if (session?.user) {
         loadTeacherProfile(session.user.id, event === 'SIGNED_IN');
+        if (event === 'SIGNED_IN') {
+          // Fire-and-forget — don't block the login flow on this.
+          supabase.from('login_events').insert({ teacher_id: session.user.id }).then(() => {});
+        }
       } else {
         setTeacherProfile(null);
         setTeacherLoading(false);
