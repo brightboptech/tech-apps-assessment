@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           from: 'TechGrowth Check <info@techgrowthcheck.com>',
           to: [row.recipient_email],
-          reply_to: 'brightboptech@gmail.com',
+          reply_to: 'info@techgrowthcheck.com',
           subject: 'Your TechGrowth Check beta access is ready when you are',
           html: `
             <p>Hi ${safeName},</p>
