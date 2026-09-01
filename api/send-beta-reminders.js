@@ -28,12 +28,14 @@ module.exports = async (req, res) => {
 
   // Recurring weekly reminders until the code is redeemed: send if never
   // reminded and the code itself is 7+ days old, or if the last reminder
-  // was sent 7+ days ago.
+  // was sent 7+ days ago. Expired codes are skipped — reminding someone to
+  // redeem a code that no longer works just produces an "invalid code" error.
   const { data: codes, error: fetchErr } = await supabaseAdmin
     .from('beta_codes')
     .select('id, code, recipient_name, recipient_email')
     .eq('used_students', 0)
     .not('recipient_email', 'is', null)
+    .gt('expires_at', new Date().toISOString())
     .or(`and(last_reminder_sent_at.is.null,created_at.lte.${sevenDaysAgo}),last_reminder_sent_at.lte.${sevenDaysAgo}`);
 
   if (fetchErr) {
