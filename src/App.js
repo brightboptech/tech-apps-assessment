@@ -5054,7 +5054,7 @@ function ResultsDashboard({ profile, onBack }) {
       try {
         let tokenQ = supabase.from('tokens')
           .select('token, grade_level, test_type, class_name, teacher_id, student_number');
-        if (profile.role !== 'admin') tokenQ = tokenQ.eq('teacher_id', profile.id);
+        if (profile.email !== ADMIN_EMAIL) tokenQ = tokenQ.eq('teacher_id', profile.id);
         const { data: tokens, error: tErr } = await tokenQ;
         if (tErr) throw tErr;
 
@@ -5317,7 +5317,7 @@ function ResultsDashboard({ profile, onBack }) {
         Assessment Results
       </h2>
       <p style={{ margin: '0 0 28px', color: '#888', fontSize: '14px' }}>
-        {profile.role === 'admin' ? 'All classes across the district' : 'Your classes'}
+        {profile.email === ADMIN_EMAIL ? 'All classes across the district' : 'Your classes'}
       </p>
 
       {classes.length === 0 ? (
@@ -7924,7 +7924,7 @@ function App() {
           id: userId,
           email: user.email,
           full_name: user.user_metadata?.full_name ?? user.email,
-          role: 'admin',
+          role: 'teacher',
         }])
         .select()
         .single();
