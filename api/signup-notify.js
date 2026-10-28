@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
 
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) {
-    console.warn('[signup-notify] RESEND_API_KEY not set — skipping email notification');
+    console.error('[signup-notify] Notification email NOT sent — RESEND_API_KEY is not set');
     return res.json({ ok: true, email: false });
   }
 
@@ -27,6 +27,10 @@ module.exports = async (req, res) => {
 
   const mailtoHref = safeMailto(email);
   const safeEmailText = escapeHtml(email);
+  // Reply goes straight to the new teacher — only if safeMailto accepts the address and
+  // escaping didn't change it (no characters Resend would reject in a header).
+  const cleanEmail = String(email ?? '').trim();
+  const replyTo = mailtoHref && mailtoHref === cleanEmail ? cleanEmail : undefined;
 
   try {
     const emailRes = await fetch('https://api.resend.com/emails', {
@@ -36,8 +40,9 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TechGrowth Check <onboarding@resend.dev>',
+        from: 'TechGrowth Check <info@techgrowthcheck.com>',
         to: ['brightboptech@gmail.com'],
+        reply_to: replyTo,
         subject: 'New TechGrowth Check signup!',
         html: `
           <h2 style="color:#3D6B8A;font-family:sans-serif">New Teacher Signup — TechGrowth Check</h2>
@@ -50,14 +55,16 @@ module.exports = async (req, res) => {
     });
 
     if (emailRes.ok) {
+      const { id } = await emailRes.json().catch(() => ({}));
+      console.log('[signup-notify] Notification email sent, Resend id:', id);
       return res.json({ ok: true, email: true });
     } else {
       const body = await emailRes.text();
-      console.error('[signup-notify] Resend error:', body);
+      console.error(`[signup-notify] Notification email NOT sent — Resend HTTP ${emailRes.status}:`, body);
       return res.json({ ok: true, email: false });
     }
   } catch (e) {
-    console.error('[signup-notify] Resend exception:', e.message);
+    console.error('[signup-notify] Notification email NOT sent — exception:', e.message);
     return res.json({ ok: true, email: false });
   }
 };

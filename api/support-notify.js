@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
 
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) {
-    console.warn('[support-notify] RESEND_API_KEY not set — skipping email notification');
+    console.error('[support-notify] Notification email NOT sent — RESEND_API_KEY is not set');
     return res.json({ ok: true, email: false });
   }
 
@@ -28,6 +28,10 @@ module.exports = async (req, res) => {
   const safeDescription = escapeHtml(description);
   const mailtoHref = safeMailto(email);
   const safeEmailText = escapeHtml(email);
+  // Reply goes straight to the teacher who filed the ticket — only if safeMailto accepts
+  // the address and escaping didn't change it (no characters Resend would reject in a header).
+  const cleanEmail = String(email ?? '').trim();
+  const replyTo = mailtoHref && mailtoHref === cleanEmail ? cleanEmail : undefined;
   const screenshotHref = safeHttpsUrl(screenshot_url);
   const safeScreenshotText = escapeHtml(screenshot_url);
 
@@ -39,8 +43,9 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TechGrowth Check Support <onboarding@resend.dev>',
+        from: 'TechGrowth Check Support <info@techgrowthcheck.com>',
         to: ['brightboptech@gmail.com'],
+        reply_to: replyTo,
         subject: `New Support Ticket: ${safeSubjectPart(issue_type || 'Unknown')} from ${safeSubjectPart(name || 'Unknown')}`,
         html: `
           <h2 style="color:#3D6B8A;font-family:sans-serif">New Support Ticket — TechGrowth Check</h2>
@@ -58,14 +63,16 @@ module.exports = async (req, res) => {
     });
 
     if (emailRes.ok) {
+      const { id } = await emailRes.json().catch(() => ({}));
+      console.log('[support-notify] Notification email sent, Resend id:', id);
       return res.json({ ok: true, email: true });
     } else {
       const body = await emailRes.text();
-      console.error('[support-notify] Resend error:', body);
+      console.error(`[support-notify] Notification email NOT sent — Resend HTTP ${emailRes.status}:`, body);
       return res.json({ ok: true, email: false });
     }
   } catch (e) {
-    console.error('[support-notify] Resend exception:', e.message);
+    console.error('[support-notify] Notification email NOT sent — exception:', e.message);
     return res.json({ ok: true, email: false });
   }
 };

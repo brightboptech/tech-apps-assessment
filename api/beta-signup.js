@@ -72,6 +72,9 @@ module.exports = async (req, res) => {
       const safeComments = escapeHtml(cleanComments);
       const mailtoHref = safeMailto(cleanEmail);
       const safeEmailText = escapeHtml(cleanEmail);
+      // Reply goes straight to the signer — only if safeMailto accepts the address and
+      // escaping didn't change it (no characters Resend would reject in a header).
+      const replyTo = mailtoHref && mailtoHref === cleanEmail ? cleanEmail : undefined;
 
       const emailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -80,8 +83,9 @@ module.exports = async (req, res) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'TechGrowth Check <onboarding@resend.dev>',
+          from: 'TechGrowth Check <info@techgrowthcheck.com>',
           to: ['brightboptech@gmail.com'],
+          reply_to: replyTo,
           subject: `New Beta Signup: ${safeSubjectPart(cleanName)}`,
           html: `
             <h2 style="color:#3D6B8A">New Beta Signup — TechGrowth Check</h2>
@@ -97,15 +101,17 @@ module.exports = async (req, res) => {
       });
       if (emailRes.ok) {
         results.email = true;
+        const { id } = await emailRes.json().catch(() => ({}));
+        console.log('[beta-signup] Notification email sent, Resend id:', id);
       } else {
         const body = await emailRes.text();
-        console.error('[beta-signup] Resend error:', body);
+        console.error(`[beta-signup] Notification email NOT sent — Resend HTTP ${emailRes.status}:`, body);
       }
     } catch (e) {
-      console.error('[beta-signup] Resend exception:', e.message);
+      console.error('[beta-signup] Notification email NOT sent — exception:', e.message);
     }
   } else {
-    console.warn('[beta-signup] RESEND_API_KEY not set — skipping email notification');
+    console.error('[beta-signup] Notification email NOT sent — RESEND_API_KEY is not set');
   }
 
   // Email is optional — success depends only on the Supabase insert
