@@ -2,19 +2,25 @@ const { applyCors } = require('./_cors');
 const { checkRateLimit, getClientKey } = require('./_rateLimit');
 
 const MAX_TEXT_LENGTH = 1000;
+// The question bank is fixed, so identical text always yields identical audio.
+// GET responses carry s-maxage so Vercel's CDN serves repeats without invoking
+// this function — a class on one school IP only spends rate limit on cache misses.
+// POST stays (uncached) for students still on a page loaded from an older build.
+const RATE_LIMIT_PER_HOUR = 120;
 
 module.exports = async (req, res) => {
-  applyCors(req, res);
+  applyCors(req, res, 'GET, POST, OPTIONS');
+  res.setHeader('Cache-Control', 'no-store'); // replaced on a successful GET below
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const allowed = await checkRateLimit('tts', getClientKey(req), 30, 3600);
+  const allowed = await checkRateLimit('tts', getClientKey(req), RATE_LIMIT_PER_HOUR, 3600);
   if (!allowed) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
-  const { text } = req.body || {};
+  const text = req.method === 'GET' ? req.query.text : (req.body || {}).text;
   if (!text || typeof text !== 'string' || !text.trim()) {
     return res.status(400).json({ error: 'Missing or invalid text.' });
   }
@@ -54,6 +60,9 @@ module.exports = async (req, res) => {
 
     const arrayBuffer = await elevenRes.arrayBuffer();
     res.setHeader('Content-Type', elevenRes.headers.get('content-type') || 'audio/mpeg');
+    if (req.method === 'GET') {
+      res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=31536000, immutable');
+    }
     res.status(200).send(Buffer.from(arrayBuffer));
   } catch (err) {
     console.error('[tts] Unexpected error:', err.message);

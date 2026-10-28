@@ -7807,6 +7807,8 @@ function App() {
   const [loadingId, setLoadingId] = useState(null);
   const audioRef = useRef(null);
   const audioCacheRef = useRef({});
+  const [ttsNotice, setTtsNotice] = useState('');
+  const ttsServerPausedUntilRef = useRef(0);
   const startTimeRef = useRef(null);
 
   // Pick a fresh quote each time the completion or save-exit screen becomes active
@@ -8105,28 +8107,53 @@ function App() {
       audioRef.current.pause();
       audioRef.current = null;
     }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
     setSpeakingId(null);
     setLoadingId(null);
+  };
+
+  // Fallback when /api/tts is rate-limited, down, or audio won't play: the device's
+  // built-in voice. Guards on `id` because cancel() fires onerror/onend for the
+  // utterance being replaced.
+  const speakWithBrowser = (text, id) => {
+    setLoadingId(null);
+    if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance === 'undefined') {
+      setTtsNotice("Read-aloud isn't working right now. Ask your teacher to read it to you.");
+      return;
+    }
+    const utterance = new window.SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.onend = () => setSpeakingId(prev => (prev === id ? null : prev));
+    utterance.onerror = () => setSpeakingId(prev => (prev === id ? null : prev));
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+    setSpeakingId(id);
+    setTtsNotice("Using this device's voice — the usual read-aloud voice is busy.");
   };
 
   const speak = async (text, id) => {
     if (speakingId === id || loadingId === id) { stopSpeech(); return; }
     stopSpeech();
+
+    let objectURL = audioCacheRef.current[text];
+    // After a server failure, skip the server for 5 minutes so each click
+    // doesn't wait on another failing request.
+    if (!objectURL && Date.now() < ttsServerPausedUntilRef.current) {
+      speakWithBrowser(text, id);
+      return;
+    }
     setLoadingId(id);
 
     try {
-      let objectURL = audioCacheRef.current[text];
-
       if (!objectURL) {
-        const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text }),
-        });
+        // GET so Vercel's CDN can cache each clip (see api/tts.js).
+        const res = await fetch(`/api/tts?text=${encodeURIComponent(text)}`);
 
         if (!res.ok) {
-          console.error('[TTS] Request failed:', res.status);
-          setLoadingId(null);
+          console.error('[TTS] Request failed, using device voice:', res.status);
+          ttsServerPausedUntilRef.current = Date.now() + 5 * 60 * 1000;
+          speakWithBrowser(text, id);
           return;
         }
 
@@ -8139,19 +8166,21 @@ function App() {
       audioRef.current = audio;
       audio.onended = () => { audioRef.current = null; setSpeakingId(null); };
       audio.onerror = (e) => {
-        console.error('[TTS] Audio playback error:', e);
+        console.error('[TTS] Audio playback error, using device voice:', e);
         audioRef.current = null;
-        setSpeakingId(null);
+        speakWithBrowser(text, id);
       };
       setLoadingId(null);
       setSpeakingId(id);
+      setTtsNotice('');
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise.catch(err => console.error('[TTS] play() rejected:', err));
       }
     } catch (err) {
-      console.error('[TTS] Request failed:', err.message);
-      setLoadingId(null);
+      console.error('[TTS] Request failed, using device voice:', err.message);
+      ttsServerPausedUntilRef.current = Date.now() + 5 * 60 * 1000;
+      speakWithBrowser(text, id);
     }
   };
 
@@ -8791,6 +8820,12 @@ function App() {
                   }
                 </button>
               </div>
+
+              {ttsNotice && (
+                <p role="status" style={{ margin: '-8px 0 14px', fontSize: '13px', color: '#64748b' }}>
+                  {ttsNotice}
+                </p>
+              )}
 
               {currentQ.options.map((option) => {
                 const optId = `option-${option.letter}`;
