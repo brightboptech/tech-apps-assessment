@@ -1421,6 +1421,18 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
       };
     })].filter(c => c.className && c.grade && parseInt(c.studentCount) > 0);
 
+    // Same 1–200 per class rule the server enforces (api/create-checkout-session.js),
+    // checked here so the teacher sees it before being sent to checkout.
+    const badClass = allClasses.find(c => {
+      const n = Number(c.studentCount);
+      return !Number.isInteger(n) || n < 1 || n > 200;
+    });
+    if (badClass) {
+      setError(`Invalid student count for "${badClass.className}". Enter 1–200 students per class.`);
+      setGenerating(false);
+      return;
+    }
+
     localStorage.setItem('pendingPassOrder', JSON.stringify({
       classes: allClasses,
       pricePerStudent: String(price),
@@ -3305,6 +3317,7 @@ function AdminDashboard({ profile }) {
   const [surveyRows, setSurveyRows]       = useState([]);
   const [tokenRows, setTokenRows]         = useState([]);
   const [paymentRows, setPaymentRows]     = useState([]);
+  const [showTestPayments, setShowTestPayments] = useState(false);
   const [assessmentResponseRows, setAssessmentResponseRows] = useState([]);
   const [loginEvents, setLoginEvents]     = useState([]);
   const [loginFrom, setLoginFrom]         = useState('');
@@ -3506,8 +3519,14 @@ function AdminDashboard({ profile }) {
             const newTeachersWeek = teachers.filter(t => new Date(t.created_at).getTime() >= startOfWeek);
             const newTeachersMonth = teachers.filter(t => new Date(t.created_at).getTime() >= startOfMonth);
 
-            const paymentsWeek = paymentRows.filter(p => new Date(p.created_at).getTime() >= startOfWeek);
-            const paymentsMonth = paymentRows.filter(p => new Date(p.created_at).getTime() >= startOfMonth);
+            // Payments from the owner account are test purchases (labelled "Own Account (test)"
+            // below); they're left out of every revenue figure and list unless toggled on.
+            const realPayments = paymentRows.filter(p => p.teacher_id !== adminTeacherId);
+            const testPaymentCount = paymentRows.length - realPayments.length;
+            const visiblePayments = showTestPayments ? paymentRows : realPayments;
+            const paymentScope = showTestPayments ? ' (including test payments)' : '';
+            const paymentsWeek = visiblePayments.filter(p => new Date(p.created_at).getTime() >= startOfWeek);
+            const paymentsMonth = visiblePayments.filter(p => new Date(p.created_at).getTime() >= startOfMonth);
             const sumCents = rows => rows.reduce((s, p) => s + (p.amount_paid || 0), 0);
 
             const lastActivityByTeacher = {};
@@ -3585,13 +3604,19 @@ function AdminDashboard({ profile }) {
                   {statCard('Dormant Teachers (30d+)', dormantTeachers.length, () => openDrillDown('Dormant Teachers', 'No class activity in 30+ days (or ever)', activityColumns, teacherRows(dormantTeachers)))}
                 </div>
 
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748b', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={showTestPayments} onChange={e => setShowTestPayments(e.target.checked)} />
+                    Show test payments ({testPaymentCount})
+                  </label>
+                </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '28px' }}>
-                  {statCard('Revenue This Week', fmtUSD(sumCents(paymentsWeek)), () => openDrillDown('Payments', 'Last 7 days', paymentColumns, paymentRowsFor(paymentsWeek)))}
-                  {statCard('Revenue This Month', fmtUSD(sumCents(paymentsMonth)), () => openDrillDown('Payments', 'Last 30 days', paymentColumns, paymentRowsFor(paymentsMonth)))}
-                  {statCard('Revenue All-Time', fmtUSD(sumCents(paymentRows)), () => openDrillDown('Payments', 'All time', paymentColumns, paymentRowsFor(paymentRows)))}
-                  {statCard('Payments This Week', paymentsWeek.length, () => openDrillDown('Payments', 'Last 7 days', paymentColumns, paymentRowsFor(paymentsWeek)))}
-                  {statCard('Payments This Month', paymentsMonth.length, () => openDrillDown('Payments', 'Last 30 days', paymentColumns, paymentRowsFor(paymentsMonth)))}
-                  {statCard('Payments All-Time', paymentRows.length, () => openDrillDown('Payments', 'All time', paymentColumns, paymentRowsFor(paymentRows)))}
+                  {statCard('Revenue This Week', fmtUSD(sumCents(paymentsWeek)), () => openDrillDown('Payments', 'Last 7 days' + paymentScope, paymentColumns, paymentRowsFor(paymentsWeek)))}
+                  {statCard('Revenue This Month', fmtUSD(sumCents(paymentsMonth)), () => openDrillDown('Payments', 'Last 30 days' + paymentScope, paymentColumns, paymentRowsFor(paymentsMonth)))}
+                  {statCard('Revenue All-Time', fmtUSD(sumCents(visiblePayments)), () => openDrillDown('Payments', 'All time' + paymentScope, paymentColumns, paymentRowsFor(visiblePayments)))}
+                  {statCard('Payments This Week', paymentsWeek.length, () => openDrillDown('Payments', 'Last 7 days' + paymentScope, paymentColumns, paymentRowsFor(paymentsWeek)))}
+                  {statCard('Payments This Month', paymentsMonth.length, () => openDrillDown('Payments', 'Last 30 days' + paymentScope, paymentColumns, paymentRowsFor(paymentsMonth)))}
+                  {statCard('Payments All-Time', visiblePayments.length, () => openDrillDown('Payments', 'All time' + paymentScope, paymentColumns, paymentRowsFor(visiblePayments)))}
                 </div>
 
                 <h3 style={{ fontSize: '15px', color: '#1e293b', marginBottom: '12px' }}>Classes by Grade Level</h3>
