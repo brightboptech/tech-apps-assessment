@@ -29,3 +29,6 @@ yarn-error.log*
 
 .vercel
 questions_export.csv
+
+# Supabase CLI link state (project ref, host, version stamps); machine-specific
+supabase/.temp/
