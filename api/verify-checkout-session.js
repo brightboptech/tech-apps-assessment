@@ -26,6 +26,10 @@ module.exports = async (req, res) => {
     res.json({ paid: true, amountTotal: session.amount_total, metadata: session.metadata });
   } catch (err) {
     console.error('[verify-checkout-session] Error:', err);
-    res.status(500).json({ error: err.message });
+    // An unknown/garbage session_id is a client error, not a server failure.
+    if (err.type === 'StripeInvalidRequestError') {
+      return res.status(400).json({ error: 'Invalid session.' });
+    }
+    res.status(500).json({ error: 'Could not verify payment.' });
   }
 };

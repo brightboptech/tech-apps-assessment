@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
 
   if (fetchErr) {
     console.error('[send-beta-reminders] Fetch failed:', fetchErr.message);
-    return res.status(500).json({ error: fetchErr.message });
+    return res.status(500).json({ error: 'Could not load beta codes.' });
   }
 
   const results = { sent: 0, failed: 0, skipped: 0 };

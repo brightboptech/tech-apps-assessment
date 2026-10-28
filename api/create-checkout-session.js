@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) {
       console.error('[create-checkout-session] STRIPE_SECRET_KEY env var is not set');
-      return res.status(500).json({ error: 'Stripe is not configured on the server. Add STRIPE_SECRET_KEY to Vercel environment variables.' });
+      return res.status(500).json({ error: 'Checkout is temporarily unavailable.' });
     }
 
     const stripe = require('stripe')(key);
@@ -33,10 +33,17 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: provide either classes array or numStudents/className/gradeLevel' });
     }
 
+    // Validate before calling Stripe so bad input is a 400, not a Stripe error.
+    // 1–200 per class matches NewClassWizard and redeem_beta_code.
+    const studentCounts = lineItemClasses.map(cls => Number(cls.studentCount || cls.numStudents));
+    if (studentCounts.some(n => !Number.isInteger(n) || n < 1 || n > 200)) {
+      return res.status(400).json({ error: 'Invalid student count.' });
+    }
+
     const unitAmountCents = Math.round(Math.max(parseFloat(pricePerStudent) || 2, 2) * 100);
     const origin = req.headers.origin || 'https://techgrowthcheck.vercel.app';
 
-    const lineItems = lineItemClasses.map(cls => ({
+    const lineItems = lineItemClasses.map((cls, i) => ({
       price_data: {
         currency: 'usd',
         product_data: {
@@ -45,7 +52,7 @@ module.exports = async (req, res) => {
         },
         unit_amount: unitAmountCents,
       },
-      quantity: parseInt(cls.studentCount || cls.numStudents, 10),
+      quantity: studentCounts[i],
     }));
 
     const totalStudents = lineItems.reduce((sum, li) => sum + li.quantity, 0);
@@ -69,7 +76,7 @@ module.exports = async (req, res) => {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('[create-checkout-session] SUPABASE_URL or SUPABASE_SERVICE_KEY env var is not set');
-      return res.status(500).json({ error: 'Server is not fully configured. Add SUPABASE_URL / SUPABASE_SERVICE_KEY to Vercel environment variables.' });
+      return res.status(500).json({ error: 'Checkout is temporarily unavailable.' });
     }
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
     const { error: orderErr } = await supabaseAdmin.from('pending_orders').insert({
@@ -79,12 +86,13 @@ module.exports = async (req, res) => {
     });
     if (orderErr) {
       console.error('[create-checkout-session] Failed to record pending_orders:', orderErr.message);
-      return res.status(500).json({ error: 'Could not start checkout — please try again.' });
+      return res.status(500).json({ error: 'Please try again in a moment.' });
     }
 
     res.json({ url: session.url });
   } catch (err) {
+    // Full error (Stripe/library detail) goes to the server log only.
     console.error('[create-checkout-session] Error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Please try again in a moment.' });
   }
 };

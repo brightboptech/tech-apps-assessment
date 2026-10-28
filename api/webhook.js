@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     console.error('[webhook] Signature verification failed:', err.message);
-    return res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
+    return res.status(400).json({ error: 'Invalid signature.' });
   }
 
   // Stripe expects a 2xx for any event type we receive, even ones we ignore —
@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
 
     if (error) {
       console.error('[webhook] fulfill_pending_order failed for session', session.id, ':', error.message);
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Fulfillment failed.' }); // 500 → Stripe retries
     }
 
     const result = Array.isArray(data) ? data[0] : data;
@@ -65,6 +65,6 @@ module.exports = async (req, res) => {
     return res.status(200).json({ received: true });
   } catch (err) {
     console.error('[webhook] Unexpected error for session', session.id, ':', err.message);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Fulfillment failed.' });
   }
 };
