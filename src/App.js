@@ -361,11 +361,23 @@ function gradeDisplay(level) {
   return `Grade ${Number(level)}`;
 }
 
+// Uniform pick from `chars` using the browser CSPRNG. Bytes at or above the largest
+// multiple of chars.length are rejected so `b % chars.length` has no modulo bias.
+function secureRandomString(chars, length) {
+  const limit = 256 - (256 % chars.length);
+  const buf = new Uint8Array(length * 2);
+  let out = '';
+  while (out.length < length) {
+    window.crypto.getRandomValues(buf);
+    for (const b of buf) {
+      if (b < limit && out.length < length) out += chars[b % chars.length];
+    }
+  }
+  return out;
+}
+
 function makeToken() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  return Array.from({ length: 8 }, () =>
-    chars[Math.floor(Math.random() * chars.length)]
-  ).join('');
+  return secureRandomString('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
 }
 
 // Polls pending_orders until the webhook has fulfilled a checkout session (or times out).
@@ -4140,12 +4152,8 @@ function AdminDashboard({ profile }) {
 
   const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
-  const generateBetaCode = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I — avoids ambiguous codes
-    let suffix = '';
-    for (let i = 0; i < 5; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
-    return `TGC-${suffix}`;
-  };
+  // no 0/O/1/I — avoids ambiguous codes
+  const generateBetaCode = () => `TGC-${secureRandomString('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 5)}`;
 
   const handleCreateBetaCode = async () => {
     setCreateError('');
