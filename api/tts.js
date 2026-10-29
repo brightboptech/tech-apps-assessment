@@ -1,5 +1,9 @@
 const { applyCors } = require('./_cors');
 const { checkRateLimit, getClientKey } = require('./_rateLimit');
+const crypto = require('crypto');
+// Generated from src/grade*Questions.js by scripts/build-tts-allowlist.js (prebuild).
+const ALLOWED_HASHES = new Set(require('./_ttsAllowlist.json').hashes);
+const hashText = text => crypto.createHash('sha256').update(text, 'utf8').digest('hex').slice(0, 32);
 
 const MAX_TEXT_LENGTH = 1000;
 // The question bank is fixed, so identical text always yields identical audio.
@@ -15,17 +19,21 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const allowed = await checkRateLimit('tts', getClientKey(req), RATE_LIMIT_PER_HOUR, 3600);
-  if (!allowed) {
-    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
-  }
-
   const text = req.method === 'GET' ? req.query.text : (req.body || {}).text;
   if (!text || typeof text !== 'string' || !text.trim()) {
     return res.status(400).json({ error: 'Missing or invalid text.' });
   }
   if (text.length > MAX_TEXT_LENGTH) {
     return res.status(400).json({ error: `Text too long (max ${MAX_TEXT_LENGTH} characters).` });
+  }
+  // Only question-bank text can reach ElevenLabs (caps credit spend; exact match, no normalising).
+  if (!ALLOWED_HASHES.has(hashText(text))) {
+    return res.status(400).json({ error: 'Text is not in the question bank.' });
+  }
+
+  const allowed = await checkRateLimit('tts', getClientKey(req), RATE_LIMIT_PER_HOUR, 3600);
+  if (!allowed) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
   const apiKey = process.env.ELEVENLABS_API_KEY;
