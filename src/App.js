@@ -5688,26 +5688,30 @@ function TIAGrowthReport({ profile, onBack }) {
         postByClass[cls].push({ token: t.token, student_number: t.student_number, percentage: resp.percentage, responseId: resp.id, submittedAt: resp.created_at });
       });
 
-      // 5. Sort each class group: by student_number if available, else by submission time
-      const sortGroup = (arr) => {
-        const hasNumbers = arr.some(s => s.student_number !== null && s.student_number !== undefined);
-        return hasNumbers
-          ? [...arr].sort((a, b) => a.student_number - b.student_number)
-          : [...arr].sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
-      };
-
-      // 6. Pair students positionally within each class (1st pre ↔ 1st post, etc.)
+      // 5–6. Pair each student's pre and post by student_number (the number printed on both passes), so a
+      //      missing pre or post can't shift other students onto the wrong scores. Students without both
+      //      results are left out. Classes with no student numbers at all (very old passes) fall back to
+      //      pairing in submission order.
       const matchedPairs = [];
       const allClasses = new Set([...Object.keys(preByClass), ...Object.keys(postByClass)]);
       allClasses.forEach(cls => {
-        const preGroup  = sortGroup(preByClass[cls]  ?? []);
-        const postGroup = sortGroup(postByClass[cls] ?? []);
-        const pairCount = Math.min(preGroup.length, postGroup.length);
-        for (let idx = 0; idx < pairCount; idx++) {
-          const pre  = preGroup[idx];
-          const post = postGroup[idx];
+        const preGroup  = preByClass[cls]  ?? [];
+        const postGroup = postByClass[cls] ?? [];
+        let pairs;
+        if ([...preGroup, ...postGroup].some(s => s.student_number != null)) {
+          const postByNum = new Map(postGroup.filter(s => s.student_number != null).map(s => [s.student_number, s]));
+          pairs = preGroup
+            .filter(s => s.student_number != null && postByNum.has(s.student_number))
+            .sort((a, b) => a.student_number - b.student_number)
+            .map(pre => [pre, postByNum.get(pre.student_number)]);
+        } else {
+          const byTime = arr => [...arr].sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
+          const p = byTime(preGroup), q = byTime(postGroup);
+          pairs = p.slice(0, Math.min(p.length, q.length)).map((pre, i) => [pre, q[i]]);
+        }
+        pairs.forEach(([pre, post]) => {
           matchedPairs.push({
-            key:            `${cls}|${idx}`,
+            key:            `${cls}|${pre.student_number ?? pre.token}`,
             preToken:       pre.token,
             postToken:      post.token,
             preScore:       pre.percentage,
@@ -5716,7 +5720,7 @@ function TIAGrowthReport({ profile, onBack }) {
             preResponseId:  pre.responseId,
             postResponseId: post.responseId,
           });
-        }
+        });
       });
       matchedPairs.sort((a, b) => b.growth - a.growth);
 
