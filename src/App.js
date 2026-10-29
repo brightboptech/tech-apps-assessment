@@ -3335,6 +3335,8 @@ function AdminDashboard({ profile }) {
   const [newRecipientEmail, setNewRecipientEmail] = useState('');
   const [createError, setCreateError]             = useState('');
   const [creating, setCreating]                   = useState(false);
+  const [sendWelcome, setSendWelcome]             = useState(true);
+  const [createNotice, setCreateNotice]           = useState('');
   const [editingCodeId, setEditingCodeId]         = useState(null);
   const [editDraft, setEditDraft]                 = useState(null);
   const [editError, setEditError]                 = useState('');
@@ -3380,6 +3382,7 @@ function AdminDashboard({ profile }) {
 
   const handleCreateBetaCode = async () => {
     setCreateError('');
+    setCreateNotice('');
     const code = (newCode.trim() || generateBetaCode()).toUpperCase();
     const maxStudents = parseInt(newMaxStudents, 10);
     if (!maxStudents || maxStudents < 1) { setCreateError('Enter a valid max students count.'); return; }
@@ -3401,6 +3404,25 @@ function AdminDashboard({ profile }) {
     }
     setBetaCodes(prev => [data, ...prev]);
     setNewCode(''); setNewMaxStudents(''); setNewExpiresAt(''); setNewRecipientName(''); setNewRecipientEmail('');
+
+    if (!sendWelcome) { setCreateNotice(`Code ${data.code} created. No email sent.`); return; }
+    // Email goes out server-side (api/send-beta-welcome.js); this session proves it's the owner.
+    setCreateNotice(`Code ${data.code} created. Sending welcome email…`);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/send-beta-welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token ?? ''}` },
+        body: JSON.stringify({ codeId: data.id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || `Server error (${res.status})`);
+      setCreateNotice(`Code ${data.code} created and welcome email sent to ${data.recipient_email}.`);
+      setBetaCodes(prev => prev.map(bc => (bc.id === data.id ? { ...bc, last_reminder_sent_at: new Date().toISOString() } : bc)));
+    } catch (err) {
+      setCreateNotice('');
+      setCreateError(`Code ${data.code} was created, but the welcome email failed: ${err.message}`);
+    }
   };
 
   const startEditBetaCode = (row) => {
@@ -3766,11 +3788,16 @@ function AdminDashboard({ profile }) {
                     <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Recipient Email
                       <input type="email" value={newRecipientEmail} onChange={e => setNewRecipientEmail(e.target.value)} style={{ display: 'block', marginTop: '4px', padding: '7px 10px', fontSize: '13px', border: '1.5px solid #e2e8f0', borderRadius: '6px' }} />
                     </label>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', fontWeight: 600, alignSelf: 'center' }}>
+                      <input type="checkbox" checked={sendWelcome} onChange={e => setSendWelcome(e.target.checked)} />
+                      Email the welcome message to the recipient
+                    </label>
                     <button onClick={handleCreateBetaCode} disabled={creating} style={{ padding: '8px 18px', fontSize: '13px', fontWeight: 600, border: 'none', borderRadius: '6px', background: '#3D6B8A', color: 'white', cursor: creating ? 'default' : 'pointer', opacity: creating ? 0.6 : 1 }}>
                       {creating ? 'Creating…' : 'Create Code'}
                     </button>
                   </div>
                   {createError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '10px 0 0' }}>{createError}</p>}
+                  {createNotice && <p style={{ color: '#16a34a', fontSize: '13px', margin: '10px 0 0' }}>{createNotice}</p>}
                 </div>
 
                 <div style={{ overflowX: 'auto', background: 'white', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0' }}>
