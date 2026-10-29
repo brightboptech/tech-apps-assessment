@@ -84,3 +84,23 @@ export function examplePreview(rule, pre = 40) {
   const t = ruleTarget(pre, rule);
   return t == null ? '' : `A student who scores ${fmt(pre)}% on the pre-test needs ${fmt(t)}% on the post-test.`;
 }
+
+// Same checks as set_growth_rule in the database; '' = valid, otherwise a message to show.
+export function validateRule(rule) {
+  if (!rule) return '';
+  const num = v => typeof v === 'number' && Number.isFinite(v);
+  if (rule.mastery != null && (!num(rule.mastery) || rule.mastery <= 0 || rule.mastery > 100)) return 'Mastery must be between 1 and 100.';
+  if (rule.type === 'gap') return num(rule.k) && rule.k >= 0.01 && rule.k <= 1 ? '' : 'Enter a share of the gap between 1% and 100%.';
+  if (rule.type === 'fixed') return num(rule.points) && rule.points >= 0.1 && rule.points <= 100 ? '' : 'Enter a gain between 0.1 and 100 points.';
+  if (rule.type === 'bands') {
+    const b = rule.bands || [];
+    if (b.length < 1 || b.length > 10) return 'Use 1 to 10 bands.';
+    if (b[0].from !== 0) return 'The first band must start at 0%.';
+    for (let i = 0; i < b.length; i++) {
+      if (!num(b[i].from) || !num(b[i].gain) || b[i].from < 0 || b[i].from > 100 || b[i].gain < 0 || b[i].gain > 100) return 'Band values must be between 0 and 100.';
+      if (i > 0 && b[i].from <= b[i - 1].from) return 'Each band must start higher than the one before it.';
+    }
+    return '';
+  }
+  return 'Choose a rule type.';
+}

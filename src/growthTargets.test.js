@@ -1,5 +1,5 @@
 import {
-  DEFAULT_RULES, ruleTarget, targetFor, metTarget, tierFor, summarizeTargets, describeRule, examplePreview,
+  DEFAULT_RULES, ruleTarget, targetFor, metTarget, tierFor, summarizeTargets, describeRule, examplePreview, validateRule,
 } from './growthTargets';
 
 const gap = DEFAULT_RULES.gap;                       // k 0.5, mastery 90
@@ -104,5 +104,31 @@ describe('wording', () => {
   test('examplePreview', () => {
     expect(examplePreview(gap)).toBe('A student who scores 40% on the pre-test needs 70% on the post-test.');
     expect(examplePreview(null)).toBe('');
+  });
+});
+
+describe('validateRule (mirrors the database checks)', () => {
+  test('valid rules', () => {
+    expect(validateRule(null)).toBe('');
+    expect(validateRule(DEFAULT_RULES.gap)).toBe('');
+    expect(validateRule(DEFAULT_RULES.fixed)).toBe('');
+    expect(validateRule(DEFAULT_RULES.bands)).toBe('');
+  });
+  test.each([
+    ['gap 0', { type: 'gap', k: 0, mastery: null }],
+    ['gap 1.5', { type: 'gap', k: 1.5, mastery: null }],
+    ['gap blank', { type: 'gap', k: '', mastery: null }],
+    ['fixed 0', { type: 'fixed', points: 0, mastery: null }],
+    ['fixed 101', { type: 'fixed', points: 101, mastery: null }],
+    ['bands empty', { type: 'bands', bands: [], mastery: null }],
+    ['bands not from 0', { type: 'bands', bands: [{ from: 10, gain: 5 }], mastery: null }],
+    ['bands not ascending', { type: 'bands', bands: [{ from: 0, gain: 5 }, { from: 50, gain: 5 }, { from: 40, gain: 5 }], mastery: null }],
+    ['bands > 10', { type: 'bands', bands: Array.from({ length: 11 }, (_, i) => ({ from: i * 5, gain: 5 })), mastery: null }],
+    ['band gain 120', { type: 'bands', bands: [{ from: 0, gain: 120 }], mastery: null }],
+    ['mastery 0', { type: 'gap', k: 0.5, mastery: 0 }],
+    ['mastery 101', { type: 'gap', k: 0.5, mastery: 101 }],
+    ['unknown type', { type: 'magic' }],
+  ])('invalid: %s', (_label, rule) => {
+    expect(validateRule(rule)).not.toBe('');
   });
 });
