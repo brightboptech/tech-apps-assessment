@@ -5783,7 +5783,7 @@ function TIAGrowthReport({ profile, onBack }) {
   };
 
   const downloadCSV = () => {
-    const header = ['Student Token', 'Student Name', 'Pre-Score (%)', 'Post-Score (%)', 'Points of Growth', 'Met Growth Goal'];
+    const header = ['Student Token', 'Student Name', 'Pre-Score (%)', 'Post-Score (%)', 'Points of Growth', 'Grew'];
     const rows = reportData.studentRows.map(r => [
       r.preToken,
       `"${(studentNames[r.preToken] || '').replace(/"/g, '""')}"`,
@@ -6008,7 +6008,7 @@ function TIAGrowthReport({ profile, onBack }) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: '#F4F7FA' }}>
-                {['Student Token', 'Student Name', 'Pre-Score', 'Post-Score', 'Points of Growth', 'Met Growth Goal'].map(h => (
+                {['Student Token', 'Student Name', 'Pre-Score', 'Post-Score', 'Points of Growth', 'Grew'].map(h => (
                   <th key={h} className={h === 'Student Name' ? 'tia-name-col' : undefined} style={{
                     padding: '10px 14px',
                     textAlign: h === 'Student Token' || h === 'Student Name' ? 'left' : 'center',
