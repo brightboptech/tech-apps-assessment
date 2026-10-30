@@ -14,8 +14,10 @@ import { supabase } from './supabaseClient';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import GrowthRuleEditor from './GrowthRuleEditor';
-import ExpectedGrowthPage from './ExpectedGrowthPage';
-import { describeRule, validateRule } from './growthTargets';
+import ExpectedGrowthPage, { GrowthRuleSection } from './ExpectedGrowthPage';
+import { describeRule, validateRule, summarizeTargets, TIA_STANDARDS } from './growthTargets';
+import { loadClassGrowth, logLine } from './classGrowth';
+import TiaStandardBar from './TiaStandardBar';
 import {
   KeyRound, ClipboardList, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, Archive, RotateCcw, ChevronDown, ChevronRight,
@@ -5664,6 +5666,16 @@ function TIAGrowthReport({ profile, onBack }) {
   const [error, setError]                 = useState('');
   const [reportData, setReportData]       = useState(null);
   const [studentNames, setStudentNames]   = useState({});
+  const [growth, setGrowth]               = useState(null);   // fix #22: the selected class's expected-growth state
+
+  const reloadGrowth = async () => { if (selectedClass) setGrowth(await loadClassGrowth(profile.id, selectedClass)); };
+  useEffect(() => {
+    setGrowth(null);
+    if (!selectedClass) return;
+    let cancelled = false;
+    loadClassGrowth(profile.id, selectedClass).then(g => { if (!cancelled) setGrowth(g); });
+    return () => { cancelled = true; };
+  }, [selectedClass, profile.id]);
 
   useEffect(() => {
     (async () => {
@@ -5781,6 +5793,7 @@ function TIAGrowthReport({ profile, onBack }) {
         pairs.forEach(([pre, post]) => {
           matchedPairs.push({
             key:            `${cls}|${pre.student_number ?? pre.token}`,
+            studentNumber:  pre.student_number ?? null,
             preToken:       pre.token,
             postToken:      post.token,
             preScore:       pre.percentage,
@@ -5836,9 +5849,19 @@ function TIAGrowthReport({ profile, onBack }) {
         }))
         .sort((a, b) => (b.growth ?? -999) - (a.growth ?? -999));
 
+      // 8. Expected growth (fix #22): targets from the class's rule + student targets, read fresh now.
+      const g = await loadClassGrowth(profile.id, selectedClass);
+      const t = summarizeTargets(
+        matchedPairs.map(p => ({ ...p, preScore: p.preScore, postScore: p.postScore })),
+        g.rule, g.overrides,
+      );
+
       setReportData({
         classSummary: { n, avgPre, avgPost, avgGrowth, grewCount, grewPct: (grewCount / n) * 100 },
-        studentRows:  matchedPairs,
+        studentRows:  t.rows,
+        targets:      { metCount: t.metCount, n: t.n, pctMet: t.pctMet, tier: t.tier },
+        hasTargets:   t.n > 0,
+        growth:       g,
         standardRows,
         className:          selectedClass,
         preAssessmentName:  `Pre-Assessment — ${selectedClass}`,
@@ -5852,16 +5875,34 @@ function TIAGrowthReport({ profile, onBack }) {
   };
 
   const downloadCSV = () => {
-    const header = ['Student Token', 'Student Name', 'Pre-Score (%)', 'Post-Score (%)', 'Points of Growth', 'Grew'];
+    const q = s => `"${String(s).replace(/"/g, '""')}"`;
+    const { hasTargets, targets, growth: g } = reportData;
+    const header = ['Student Token', 'Student Name', 'Pre-Score (%)', 'Post-Score (%)', 'Points of Growth',
+      ...(hasTargets ? ['Target (%)', 'Target Source', 'Met Target'] : []), 'Grew'];
     const rows = reportData.studentRows.map(r => [
       r.preToken,
-      `"${(studentNames[r.preToken] || '').replace(/"/g, '""')}"`,
+      q(studentNames[r.preToken] || ''),
       r.preScore.toFixed(1),
       r.postScore.toFixed(1),
       (r.growth >= 0 ? '+' : '') + r.growth.toFixed(1),
+      ...(hasTargets ? [r.target != null ? r.target.toFixed(1) : '', r.targetSource === 'override' ? 'Student target' : r.targetSource === 'rule' ? 'Rule' : '',
+                        r.met == null ? '' : r.met ? 'Yes' : 'No'] : []),
       r.growth > 0 ? 'Yes' : 'No',
     ]);
-    const csv = [header, ...rows].map(row => row.join(',')).join('\n');
+    const lines = [header, ...rows].map(row => row.join(','));
+    if (hasTargets) {
+      // summary block (fix #22) after a blank line
+      lines.push('',
+        ['Expected growth rule', q(g.rule ? describeRule(g.rule) : 'None (student targets only)')].join(','),
+        ['Rule set after post-tests began', g.lateUsed ? 'Yes' : 'No'].join(','),
+        ['Students with a target', targets.n].join(','),
+        ['Students met target', targets.metCount].join(','),
+        ['Percent met', targets.pctMet.toFixed(1)].join(','),
+        ['Highest TIA standard reached', targets.tier || 'Below Recognized'].join(','),
+        ['TIA standards (reference)', q([...TIA_STANDARDS].reverse().map(s => `${s.label} ${s.min}%`).join(' · '))].join(','),
+        ['Changes locked since', g.lockedAt ? q(new Date(g.lockedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })) : 'Not locked'].join(','));
+    }
+    const csv = lines.join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     a.download = `TIA_Growth_Report_${schoolYear.replace(/\//g, '-')}.csv`;
@@ -5938,6 +5979,26 @@ function TIAGrowthReport({ profile, onBack }) {
           </p>
         </div>
 
+        {/* Expected growth (fix #22) */}
+        {selectedClass && (
+          <div style={cardSt}>
+            <h3 style={h3St}>3. Expected growth</h3>
+            {!growth ? <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>Loading…</p> : !growth.configId ? (
+              <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>This class has no passes yet.</p>
+            ) : (
+              <>
+                <GrowthRuleSection growth={growth} teacherId={profile.id} onSaved={reloadGrowth} bare />
+                <p style={{ margin: '12px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                  {Object.keys(growth.overrides).length
+                    ? `${Object.keys(growth.overrides).length} student target${Object.keys(growth.overrides).length === 1 ? '' : 's'} set. `
+                    : 'No individual student targets. '}
+                  Student targets are set on the class's Expected Growth page.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
         {error && (
           <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#dc2626', fontSize: '13px' }}>
             {error}
@@ -5961,7 +6022,9 @@ function TIAGrowthReport({ profile, onBack }) {
   }
 
   // ── Report view ─────────────────────────────────────────────────────────────
-  const { classSummary, studentRows, standardRows, preAssessmentName, postAssessmentName } = reportData;
+  const { classSummary, studentRows, standardRows, preAssessmentName, postAssessmentName, hasTargets, targets, growth: rg } = reportData;
+  const fmtDateShort = ts => new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const lateSet = rg.log.find(l => l.after_post_tests);
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px 60px' }}>
@@ -6031,6 +6094,12 @@ function TIAGrowthReport({ profile, onBack }) {
             &nbsp;&nbsp;→&nbsp;&nbsp;
             Post-Assessment: <strong style={{ color: '#1e293b' }}>{postAssessmentName}</strong>
           </div>
+          {rg.rule && (
+            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+              Expected growth: <strong style={{ color: '#1e293b' }}>{describeRule(rg.rule)}</strong>
+              {lateSet && <> &nbsp;·&nbsp; Rule set {fmtDateShort(lateSet.changed_at)}, after post-tests began {fmtDateShort(rg.lockedAt)}.</>}
+            </div>
+          )}
         </div>
 
         {/* Class summary */}
@@ -6055,6 +6124,33 @@ function TIAGrowthReport({ profile, onBack }) {
               </div>
             ))}
           </div>
+
+          {/* Expected growth vs TIA standards (fix #22) */}
+          {hasTargets && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '10px', marginTop: '10px' }}>
+                <div style={{ background: '#E5F4F5', border: '1px solid #A8D8DB', borderRadius: '9px', padding: '14px 10px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', lineHeight: 1.3 }}>Met Expected Growth</div>
+                  <div style={{ fontSize: '22px', fontWeight: 800, color: '#2E7F84', lineHeight: 1 }}>{targets.metCount} / {targets.n}</div>
+                  <div style={{ fontSize: '12px', color: '#2E7F84', fontWeight: 600, marginTop: '2px' }}>{fmt1(targets.pctMet)}%</div>
+                </div>
+                <TiaStandardBar pctMet={targets.pctMet} tier={targets.tier} />
+              </div>
+              {targets.n < classSummary.n && (
+                <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#b45309' }}>
+                  {classSummary.n - targets.n} student{classSummary.n - targets.n === 1 ? ' has' : 's have'} no target and {classSummary.n - targets.n === 1 ? "isn't" : "aren't"} counted.
+                </p>
+              )}
+              <p style={{ margin: '8px 0 0', fontSize: '11px', color: '#94a3b8' }}>
+                Statewide performance standards shown for reference. Designation is determined by your district's approved local system.
+              </p>
+            </>
+          )}
+          {!hasTargets && (
+            <p className="tia-no-print" style={{ margin: '10px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+              Set an expected-growth rule on the class's Expected Growth page to show how many students met their expected growth.
+            </p>
+          )}
         </div>
 
         {/* Student-level data table */}
@@ -6077,7 +6173,7 @@ function TIAGrowthReport({ profile, onBack }) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: '#F4F7FA' }}>
-                {['Student Token', 'Student Name', 'Pre-Score', 'Post-Score', 'Points of Growth', 'Grew'].map(h => (
+                {['Student Token', 'Student Name', 'Pre-Score', 'Post-Score', 'Points of Growth', ...(hasTargets ? ['Target', 'Met Target'] : []), 'Grew'].map(h => (
                   <th key={h} className={h === 'Student Name' ? 'tia-name-col' : undefined} style={{
                     padding: '10px 14px',
                     textAlign: h === 'Student Token' || h === 'Student Name' ? 'left' : 'center',
@@ -6092,8 +6188,11 @@ function TIAGrowthReport({ profile, onBack }) {
               {studentRows.map(r => {
                 const grew = r.growth > 0;
                 const flat = r.growth === 0;
-                const bg   = grew ? '#f0fdf4' : r.growth < 0 ? '#fff7f7' : 'white';
-                const bdr  = grew ? '#bbf7d0' : r.growth < 0 ? '#fecaca' : '#f1f5f9';
+                // with targets, rows are tinted by Met Target (fix #22); otherwise by Grew
+                const good = hasTargets ? r.met === true : grew;
+                const bad  = hasTargets ? r.met === false : r.growth < 0;
+                const bg   = good ? '#f0fdf4' : bad ? '#fff7f7' : 'white';
+                const bdr  = good ? '#bbf7d0' : bad ? '#fecaca' : '#f1f5f9';
                 return (
                   <tr key={r.preToken} style={{ background: bg, borderBottom: `1px solid ${bdr}` }}>
                     <td style={{ padding: '9px 14px', fontFamily: 'monospace', fontSize: '13px', fontWeight: 600, color: '#374151' }}>{r.preToken}</td>
@@ -6116,6 +6215,20 @@ function TIAGrowthReport({ profile, onBack }) {
                     <td style={{ padding: '9px 14px', textAlign: 'center', fontWeight: 700, color: grew ? '#15803d' : r.growth < 0 ? '#dc2626' : '#64748b' }}>
                       {signedPct(r.growth)}
                     </td>
+                    {hasTargets && (
+                      <td style={{ padding: '9px 14px', textAlign: 'center', color: '#374151' }}
+                        title={r.targetSource === 'override' ? 'Student target (replaces the rule for this student)' : undefined}>
+                        {r.target != null ? `${r.target.toFixed(1)}%${r.targetSource === 'override' ? ' ✱' : ''}` : '—'}
+                      </td>
+                    )}
+                    {hasTargets && (
+                      <td style={{ padding: '9px 14px', textAlign: 'center' }}>
+                        {r.met == null ? '—' : (
+                          <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 700,
+                            background: r.met ? '#dcfce7' : '#fee2e2', color: r.met ? '#15803d' : '#dc2626' }}>{r.met ? 'Yes' : 'No'}</span>
+                        )}
+                      </td>
+                    )}
                     <td style={{ padding: '9px 14px', textAlign: 'center' }}>
                       <span style={{
                         display: 'inline-block', padding: '3px 10px', borderRadius: '999px',
@@ -6131,6 +6244,9 @@ function TIAGrowthReport({ profile, onBack }) {
               })}
             </tbody>
           </table>
+          {hasTargets && studentRows.some(r => r.targetSource === 'override') && (
+            <p style={{ margin: '8px 0 0', fontSize: '11px', color: '#64748b' }}>✱ Student target: replaces the rule's target for that student.</p>
+          )}
         </div>
 
         {/* Standards breakdown */}
@@ -6170,6 +6286,23 @@ function TIAGrowthReport({ profile, onBack }) {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Expected-growth rule history (fix #22) */}
+        {(rg.log.length > 0 || (hasTargets && rg.lockedAt)) && (
+          <div style={{ marginBottom: '40px' }}>
+            <h2 style={{ margin: '0 0 10px', fontSize: '13px', fontWeight: 700, color: '#2E7F84', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
+              Expected-Growth Rule History
+            </h2>
+            <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '12px', color: '#374151', lineHeight: 1.8 }}>
+              {rg.log.map((l, i) => (
+                <li key={i}><span style={{ color: '#94a3b8' }}>{new Date(l.changed_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span> · {logLine(l)}</li>
+              ))}
+              {rg.lockedAt && (
+                <li><span style={{ color: '#94a3b8' }}>{new Date(rg.lockedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span> · First post-test submitted; changes locked.</li>
+              )}
+            </ul>
           </div>
         )}
 
