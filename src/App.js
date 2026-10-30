@@ -14,6 +14,7 @@ import { supabase } from './supabaseClient';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
 import GrowthRuleEditor from './GrowthRuleEditor';
+import ExpectedGrowthPage from './ExpectedGrowthPage';
 import { describeRule, validateRule } from './growthTargets';
 import {
   KeyRound, ClipboardList, Volume2, FileText,
@@ -4296,6 +4297,15 @@ function ClassManagePage({ profile, classData, onBack, onNavigate }) {
       onClick: () => onNavigate('access-windows'),
       disabled: false,
     },
+    {
+      id: 'expected-growth',
+      Icon: CheckCircle,
+      title: 'Expected Growth',
+      desc: 'Set the growth each student is expected to make, for TIA reporting. Locks when the first post-test is submitted.',
+      color: '#3D7A5E', bg: '#E6F4ED',
+      onClick: () => onNavigate('expected-growth'),
+      disabled: false,
+    },
   ];
 
   return (
@@ -4719,7 +4729,7 @@ const DASHBOARD_QUOTES = [
 ];
 
 function Dashboard({ profile, onLogout }) {
-  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'tia-report', 'new-class-wizard', 'class-manage', 'access-windows-editor', 'admin'];
+  const VALID_SECTIONS = ['generate-passes', 'my-classes', 'results', 'tia-report', 'new-class-wizard', 'class-manage', 'access-windows-editor', 'expected-growth-editor', 'admin'];
   // Old URLs / history entries for removed screens → their replacement.
   const LEGACY_SECTIONS = { 'create-assessment': 'new-class-wizard' };
 
@@ -4822,7 +4832,7 @@ function Dashboard({ profile, onLogout }) {
 
   // class-manage and access-windows-editor require a selected class.
   useEffect(() => {
-    if ((section === 'class-manage' || section === 'access-windows-editor') && !selectedClass) setSection('my-classes');
+    if ((section === 'class-manage' || section === 'access-windows-editor' || section === 'expected-growth-editor') && !selectedClass) setSection('my-classes');
   }, [section, selectedClass]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const schoolLine = profile.school ? ` · ${profile.school}` : profile.district ? ` · ${profile.district}` : '';
@@ -5006,7 +5016,7 @@ function Dashboard({ profile, onLogout }) {
             { id: 'tia-report', label: 'TIA Report' },
             ...(isAdmin ? [{ id: 'admin', label: '⚙ Admin' }] : []),
           ].map(({ id, label }) => {
-            const active = section === id || (id === 'my-classes' && (section === 'new-class-wizard' || section === 'class-manage' || section === 'access-windows-editor'));
+            const active = section === id || (id === 'my-classes' && (section === 'new-class-wizard' || section === 'class-manage' || section === 'access-windows-editor' || section === 'expected-growth-editor'));
             return (
               <button
                 key={id}
@@ -5113,6 +5123,8 @@ function Dashboard({ profile, onLogout }) {
               setSection('generate-passes');
             } else if (action === 'access-windows') {
               setSection('access-windows-editor');
+            } else if (action === 'expected-growth') {
+              setSection('expected-growth-editor');
             }
           }}
         />
@@ -5126,6 +5138,9 @@ function Dashboard({ profile, onLogout }) {
           classData={selectedClass}
           onBack={() => setSection('class-manage')}
         />
+      )}
+      {section === 'expected-growth-editor' && selectedClass && (
+        <ExpectedGrowthPage profile={profile} classData={selectedClass} onBack={() => setSection('class-manage')} />
       )}
 
       {section === 'my-classes' && (
