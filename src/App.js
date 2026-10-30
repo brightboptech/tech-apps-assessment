@@ -13,6 +13,8 @@ import { grade8Questions } from './grade8Questions';
 import { supabase } from './supabaseClient';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { buildStandards, STANDARD_LABELS } from './assessmentStandards';
+import GrowthRuleEditor from './GrowthRuleEditor';
+import { describeRule, validateRule } from './growthTargets';
 import {
   KeyRound, ClipboardList, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, Archive, RotateCcw, ChevronDown, ChevronRight,
@@ -2279,6 +2281,18 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
   const [wizSchedTz, setWizSchedTz]               = useState(() => localStorage.getItem('scheduleTimezone') || Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [wizSchedShowTzPicker, setWizSchedShowTzPicker] = useState(false);
   const [wizSchedError, setWizSchedError]         = useState('');
+  // Optional expected-growth rule (fix #22); saved with set_growth_rule after the class is created
+  const [growthOpen, setGrowthOpen]           = useState(false);
+  const [growthRule, setGrowthRule]           = useState(null);
+  const [growthSaved, setGrowthSaved]         = useState(false);
+  const [growthSaveError, setGrowthSaveError] = useState('');
+  const lastRuleKey = `tgcGrowthRule:${profile.id}`;
+  const toggleGrowth = () => {
+    if (!growthOpen && growthRule == null) {        // first open: offer this teacher's last rule
+      try { const last = JSON.parse(localStorage.getItem(lastRuleKey)); if (last && !validateRule(last)) setGrowthRule(last); } catch {}
+    }
+    setGrowthOpen(o => !o);
+  };
 
   // ── Lookup helper: find existing assessment_config for a class name ─────────
   const lookupExistingConfig = async (cn) => {
@@ -2489,6 +2503,8 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
 
   const handleGenerate = async () => {
     if (totalQ === 0 && !existingAcSummary) { setGenError('Select at least one strand.'); return; }
+    const growthErr = existingAcSummary ? '' : validateRule(growthRule);
+    if (growthErr) { setGenError('Expected growth: ' + growthErr); return; }
     setGenerating(true);
     setGenError('');
 
@@ -2572,6 +2588,13 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
         p_token_question_ids: perTokenIds,
       });
       if (attachErr) { setGenError('Could not save question config: ' + attachErr.message); setGenerating(false); return; }
+
+      // Optional expected-growth rule (fix #22). A failure here doesn't undo the class.
+      if (growthRule && acId && !existingAcSummary) {
+        const { error: ruleErr } = await supabase.rpc('set_growth_rule', { p_config: acId, p_rule: growthRule });
+        if (ruleErr) setGrowthSaveError(ruleErr.message);
+        else { setGrowthSaved(true); try { localStorage.setItem(lastRuleKey, JSON.stringify(growthRule)); } catch {} }
+      }
 
       // Access windows buffered in Step 3 — attach_assessment_config returns the config id directly.
       if (schedMode === 'schedule' && pendingWindows.length > 0 && acId) {
@@ -2988,6 +3011,29 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
               )}
             </div>
 
+            {/* Expected growth (optional, fix #22) */}
+            <div style={{ marginBottom: '32px' }}>
+              <button type="button" onClick={toggleGrowth}
+                style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                {growthOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                Expected growth <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional)</span>
+              </button>
+              {!growthOpen && (
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                  {growthRule ? describeRule(growthRule)
+                    : 'Set the growth each student is expected to make, for TIA reporting. You can add or change it later from the class page until the first post-test.'}
+                </p>
+              )}
+              {growthOpen && (
+                <>
+                  <p style={{ margin: '4px 0 10px', fontSize: '12px', color: '#64748b' }}>
+                    Used to show how many students met their expected growth. It locks once the first post-test is submitted.
+                  </p>
+                  <GrowthRuleEditor value={growthRule} onChange={setGrowthRule} />
+                </>
+              )}
+            </div>
+
             {genError && <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '16px' }}>{genError}</p>}
 
             <button
@@ -3017,6 +3063,14 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
             <p style={{ margin: '0 0 28px', fontSize: '13px', color: '#94a3b8' }}>
               {count} students &nbsp;·&nbsp; {actualQuestionCount ?? totalQ} questions &nbsp;·&nbsp; Pre-test + Post-test passes ready
             </p>
+            {growthSaved && (
+              <p style={{ margin: '-16px 0 24px', fontSize: '13px', color: '#3D6B8A' }}>Expected growth: {describeRule(growthRule)}</p>
+            )}
+            {growthSaveError && (
+              <p style={{ margin: '-16px 0 24px', fontSize: '13px', color: '#b45309' }}>
+                Your class was created, but the expected-growth rule couldn't be saved ({growthSaveError}). You can set it later from the class page.
+              </p>
+            )}
             <button
               onClick={() => onDone({ className: className.trim(), grade, count, expiresAt: generatedExpiresAt })}
               style={{ ...btnPrimary, background: 'linear-gradient(135deg, #3D7A5E 0%, #4E9A7A 100%)', padding: '12px 32px' }}
