@@ -3249,7 +3249,9 @@ function FeedbackPanel({ profile, section, open, onClose }) {
       {/* Panel */}
       <div style={{
         position: 'fixed', top: 0, right: open ? 0 : -panelW - 20,
-        width: panelW, height: '100vh', zIndex: 8500,
+        width: panelW, zIndex: 8500,
+        // dvh tracks the visible viewport on iPad/mobile Safari, with vh as the fallback.
+        height: (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('height', '100dvh')) ? '100dvh' : '100vh',
         background: 'white', boxShadow: '-4px 0 24px rgba(0,0,0,0.16)',
         display: 'flex', flexDirection: 'column',
         transition: 'right 0.25s cubic-bezier(.4,0,.2,1)',
@@ -5303,6 +5305,11 @@ function Dashboard({ profile, onLogout }) {
           return (
             <div style={{
               width: '360px', height: helpView === 'faq' ? '520px' : '560px',
+              // Panel sits ~200px above the screen bottom (24px offset + HELP and
+              // FEEDBACK buttons + gaps); keep 24px clear at the top. dvh tracks the
+              // visible viewport on iPad/mobile, with vh as the fallback.
+              maxHeight: (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('height', '100dvh'))
+                ? 'calc(100dvh - 224px)' : 'calc(100vh - 224px)',
               background: 'white', borderRadius: '16px',
               boxShadow: '0 8px 40px rgba(0,0,0,0.18)', border: '1px solid #e2e8f0',
               display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -5339,7 +5346,7 @@ function Dashboard({ profile, onLogout }) {
               )}
 
               {/* Scrollable content area */}
-              <div style={{ flex: 1, overflowY: 'auto', padding: helpView === 'faq' ? '8px 0' : '14px' }}>
+              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: helpView === 'faq' ? '8px 0' : '14px' }}>
 
                 {/* ── FAQ list ── */}
                 {helpView === 'faq' && (
