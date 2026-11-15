@@ -18,6 +18,7 @@ import ExpectedGrowthPage, { GrowthRuleSection } from './ExpectedGrowthPage';
 import { describeRule, validateRule, summarizeTargets, TIA_STANDARDS } from './growthTargets';
 import { loadClassGrowth, logLine } from './classGrowth';
 import TiaStandardBar from './TiaStandardBar';
+import VideoGuide from './VideoGuide';
 import {
   KeyRound, ClipboardList, Volume2, FileText,
   BarChart2, Printer, Clock, Lock, CheckCircle, Layers, Archive, RotateCcw, ChevronDown, ChevronRight,
@@ -1985,6 +1986,7 @@ function GeneratePasses({ profile, onBack, paymentSessionId, initialClass = null
                 {passes.length} student{passes.length !== 1 ? 's' : ''} &nbsp;·&nbsp; {passes.length * 2} passes ({passes.length} pre-test + {passes.length} post-test)
                 {passes[0]?.studentNum > 1 && <span> &nbsp;·&nbsp; Students {passes[0].studentNum}–{passes[passes.length - 1].studentNum}</span>}
               </p>
+              <VideoGuide name="print-student-passes" style={{ marginTop: '2px' }} />
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
@@ -2700,7 +2702,10 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
         {/* ── STEP 1: Create a Class ─────────────────────────────────────── */}
         {step === 1 && (
           <>
-            <h2 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>Create a Class</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', margin: '0 0 4px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>Create a Class</h2>
+              <VideoGuide name="create-a-class" />
+            </div>
             <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>Step 1 of 3</p>
 
             <div style={{ marginBottom: '20px' }}>
@@ -2741,7 +2746,10 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
         {/* ── STEP 2: Add Students ───────────────────────────────────────── */}
         {step === 2 && (
           <>
-            <h2 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>Add Students</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', margin: '0 0 4px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>Add Students</h2>
+              <VideoGuide name="create-a-class" />
+            </div>
             <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>
               Step 2 of 3 &nbsp;·&nbsp; {className} &nbsp;·&nbsp; {gradeDisplay(grade)}
             </p>
@@ -2844,7 +2852,10 @@ function NewClassWizard({ profile, paymentSessionId, onDone }) {
         )}
         {step === 3 && !existingAcSummary && (
           <>
-            <h2 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>Set Up Assessment</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', margin: '0 0 4px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#1e293b' }}>Set Up Assessment</h2>
+              <VideoGuide name="create-a-class" />
+            </div>
             <p style={{ margin: '0 0 24px', color: '#64748b', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span>Step 3 of 3 &nbsp;·&nbsp; {className} &nbsp;·&nbsp; {gradeDisplay(grade)}</span>
               {verifiedSession && (
@@ -4653,6 +4664,7 @@ function ResultsDashboard({ profile, onBack }) {
       <h2 style={{ margin: '0 0 6px', color: '#3D6B8A', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <BarChart2 size={22} color="#3D6B8A" strokeWidth={1.75} />
         Assessment Results
+        <VideoGuide name="view-results" style={{ marginLeft: 'auto', fontSize: '13px' }} />
       </h2>
       <p style={{ margin: '0 0 28px', color: '#888', fontSize: '14px' }}>
         {profile.email === ADMIN_EMAIL ? 'All classes across the district' : 'Your classes'}
@@ -4846,9 +4858,10 @@ function Dashboard({ profile, onLogout }) {
     {
       category: 'Getting Started',
       items: [
-        { q: 'How do I create my first assessment?', a: 'Click + New Class & Assessment in the nav bar. Step 1: enter a class name and grade level. Step 2: enter the number of students (and optionally apply a promo code). Step 3: choose which TEKS strands to include and how many questions per standard (1–3), then click Generate.' },
-        { q: 'How do I create a class?', a: 'Click + New Class & Assessment in the nav bar. Work through the 3-step wizard — class name and grade, number of students, then assessment setup. This creates your class with pre-test and post-test passes for each student.' },
-        { q: 'How do students log in?', a: 'Students go to techgrowthcheck.com and enter their 8-character pass code, then click Begin Assessment. You can print pass sheets or display QR codes for students to scan.' },
+        { video: 'create-a-class', q: 'How do I create my first assessment?', a: 'Click + New Class & Assessment in the nav bar. Step 1: enter a class name and grade level. Step 2: enter the number of students (and optionally apply a promo code). Step 3: choose which TEKS strands to include and how many questions per standard (1–3), then click Generate.' },
+        { video: 'create-a-class', q: 'How do I create a class?', a: 'Click + New Class & Assessment in the nav bar. Work through the 3-step wizard — class name and grade, number of students, then assessment setup. This creates your class with pre-test and post-test passes for each student.' },
+        { video: 'print-student-passes', q: 'How do I print student passes?', a: 'Go to My Classes, click your class, then click Passes & QR Codes. Click Print Pre-Test Passes to print one pass per student with their code and QR code. Save Print Post-Test Passes for after instruction. Print Master Sheet gives you a list of every code.' },
+        { video: 'student-takes-test', q: 'How do students log in?', a: 'Students go to techgrowthcheck.com and enter their 8-character pass code, then click Begin Assessment. You can print pass sheets or display QR codes for students to scan.' },
         { q: 'How long are student passes valid?', a: "Passes are valid for 1 year from when they're created, so a fall pre-test and spring post-test are both covered." },
       ],
     },
@@ -4870,9 +4883,9 @@ function Dashboard({ profile, onLogout }) {
     {
       category: 'Results & Reporting',
       items: [
-        { q: "How do I see my students' results?", a: "Go to My Results from the dashboard. Select a class to see each student's pre-test and post-test scores side by side with growth calculated in percentage points." },
-        { q: 'How do I download results?', a: 'In My Results, click Export CSV to download a spreadsheet of all scores formatted for TIA reporting.' },
-        { q: 'How do I generate a TIA Growth Report?', a: 'Go to TIA Growth Report from the dashboard. Select a pre-assessment and post-assessment, fill in your report header, and click Generate. The report includes class summary, student-level data, and standards breakdown — ready to print or export as PDF.' },
+        { video: 'view-results', q: "How do I see my students' results?", a: "Go to My Results from the dashboard. Select a class to see each student's pre-test and post-test scores side by side with growth calculated in percentage points." },
+        { q: 'How do I download results?', a: 'In My Results, click a class, then click Download CSV for TIA Reporting to download a spreadsheet of all scores formatted for TIA reporting.' },
+        { video: 'tia-report', q: 'How do I generate a TIA Growth Report?', a: 'Go to TIA Report from the dashboard. Select your class, fill in your report header, and click Generate Report. The report includes class summary, student-level data, and standards breakdown — ready to print or export as PDF.' },
       ],
     },
     {
@@ -5370,7 +5383,10 @@ function Dashboard({ profile, onLogout }) {
                                 </button>
                                 {open && (
                                   <div style={{ padding: '0 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
-                                    <div style={{ paddingTop: '10px' }}>{item.a}</div>
+                                    <div style={{ paddingTop: '10px' }}>
+                                      {item.video && <VideoGuide name={item.video} inline />}
+                                      {item.a}
+                                    </div>
                                     <div style={{ marginTop: '6px', fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item._cat}</div>
                                   </div>
                                 )}
@@ -5407,6 +5423,7 @@ function Dashboard({ profile, onLogout }) {
                                       </button>
                                       {open && (
                                         <div style={{ padding: '10px 12px 12px', fontSize: '13px', color: '#475569', lineHeight: 1.6, background: '#F8FAFC', borderTop: '1px solid #e8edf2' }}>
+                                          {item.video && <VideoGuide name={item.video} inline />}
                                           {item.a}
                                         </div>
                                       )}
@@ -5933,7 +5950,10 @@ function TIAGrowthReport({ profile, onBack }) {
           ← Back to Dashboard
         </button>
         <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ margin: '0 0 4px', fontSize: '22px', color: '#1e293b', fontWeight: 800 }}>TIA Growth Report</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', margin: '0 0 4px' }}>
+            <h2 style={{ margin: 0, fontSize: '22px', color: '#1e293b', fontWeight: 800 }}>TIA Growth Report</h2>
+            <VideoGuide name="tia-report" />
+          </div>
           <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
             Generate a printable pre-to-post growth report for Texas Teacher Incentive Allotment designation evidence.
           </p>
