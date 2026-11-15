@@ -345,6 +345,21 @@ function getQuestionsForGrade(grade) {
   return [];
 }
 
+// Question ID → { id, strand } of the standard it belongs to, using buildStandards' grouping.
+// The grade comes from the ID itself (TA-4-…, TA-K-…). Built once per grade.
+const standardIndexByGrade = {};
+function standardForQuestion(questionId) {
+  const g = String(questionId).split('-')[1];
+  if (!g) return null;
+  if (!standardIndexByGrade[g]) {
+    const index = {};
+    buildStandards(getQuestionsForGrade(g === 'K' ? 0 : Number(g))).forEach(({ strand, standards }) =>
+      standards.forEach(std => std.questions.forEach(q => { index[q.id] = { id: std.id, strand }; })));
+    standardIndexByGrade[g] = index;
+  }
+  return standardIndexByGrade[g][questionId] ?? null;
+}
+
 // ── Teacher / Admin UI ────────────────────────────────────────────────────────
 
 
@@ -5851,22 +5866,24 @@ function TIAGrowthReport({ profile, onBack }) {
         supabase.from('question_responses').select('assessment_id, question_id, is_correct').in('assessment_id', postRespIds),
       ]);
 
+      // Roll each question up into its standard (same grouping the wizard uses), so a class
+      // with 2-3 questions per standard gets one row per standard, not one per question.
       const stdStats = {};
-      (preQR ?? []).forEach(qr => {
-        if (!stdStats[qr.question_id]) stdStats[qr.question_id] = { preC: 0, preT: 0, postC: 0, postT: 0 };
-        stdStats[qr.question_id].preT++;
-        if (qr.is_correct) stdStats[qr.question_id].preC++;
-      });
-      (postQR ?? []).forEach(qr => {
-        if (!stdStats[qr.question_id]) stdStats[qr.question_id] = { preC: 0, preT: 0, postC: 0, postT: 0 };
-        stdStats[qr.question_id].postT++;
-        if (qr.is_correct) stdStats[qr.question_id].postC++;
-      });
+      const tally = (qr, phase) => {
+        const std = standardForQuestion(qr.question_id);
+        const key = std?.id ?? qr.question_id;
+        if (!stdStats[key]) stdStats[key] = { strand: std?.strand ?? null, preC: 0, preT: 0, postC: 0, postT: 0 };
+        stdStats[key][`${phase}T`]++;
+        if (qr.is_correct) stdStats[key][`${phase}C`]++;
+      };
+      (preQR ?? []).forEach(qr => tally(qr, 'pre'));
+      (postQR ?? []).forEach(qr => tally(qr, 'post'));
 
       const standardRows = Object.entries(stdStats)
-        .map(([qid, s]) => ({
-          qid,
-          label:   STANDARD_LABELS[qid] ?? qid,
+        .map(([stdId, s]) => ({
+          stdId,
+          // No name on file → strand name (a missing name beats a wrong one).
+          label:   STANDARD_LABELS[stdId] ?? s.strand ?? stdId,
           preAvg:  s.preT  > 0 ? (s.preC  / s.preT)  * 100 : null,
           postAvg: s.postT > 0 ? (s.postC / s.postT) * 100 : null,
           growth:  s.preT > 0 && s.postT > 0 ? ((s.postC / s.postT) - (s.preC / s.preT)) * 100 : null,
@@ -6300,8 +6317,8 @@ function TIAGrowthReport({ profile, onBack }) {
                   const grew = s.growth !== null && s.growth > 0;
                   const declined = s.growth !== null && s.growth < 0;
                   return (
-                    <tr key={s.qid} style={{ background: i % 2 === 0 ? 'white' : '#fafbfc', borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '9px 14px', fontFamily: 'monospace', fontSize: '12px', fontWeight: 600, color: '#374151', whiteSpace: 'nowrap' }}>{s.qid}</td>
+                    <tr key={s.stdId} style={{ background: i % 2 === 0 ? 'white' : '#fafbfc', borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '9px 14px', fontFamily: 'monospace', fontSize: '12px', fontWeight: 600, color: '#374151', whiteSpace: 'nowrap' }}>{s.stdId}</td>
                       <td style={{ padding: '9px 14px', color: '#374151' }}>{s.label}</td>
                       <td style={{ padding: '9px 14px', textAlign: 'center', color: '#64748b' }}>{s.preAvg  !== null ? fmtPct(s.preAvg)  : '—'}</td>
                       <td style={{ padding: '9px 14px', textAlign: 'center', color: '#64748b' }}>{s.postAvg !== null ? fmtPct(s.postAvg) : '—'}</td>
